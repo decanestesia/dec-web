@@ -1,0 +1,3176 @@
+{
+  "version": 1,
+  "lastUpdated": "2026-04-16",
+  "drugs": [
+    {
+      "name": "Norepinefrina",
+      "description": "Catecolamina con potente efecto α1 y leve β1. Primera línea en shock séptico, distributivo y vasopléjico. Aumenta PAM por incremento de RVS preservando el GC.",
+      "ampulePresentation": "4 mg / 4 mL",
+      "ampuleAmount": 4,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 4,
+      "standardDilutionMl": 250,
+      "typicalDoseUnit": "µg/kg/min",
+      "doseRanges": [
+        {
+          "label": "Inicio",
+          "min": 0.01,
+          "max": 0.05,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 0.05,
+          "max": 0.3,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "Máximo",
+          "min": 0.5,
+          "max": 3.3,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "Inicio",
+          "min": 0.6,
+          "max": 3.0,
+          "unit": "µg/kg/h"
+        }
+      ],
+      "category": "Vasopresores"
+    },
+    {
+      "name": "Epinefrina (Adrenalina)",
+      "description": "Catecolamina endógena con actividad α y β dosis-dependiente. Dosis bajas: efecto β; dosis altas: efecto α. Anafilaxia, paro cardíaco, shock refractario, broncoespasmo severo.",
+      "ampulePresentation": "1 mg / 1 mL",
+      "ampuleAmount": 1,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 1,
+      "standardDilutionMl": 250,
+      "typicalDoseUnit": "µg/min",
+      "doseRanges": [
+        {
+          "label": "Efecto β",
+          "min": 1,
+          "max": 4,
+          "unit": "µg/min"
+        },
+        {
+          "label": "Efecto α+β",
+          "min": 5,
+          "max": 20,
+          "unit": "µg/min"
+        },
+        {
+          "label": "Inicio",
+          "min": 0.01,
+          "max": 0.05,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 0.05,
+          "max": 0.3,
+          "unit": "µg/kg/min"
+        }
+      ],
+      "category": "Vasopresores"
+    },
+    {
+      "name": "Fenilefrina",
+      "description": "Agonista α1 puro. Vasoconstricción sin efecto inotrópico directo. Bradicardia refleja. Hipotensión en anestesia neuroaxial, hipotensión sin compromiso del gasto.",
+      "ampulePresentation": "10 mg / 1 mL",
+      "ampuleAmount": 10,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 1,
+      "standardDilutionMl": 250,
+      "typicalDoseUnit": "µg/min",
+      "doseRanges": [
+        {
+          "label": "Inicio",
+          "min": 25,
+          "max": 50,
+          "unit": "µg/min"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 25,
+          "max": 100,
+          "unit": "µg/min"
+        },
+        {
+          "label": "Máximo",
+          "min": 100,
+          "max": 300,
+          "unit": "µg/min"
+        },
+        {
+          "label": "Inicio",
+          "min": 0.25,
+          "max": 0.5,
+          "unit": "µg/kg/min"
+        }
+      ],
+      "category": "Vasopresores"
+    },
+    {
+      "name": "Vasopresina",
+      "description": "ADH sintética. Vasoconstricción no adrenérgica (V1). Adyuvante en shock séptico refractario, shock vasopléjico post-CEC, paro cardíaco.",
+      "ampulePresentation": "20 U / 1 mL",
+      "ampuleAmount": 20,
+      "ampuleUnit": "U",
+      "ampuleVolumeMl": 1,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "U/h",
+      "doseRanges": [
+        {
+          "label": "Shock séptico",
+          "min": 1.2,
+          "max": 2.4,
+          "unit": "U/h"
+        },
+        {
+          "label": "Máximo",
+          "min": 2.4,
+          "max": 2.4,
+          "unit": "U/h"
+        },
+        {
+          "label": "Shock séptico",
+          "min": 0.02,
+          "max": 0.04,
+          "unit": "U/min"
+        }
+      ],
+      "category": "Vasopresores"
+    },
+    {
+      "name": "Dopamina",
+      "description": "Catecolamina con efecto dosis-dependiente: 1-5 dopaminérgico, 5-10 β1, >10 α1. Uso actual limitado; preferida en bradicardia sintomática y bajo gasto con bradicardia.",
+      "ampulePresentation": "200 mg / 5 mL",
+      "ampuleAmount": 200,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 5,
+      "standardDilutionMl": 250,
+      "typicalDoseUnit": "µg/kg/min",
+      "doseRanges": [
+        {
+          "label": "Dopaminérgica",
+          "min": 1,
+          "max": 5,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "β1 (inotrópica)",
+          "min": 5,
+          "max": 10,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "α1 (vasopresora)",
+          "min": 10,
+          "max": 20,
+          "unit": "µg/kg/min"
+        }
+      ],
+      "category": "Vasopresores"
+    },
+    {
+      "name": "Terlipresina",
+      "description": "Análogo de vasopresina con mayor selectividad V1 y T½ más larga. Síndrome hepatorrenal, varices esofágicas sangrantes, shock séptico refractario.",
+      "ampulePresentation": "1 mg / 5 mL",
+      "ampuleAmount": 1,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 5,
+      "standardDilutionMl": 50,
+      "typicalDoseUnit": "µg/min",
+      "doseRanges": [
+        {
+          "label": "Infusión continua",
+          "min": 1.5,
+          "max": 5.0,
+          "unit": "µg/min"
+        },
+        {
+          "label": "Infusión continua",
+          "min": 90,
+          "max": 300,
+          "unit": "µg/h"
+        }
+      ],
+      "category": "Vasopresores"
+    },
+    {
+      "name": "Angiotensina II",
+      "description": "Péptido vasoconstrictor (AT1). Aprobado para shock vasodilatador refractario a catecolaminas en altas dosis. Mecanismo independiente del adrenérgico.",
+      "ampulePresentation": "2.5 mg / 1 mL",
+      "ampuleAmount": 2.5,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 1,
+      "standardDilutionMl": 250,
+      "typicalDoseUnit": "µg/kg/min",
+      "doseRanges": [
+        {
+          "label": "Inicio",
+          "min": 0.02,
+          "max": 0.02,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 0.005,
+          "max": 0.08,
+          "unit": "µg/kg/min"
+        }
+      ],
+      "category": "Vasopresores"
+    },
+    {
+      "name": "Metaraminol",
+      "description": "Simpaticomimético de acción mixta (α1 directo + liberación de norepinefrina). Hipotensión en anestesia espinal/general, shock leve-moderado.",
+      "ampulePresentation": "10 mg / 1 mL",
+      "ampuleAmount": 10,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 1,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "µg/min",
+      "doseRanges": [
+        {
+          "label": "Inicio",
+          "min": 0.5,
+          "max": 5,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 30,
+          "max": 300,
+          "unit": "µg/min"
+        }
+      ],
+      "category": "Vasopresores"
+    },
+    {
+      "name": "Efedrina",
+      "description": "Simpaticomimético de acción mixta (directa e indirecta α y β). Hipotensión perioperatoria y por anestesia neuroaxial. Bolo IV de elección por mantener FC. Taquifilaxia con uso repetido.",
+      "ampulePresentation": "50 mg / 1 mL",
+      "ampuleAmount": 50,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 1,
+      "standardDilutionMl": 10,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo: 5-10 mg IV",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Vasopresores"
+    },
+    {
+      "name": "Dobutamina",
+      "description": "Catecolamina sintética predominantemente β1. Aumenta contractilidad y GC. IC aguda, shock cardiogénico, bajo gasto post-CEC.",
+      "ampulePresentation": "250 mg / 20 mL",
+      "ampuleAmount": 250,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 20,
+      "standardDilutionMl": 250,
+      "typicalDoseUnit": "µg/kg/min",
+      "doseRanges": [
+        {
+          "label": "Inicio",
+          "min": 2,
+          "max": 5,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 5,
+          "max": 15,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "Máximo",
+          "min": 15,
+          "max": 20,
+          "unit": "µg/kg/min"
+        }
+      ],
+      "category": "Inotrópicos"
+    },
+    {
+      "name": "Milrinona",
+      "description": "Inhibidor PDE-III. Inodilatador (↑contractilidad + ↓poscarga). No depende de receptores adrenérgicos. IC con β-bloqueadores crónicos, hipertensión pulmonar, post-CEC.",
+      "ampulePresentation": "10 mg / 10 mL",
+      "ampuleAmount": 10,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 10,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "µg/kg/min",
+      "doseRanges": [
+        {
+          "label": "Inicio",
+          "min": 0.125,
+          "max": 0.25,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 0.25,
+          "max": 0.75,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 15,
+          "max": 45,
+          "unit": "µg/kg/h"
+        }
+      ],
+      "category": "Inotrópicos"
+    },
+    {
+      "name": "Levosimendan",
+      "description": "Sensibilizador al Ca2+ + inhibidor PDE-III. Inotropismo sin aumentar consumo miocárdico de O2, vasodilatación y cardioprotección. IC aguda descompensada, post-CEC.",
+      "ampulePresentation": "12.5 mg / 5 mL",
+      "ampuleAmount": 12.5,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 5,
+      "standardDilutionMl": 500,
+      "typicalDoseUnit": "µg/kg/min",
+      "doseRanges": [
+        {
+          "label": "Mantenimiento",
+          "min": 0.05,
+          "max": 0.2,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 3,
+          "max": 12,
+          "unit": "µg/kg/h"
+        }
+      ],
+      "category": "Inotrópicos"
+    },
+    {
+      "name": "Isoproterenol",
+      "description": "Agonista β1 y β2 puro sin actividad α. Potente cronotrópico e inotrópico con vasodilatación periférica. Bradicardia refractaria, BAV completo (puente a marcapaso), torsades.",
+      "ampulePresentation": "1 mg / 5 mL",
+      "ampuleAmount": 1,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 5,
+      "standardDilutionMl": 250,
+      "typicalDoseUnit": "µg/min",
+      "doseRanges": [
+        {
+          "label": "Inicio",
+          "min": 1,
+          "max": 2,
+          "unit": "µg/min"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 2,
+          "max": 10,
+          "unit": "µg/min"
+        },
+        {
+          "label": "Máximo",
+          "min": 10,
+          "max": 20,
+          "unit": "µg/min"
+        }
+      ],
+      "category": "Inotrópicos"
+    },
+    {
+      "name": "Atropina",
+      "description": "Antimuscarínico. Bradicardia sintomática, BAV de alto grado, intoxicación por organofosforados/colinérgicos, premedicación. Inicio rápido, duración 30-60 min.",
+      "ampulePresentation": "1 mg / 1 mL",
+      "ampuleAmount": 1,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 1,
+      "standardDilutionMl": 10,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo: 0.5-1 mg IV",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Cronotrópicos / Antibradicárdicos"
+    },
+    {
+      "name": "Glicopirrolato",
+      "description": "Antimuscarínico cuaternario que no atraviesa BHE (menos efectos centrales que atropina). Premedicación, antisialagogo, bradicardia, reversión de bloqueo neuromuscular con neostigmina.",
+      "ampulePresentation": "0.2 mg / 1 mL",
+      "ampuleAmount": 0.2,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 1,
+      "standardDilutionMl": 10,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo: 0.1-0.4 mg IV",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Cronotrópicos / Antibradicárdicos"
+    },
+    {
+      "name": "Propofol",
+      "description": "Anestésico IV ultracorto (GABA-A). Inducción rápida (30-40 seg). Sedación UCI, TIVA, procedimientos. Hipotensión dosis-dependiente. Vigilar PRIS (>48h, >4 mg/kg/h).",
+      "ampulePresentation": "200 mg / 20 mL (1%)",
+      "ampuleAmount": 200,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 20,
+      "standardDilutionMl": 20,
+      "typicalDoseUnit": "mg/kg/h",
+      "doseRanges": [
+        {
+          "label": "Sedación UCI",
+          "min": 0.5,
+          "max": 3.0,
+          "unit": "mg/kg/h"
+        },
+        {
+          "label": "TIVA",
+          "min": 4,
+          "max": 12,
+          "unit": "mg/kg/h"
+        },
+        {
+          "label": "Sedación UCI",
+          "min": 8.3,
+          "max": 50,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "TIVA",
+          "min": 66.7,
+          "max": 200,
+          "unit": "µg/kg/min"
+        }
+      ],
+      "category": "Sedantes / Hipnóticos"
+    },
+    {
+      "name": "Etomidato",
+      "description": "Hipnótico imidazólico (GABA-A). Estabilidad cardiovascular notable. Inducción en pacientes inestables. Mioclonías, supresión suprarrenal con dosis única.",
+      "ampulePresentation": "20 mg / 10 mL",
+      "ampuleAmount": 20,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 10,
+      "standardDilutionMl": 10,
+      "typicalDoseUnit": "mg/kg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo inducción: 0.2-0.3 mg/kg",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/kg/h"
+        }
+      ],
+      "category": "Sedantes / Hipnóticos"
+    },
+    {
+      "name": "Midazolam",
+      "description": "BZD de acción corta. Ansiolítico, sedante, amnésico, anticonvulsivante (GABA-A). Premedicación, sedación, estatus epiléptico. Metabolismo hepático CYP3A4.",
+      "ampulePresentation": "50 mg / 10 mL",
+      "ampuleAmount": 50,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 10,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Sedación UCI",
+          "min": 1,
+          "max": 5,
+          "unit": "mg/h"
+        },
+        {
+          "label": "Máximo",
+          "min": 5,
+          "max": 10,
+          "unit": "mg/h"
+        },
+        {
+          "label": "Sedación",
+          "min": 0.02,
+          "max": 0.1,
+          "unit": "mg/kg/h"
+        }
+      ],
+      "category": "Sedantes / Hipnóticos"
+    },
+    {
+      "name": "Lorazepam",
+      "description": "BZD de acción intermedia (GABA-A). Estatus epiléptico, sedación UCI, ansiolisis. Sin metabolitos activos (ventaja en IH). Vehículo con propilenglicol (acidosis si dosis altas prolongadas).",
+      "ampulePresentation": "4 mg / 1 mL",
+      "ampuleAmount": 4,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 1,
+      "standardDilutionMl": 50,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Sedación UCI",
+          "min": 0.5,
+          "max": 3,
+          "unit": "mg/h"
+        },
+        {
+          "label": "Sedación",
+          "min": 0.01,
+          "max": 0.05,
+          "unit": "mg/kg/h"
+        }
+      ],
+      "category": "Sedantes / Hipnóticos"
+    },
+    {
+      "name": "Diazepam",
+      "description": "BZD de larga duración (GABA-A). Estatus epiléptico, abstinencia alcohólica, ansiolisis, sedación. Metabolitos activos prolongan el efecto. Vía IV con precaución (flebitis).",
+      "ampulePresentation": "10 mg / 2 mL",
+      "ampuleAmount": 10,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 2,
+      "standardDilutionMl": 50,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo: 5-10 mg IV",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Sedantes / Hipnóticos"
+    },
+    {
+      "name": "Dexmedetomidina",
+      "description": "Agonista α2 altamente selectivo. Sedación consciente, analgesia leve y simpaticolisis sin depresión respiratoria. Bradicardia e hipotensión. Ideal para extubación planificada y delirium.",
+      "ampulePresentation": "200 µg / 2 mL",
+      "ampuleAmount": 200,
+      "ampuleUnit": "µg",
+      "ampuleVolumeMl": 2,
+      "standardDilutionMl": 50,
+      "typicalDoseUnit": "µg/kg/h",
+      "doseRanges": [
+        {
+          "label": "Inicio",
+          "min": 0.2,
+          "max": 0.7,
+          "unit": "µg/kg/h"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 0.2,
+          "max": 1.4,
+          "unit": "µg/kg/h"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 0.003,
+          "max": 0.023,
+          "unit": "µg/kg/min"
+        }
+      ],
+      "category": "Sedantes / Hipnóticos"
+    },
+    {
+      "name": "Clonidina",
+      "description": "Agonista α2 central. Sedación, analgesia adyuvante, manejo del síndrome de abstinencia, hipertensión. Menor selectividad α2 que dexmedetomidina.",
+      "ampulePresentation": "150 µg / 1 mL",
+      "ampuleAmount": 150,
+      "ampuleUnit": "µg",
+      "ampuleVolumeMl": 1,
+      "standardDilutionMl": 50,
+      "typicalDoseUnit": "µg/h",
+      "doseRanges": [
+        {
+          "label": "Sedación",
+          "min": 0.5,
+          "max": 2,
+          "unit": "µg/kg/h"
+        },
+        {
+          "label": "Sedación",
+          "min": 30,
+          "max": 150,
+          "unit": "µg/h"
+        }
+      ],
+      "category": "Sedantes / Hipnóticos"
+    },
+    {
+      "name": "Ketamina",
+      "description": "Anestésico disociativo (antagonista NMDA). Analgesia profunda, amnesia, mantiene reflejos y ventilación. Simpaticomimético. Analgesia subanestésica, inducción en inestabilidad, broncoespasmo, depresión refractaria.",
+      "ampulePresentation": "500 mg / 10 mL",
+      "ampuleAmount": 500,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 10,
+      "standardDilutionMl": 250,
+      "typicalDoseUnit": "mg/kg/h",
+      "doseRanges": [
+        {
+          "label": "Analgesia sub.",
+          "min": 0.1,
+          "max": 0.3,
+          "unit": "mg/kg/h"
+        },
+        {
+          "label": "Sedación",
+          "min": 0.5,
+          "max": 2.0,
+          "unit": "mg/kg/h"
+        },
+        {
+          "label": "Analgesia sub.",
+          "min": 1.7,
+          "max": 5,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "Sedación",
+          "min": 8.3,
+          "max": 33.3,
+          "unit": "µg/kg/min"
+        }
+      ],
+      "category": "Sedantes / Hipnóticos"
+    },
+    {
+      "name": "Tiopental",
+      "description": "Barbitúrico ultracorto (GABA-A). Inducción anestésica, neuroprotección y estatus epiléptico refractario. Depresión cardiovascular y respiratoria. Acumulación en infusión.",
+      "ampulePresentation": "500 mg (liofilizado)",
+      "ampuleAmount": 500,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 0,
+      "standardDilutionMl": 500,
+      "typicalDoseUnit": "mg/kg/h",
+      "doseRanges": [
+        {
+          "label": "Coma barbitúrico",
+          "min": 1,
+          "max": 5,
+          "unit": "mg/kg/h"
+        },
+        {
+          "label": "Coma barbitúrico",
+          "min": 16.7,
+          "max": 83.3,
+          "unit": "µg/kg/min"
+        }
+      ],
+      "category": "Sedantes / Hipnóticos"
+    },
+    {
+      "name": "Remifentanilo",
+      "description": "Opioide µ ultracorto metabolizado por esterasas plasmáticas. T½ contexto-sensitiva 3-4 min. TIVA ideal y procedimientos con despertar rápido. Requiere analgesia de transición.",
+      "ampulePresentation": "2 mg (liofilizado)",
+      "ampuleAmount": 2,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 0,
+      "standardDilutionMl": 40,
+      "typicalDoseUnit": "µg/kg/min",
+      "doseRanges": [
+        {
+          "label": "Analgesia",
+          "min": 0.025,
+          "max": 0.1,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "TIVA",
+          "min": 0.1,
+          "max": 0.5,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "TIVA",
+          "min": 6,
+          "max": 30,
+          "unit": "µg/kg/h"
+        }
+      ],
+      "category": "Opioides"
+    },
+    {
+      "name": "Fentanilo",
+      "description": "Opioide µ lipofílico, 100x morfina. Inicio 1-2 min IV, duración 30-60 min. Analgesia intraoperatoria y UCI. Acumulación en infusiones prolongadas.",
+      "ampulePresentation": "500 µg / 10 mL",
+      "ampuleAmount": 500,
+      "ampuleUnit": "µg",
+      "ampuleVolumeMl": 10,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "µg/kg/h",
+      "doseRanges": [
+        {
+          "label": "Analgesia",
+          "min": 0.5,
+          "max": 2.0,
+          "unit": "µg/kg/h"
+        },
+        {
+          "label": "Quirúrgica",
+          "min": 2,
+          "max": 10,
+          "unit": "µg/kg/h"
+        },
+        {
+          "label": "Analgesia",
+          "min": 0.008,
+          "max": 0.033,
+          "unit": "µg/kg/min"
+        }
+      ],
+      "category": "Opioides"
+    },
+    {
+      "name": "Sufentanilo",
+      "description": "Opioide µ sintético, 5-10x fentanilo, 500-1000x morfina. Mayor estabilidad hemodinámica. Cirugía cardíaca, TIVA y analgesia neuroaxial.",
+      "ampulePresentation": "250 µg / 5 mL",
+      "ampuleAmount": 250,
+      "ampuleUnit": "µg",
+      "ampuleVolumeMl": 5,
+      "standardDilutionMl": 50,
+      "typicalDoseUnit": "µg/kg/h",
+      "doseRanges": [
+        {
+          "label": "Analgesia",
+          "min": 0.1,
+          "max": 0.5,
+          "unit": "µg/kg/h"
+        },
+        {
+          "label": "Cirugía cardíaca",
+          "min": 0.5,
+          "max": 3.0,
+          "unit": "µg/kg/h"
+        }
+      ],
+      "category": "Opioides"
+    },
+    {
+      "name": "Alfentanilo",
+      "description": "Opioide µ de inicio rápido y duración ultracorta (10-15 min). Procedimientos breves, suplemento analgésico. Menor acumulación que fentanilo.",
+      "ampulePresentation": "5 mg / 10 mL",
+      "ampuleAmount": 5,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 10,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "µg/kg/min",
+      "doseRanges": [
+        {
+          "label": "Mantenimiento",
+          "min": 0.25,
+          "max": 1.5,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 15,
+          "max": 90,
+          "unit": "µg/kg/h"
+        }
+      ],
+      "category": "Opioides"
+    },
+    {
+      "name": "Morfina",
+      "description": "Opioide µ natural de referencia. Inicio 5-10 min IV, duración 3-4 h. Libera histamina. Metabolito M6G se acumula en IR. Dolor moderado-severo, EAP.",
+      "ampulePresentation": "10 mg / 1 mL",
+      "ampuleAmount": 10,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 1,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Inicio",
+          "min": 1,
+          "max": 3,
+          "unit": "mg/h"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 2,
+          "max": 5,
+          "unit": "mg/h"
+        },
+        {
+          "label": "Inicio",
+          "min": 0.01,
+          "max": 0.04,
+          "unit": "mg/kg/h"
+        }
+      ],
+      "category": "Opioides"
+    },
+    {
+      "name": "Hidromorfona",
+      "description": "Opioide µ semisintético, 5-7x morfina. Menor liberación de histamina, sin metabolitos activos significativos. Alternativa a morfina en alergia o IR.",
+      "ampulePresentation": "2 mg / 1 mL",
+      "ampuleAmount": 2,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 1,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Inicio",
+          "min": 0.2,
+          "max": 0.5,
+          "unit": "mg/h"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 0.5,
+          "max": 2,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Opioides"
+    },
+    {
+      "name": "Meperidina (Petidina)",
+      "description": "Opioide µ sintético con efectos anticolinérgicos y anestésico local. Tratamiento de escalofríos postanestésicos (25 mg IV). Metabolito normeperidina neurotóxico (no infusión prolongada).",
+      "ampulePresentation": "100 mg / 2 mL",
+      "ampuleAmount": 100,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 2,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo: 25-50 mg (escalofríos)",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Opioides"
+    },
+    {
+      "name": "Tramadol",
+      "description": "Opioide débil con acción dual (µ + inhibición recaptación de serotonina/noradrenalina). Dolor leve-moderado. Riesgo de convulsiones y síndrome serotoninérgico.",
+      "ampulePresentation": "100 mg / 2 mL",
+      "ampuleAmount": 100,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 2,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo: 50-100 mg c/6-8h",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/h"
+        },
+        {
+          "label": "Infusión",
+          "min": 12,
+          "max": 25,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Opioides"
+    },
+    {
+      "name": "Succinilcolina",
+      "description": "Relajante muscular despolarizante. Inicio 30-60 seg, duración 5-10 min. Intubación de secuencia rápida. Riesgos: hiperkalemia, hipertermia maligna, bradicardia, mialgias.",
+      "ampulePresentation": "100 mg / 2 mL",
+      "ampuleAmount": 100,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 2,
+      "standardDilutionMl": 10,
+      "typicalDoseUnit": "mg/kg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo ISR: 1-1.5 mg/kg IV",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/kg/h"
+        }
+      ],
+      "category": "Relajantes musculares"
+    },
+    {
+      "name": "Cisatracurio",
+      "description": "RMND benzilisoquinolina. Eliminación de Hofmann (independiente de órganos). No libera histamina. Ideal en IR/IH, infusión prolongada en UCI.",
+      "ampulePresentation": "10 mg / 5 mL",
+      "ampuleAmount": 10,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 5,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "µg/kg/min",
+      "doseRanges": [
+        {
+          "label": "Mantenimiento",
+          "min": 1,
+          "max": 3,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "UCI",
+          "min": 0.5,
+          "max": 10.2,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 60,
+          "max": 180,
+          "unit": "µg/kg/h"
+        }
+      ],
+      "category": "Relajantes musculares"
+    },
+    {
+      "name": "Rocuronio",
+      "description": "RMND aminoesteroideo de inicio rápido (60-90 seg). ISR a 1.2 mg/kg. Reversible con sugammadex. Duración intermedia.",
+      "ampulePresentation": "50 mg / 5 mL",
+      "ampuleAmount": 50,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 5,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "µg/kg/min",
+      "doseRanges": [
+        {
+          "label": "Mantenimiento",
+          "min": 5,
+          "max": 12,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 300,
+          "max": 720,
+          "unit": "µg/kg/h"
+        }
+      ],
+      "category": "Relajantes musculares"
+    },
+    {
+      "name": "Atracurio",
+      "description": "RMND benzilisoquinolina. Hofmann + esterasas plasmáticas. Puede liberar histamina. Alternativa a cisatracurio.",
+      "ampulePresentation": "50 mg / 5 mL",
+      "ampuleAmount": 50,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 5,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "µg/kg/min",
+      "doseRanges": [
+        {
+          "label": "Mantenimiento",
+          "min": 4,
+          "max": 12,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 240,
+          "max": 720,
+          "unit": "µg/kg/h"
+        }
+      ],
+      "category": "Relajantes musculares"
+    },
+    {
+      "name": "Vecuronio",
+      "description": "RMND aminoesteroideo. No libera histamina, estabilidad cardiovascular. Metabolito activo (acumulación en IR/IH). Menor uso actual.",
+      "ampulePresentation": "10 mg (liofilizado)",
+      "ampuleAmount": 10,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 0,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "µg/kg/min",
+      "doseRanges": [
+        {
+          "label": "Mantenimiento",
+          "min": 0.8,
+          "max": 1.7,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 48,
+          "max": 100,
+          "unit": "µg/kg/h"
+        }
+      ],
+      "category": "Relajantes musculares"
+    },
+    {
+      "name": "Pancuronio",
+      "description": "RMND aminoesteroideo de larga duración (60-90 min). Efecto vagolítico (taquicardia). Eliminación renal. UCI y cirugía cardíaca.",
+      "ampulePresentation": "4 mg / 2 mL",
+      "ampuleAmount": 4,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 2,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "µg/kg/min",
+      "doseRanges": [
+        {
+          "label": "Mantenimiento",
+          "min": 0.4,
+          "max": 1.0,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 24,
+          "max": 60,
+          "unit": "µg/kg/h"
+        }
+      ],
+      "category": "Relajantes musculares"
+    },
+    {
+      "name": "Sugammadex",
+      "description": "γ-ciclodextrina que encapsula rocuronio (preferentemente) y vecuronio. Reversión rápida y completa incluyendo bloqueo profundo (16 mg/kg para rescate inmediato).",
+      "ampulePresentation": "200 mg / 2 mL",
+      "ampuleAmount": 200,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 2,
+      "standardDilutionMl": 10,
+      "typicalDoseUnit": "mg/kg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo TOF≥2: 2 mg/kg",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/kg/h"
+        },
+        {
+          "label": "Bolo PTC≥1: 4 mg/kg",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/kg/h"
+        },
+        {
+          "label": "Bolo rescate: 16 mg/kg",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/kg/h"
+        }
+      ],
+      "category": "Reversores"
+    },
+    {
+      "name": "Neostigmina",
+      "description": "Inhibidor reversible de acetilcolinesterasa. Reversión de bloqueo neuromuscular no despolarizante. Coadministrar con anticolinérgico (atropina o glicopirrolato) para evitar bradicardia.",
+      "ampulePresentation": "0.5 mg / 1 mL",
+      "ampuleAmount": 0.5,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 1,
+      "standardDilutionMl": 10,
+      "typicalDoseUnit": "mg/kg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo: 0.04-0.07 mg/kg IV",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/kg/h"
+        }
+      ],
+      "category": "Reversores"
+    },
+    {
+      "name": "Flumazenil",
+      "description": "Antagonista competitivo de BZD en receptor GABA-A. Reversión de sobresedación o sobredosis por BZD. Riesgo de convulsiones (no usar en epilépticos en tratamiento crónico). T½ corta → vigilar resedación.",
+      "ampulePresentation": "0.5 mg / 5 mL",
+      "ampuleAmount": 0.5,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 5,
+      "standardDilutionMl": 50,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo: 0.2 mg IV (rep. c/min)",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/h"
+        },
+        {
+          "label": "Infusión",
+          "min": 0.1,
+          "max": 0.5,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Reversores"
+    },
+    {
+      "name": "Naloxona",
+      "description": "Antagonista opioide competitivo (µ, κ, δ). Reversión de depresión respiratoria por opioides. T½ corta (30-60 min) → vigilar resedación. Síndrome de abstinencia agudo en dependientes.",
+      "ampulePresentation": "0.4 mg / 1 mL",
+      "ampuleAmount": 0.4,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 1,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo: 0.04-0.4 mg IV",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/h"
+        },
+        {
+          "label": "Infusión",
+          "min": 0.0025,
+          "max": 0.16,
+          "unit": "mg/kg/h"
+        }
+      ],
+      "category": "Reversores"
+    },
+    {
+      "name": "Idarucizumab",
+      "description": "Fragmento de anticuerpo monoclonal específico para dabigatrán. Reversión en sangrado mayor o cirugía urgente. Bolo IV de 5 g (2 viales × 2.5 g) en 5-10 min.",
+      "ampulePresentation": "2.5 g / 50 mL",
+      "ampuleAmount": 2500,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 50,
+      "standardDilutionMl": 50,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo: 5 g IV",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Reversores"
+    },
+    {
+      "name": "Andexanet alfa",
+      "description": "Factor Xa recombinante modificado. Reversión de anticoagulantes anti-Xa (apixabán, rivaroxabán, edoxabán). Bolo + infusión 2h. Riesgo trombótico tras reversión.",
+      "ampulePresentation": "100 mg (liofilizado)",
+      "ampuleAmount": 100,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 0,
+      "standardDilutionMl": 250,
+      "typicalDoseUnit": "mg/min",
+      "doseRanges": [
+        {
+          "label": "Inf. baja (2h)",
+          "min": 4,
+          "max": 4,
+          "unit": "mg/min"
+        },
+        {
+          "label": "Inf. alta (2h)",
+          "min": 8,
+          "max": 8,
+          "unit": "mg/min"
+        }
+      ],
+      "category": "Reversores"
+    },
+    {
+      "name": "Protamina",
+      "description": "Neutraliza heparina (1 mg por cada 100 U de las últimas 2-3h). Reversión post-CEC. Riesgo de hipotensión, anafilaxia, vasoconstricción pulmonar.",
+      "ampulePresentation": "50 mg / 5 mL",
+      "ampuleAmount": 50,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 5,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "mg/min",
+      "doseRanges": [
+        {
+          "label": "Infusión (máx)",
+          "min": 5,
+          "max": 5,
+          "unit": "mg/min"
+        }
+      ],
+      "category": "Reversores"
+    },
+    {
+      "name": "Lidocaína IV",
+      "description": "Anestésico local clase IB. IV: arritmias ventriculares, analgesia perioperatoria multimodal, prevención de laringoespasmo, atenuación de respuesta hemodinámica a la intubación.",
+      "ampulePresentation": "1000 mg / 50 mL (2%)",
+      "ampuleAmount": 1000,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 50,
+      "standardDilutionMl": 250,
+      "typicalDoseUnit": "mg/min",
+      "doseRanges": [
+        {
+          "label": "Antiarrítmico",
+          "min": 1,
+          "max": 4,
+          "unit": "mg/min"
+        },
+        {
+          "label": "Analgesia IV",
+          "min": 1,
+          "max": 2,
+          "unit": "mg/min"
+        },
+        {
+          "label": "Analgesia IV",
+          "min": 1,
+          "max": 1.5,
+          "unit": "mg/kg/h"
+        }
+      ],
+      "category": "Anestésicos locales / Sistémicos"
+    },
+    {
+      "name": "Bupivacaína",
+      "description": "Anestésico local amino-amida de larga duración. Anestesia regional, neuroaxial, infiltración, bloqueos. Mayor cardiotoxicidad que ropivacaína (LAST). NUNCA IV directa.",
+      "ampulePresentation": "100 mg / 20 mL (0.5%)",
+      "ampuleAmount": 100,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 20,
+      "standardDilutionMl": 200,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Epidural mantenimiento",
+          "min": 6,
+          "max": 14,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Anestésicos locales / Sistémicos"
+    },
+    {
+      "name": "Ropivacaína",
+      "description": "Anestésico local amino-amida de larga duración. Menor cardiotoxicidad que bupivacaína. Bloqueo motor menos intenso (ventaja en epidural obstétrica y analgesia ambulatoria).",
+      "ampulePresentation": "150 mg / 20 mL (0.75%)",
+      "ampuleAmount": 150,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 20,
+      "standardDilutionMl": 200,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Epidural mantenimiento",
+          "min": 6,
+          "max": 28,
+          "unit": "mg/h"
+        },
+        {
+          "label": "Bloqueo perineural",
+          "min": 5,
+          "max": 30,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Anestésicos locales / Sistémicos"
+    },
+    {
+      "name": "Amiodarona",
+      "description": "Antiarrítmico clase III con propiedades de las 4 clases. TV/FV, FA, TSV. Carga IV lenta seguida de mantenimiento. Múltiples efectos adversos sistémicos a largo plazo.",
+      "ampulePresentation": "150 mg / 3 mL",
+      "ampuleAmount": 150,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 3,
+      "standardDilutionMl": 250,
+      "typicalDoseUnit": "mg/min",
+      "doseRanges": [
+        {
+          "label": "Carga (10 min)",
+          "min": 15,
+          "max": 15,
+          "unit": "mg/min"
+        },
+        {
+          "label": "Mantenimiento (6h)",
+          "min": 1,
+          "max": 1,
+          "unit": "mg/min"
+        },
+        {
+          "label": "Mantenimiento (18h)",
+          "min": 0.5,
+          "max": 0.5,
+          "unit": "mg/min"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 30,
+          "max": 60,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Antiarrítmicos"
+    },
+    {
+      "name": "Procainamida",
+      "description": "Clase IA. TV estable, WPW con FA, arritmias ventriculares refractarias. Hipotensión, prolongación QT. Toxicidad lupus-like en uso prolongado.",
+      "ampulePresentation": "1000 mg / 10 mL",
+      "ampuleAmount": 1000,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 10,
+      "standardDilutionMl": 250,
+      "typicalDoseUnit": "mg/min",
+      "doseRanges": [
+        {
+          "label": "Carga",
+          "min": 20,
+          "max": 50,
+          "unit": "mg/min"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 1,
+          "max": 4,
+          "unit": "mg/min"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 60,
+          "max": 240,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Antiarrítmicos"
+    },
+    {
+      "name": "Esmolol",
+      "description": "β-bloqueador cardioselectivo (β1) ultracorto (T½ 9 min). TSV, FA/flutter, taquicardia perioperatoria, atenuación de respuesta al estrés. Fácilmente titulable.",
+      "ampulePresentation": "2500 mg / 10 mL",
+      "ampuleAmount": 2500,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 10,
+      "standardDilutionMl": 250,
+      "typicalDoseUnit": "µg/kg/min",
+      "doseRanges": [
+        {
+          "label": "Inicio",
+          "min": 25,
+          "max": 50,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 50,
+          "max": 200,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "Máximo",
+          "min": 200,
+          "max": 300,
+          "unit": "µg/kg/min"
+        }
+      ],
+      "category": "Antiarrítmicos"
+    },
+    {
+      "name": "Metoprolol IV",
+      "description": "β-bloqueador cardioselectivo (β1). Control de FC en TSV/FA, IAM, hipertensión perioperatoria. Bolos de 2.5-5 mg lentos hasta 15 mg. Inicio 5-10 min, duración 5-8h.",
+      "ampulePresentation": "5 mg / 5 mL",
+      "ampuleAmount": 5,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 5,
+      "standardDilutionMl": 50,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo: 2.5-5 mg c/5min",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Antiarrítmicos"
+    },
+    {
+      "name": "Diltiazem",
+      "description": "Calcioantagonista no dihidropiridínico (clase IV). Control FC en FA/flutter, TSV. Inotropismo negativo y vasodilatación. Precaución en IC sistólica y β-bloqueadores.",
+      "ampulePresentation": "25 mg / 5 mL",
+      "ampuleAmount": 25,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 5,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Inicio",
+          "min": 5,
+          "max": 10,
+          "unit": "mg/h"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 5,
+          "max": 15,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Antiarrítmicos"
+    },
+    {
+      "name": "Verapamilo",
+      "description": "Calcioantagonista no dihidropiridínico. TSV, control FC en FA. Mayor inotropismo negativo que diltiazem. CI en IC sistólica, WPW con FA, BAV.",
+      "ampulePresentation": "5 mg / 2 mL",
+      "ampuleAmount": 5,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 2,
+      "standardDilutionMl": 50,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo: 2.5-5 mg lento",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Antiarrítmicos"
+    },
+    {
+      "name": "Adenosina",
+      "description": "Nucleósido endógeno. Bloqueo transitorio del nodo AV. TSV por reentrada nodal, diagnóstico de taquicardias de QRS estrecho. Bolo IV rápido seguido de SS. T½ <10 seg. Disnea/flushing transitorios.",
+      "ampulePresentation": "6 mg / 2 mL",
+      "ampuleAmount": 6,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 2,
+      "standardDilutionMl": 2,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo: 6→12→12 mg IV rápido",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Antiarrítmicos"
+    },
+    {
+      "name": "Digoxina",
+      "description": "Inhibidor de Na-K-ATPasa con efecto inotrópico positivo y cronotrópico negativo. Control FC en FA, IC sistólica. Margen terapéutico estrecho. Toxicidad: arritmias, alteraciones visuales.",
+      "ampulePresentation": "0.5 mg / 2 mL",
+      "ampuleAmount": 0.5,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 2,
+      "standardDilutionMl": 50,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Carga: 0.25 mg c/6h x4",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Antiarrítmicos"
+    },
+    {
+      "name": "Ibutilida",
+      "description": "Antiarrítmico clase III. Cardioversión farmacológica de FA/flutter de inicio reciente (<48h). Riesgo significativo de torsades. Monitorización ECG continua 4h post-administración.",
+      "ampulePresentation": "1 mg / 10 mL",
+      "ampuleAmount": 1,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 10,
+      "standardDilutionMl": 50,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo: 1 mg en 10 min",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Antiarrítmicos"
+    },
+    {
+      "name": "Nitroglicerina",
+      "description": "Nitrato orgánico que libera NO. Dosis bajas: venodilatación; dosis altas: vasodilatación arterial. SCA, EAP cardiogénico, emergencia hipertensiva con isquemia.",
+      "ampulePresentation": "50 mg / 10 mL",
+      "ampuleAmount": 50,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 10,
+      "standardDilutionMl": 250,
+      "typicalDoseUnit": "µg/min",
+      "doseRanges": [
+        {
+          "label": "Inicio",
+          "min": 5,
+          "max": 10,
+          "unit": "µg/min"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 10,
+          "max": 200,
+          "unit": "µg/min"
+        },
+        {
+          "label": "Inicio",
+          "min": 0.1,
+          "max": 0.2,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 0.2,
+          "max": 3.0,
+          "unit": "µg/kg/min"
+        }
+      ],
+      "category": "Vasodilatadores"
+    },
+    {
+      "name": "Nitroprusiato de sodio",
+      "description": "Vasodilatador arterial y venoso directo (NO + cianuro). Acción inmediata. Emergencia hipertensiva, disección aórtica, bajo gasto con poscarga elevada. Toxicidad por cianuro/tiocianato en >24-48h.",
+      "ampulePresentation": "50 mg (liofilizado)",
+      "ampuleAmount": 50,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 0,
+      "standardDilutionMl": 250,
+      "typicalDoseUnit": "µg/kg/min",
+      "doseRanges": [
+        {
+          "label": "Inicio",
+          "min": 0.3,
+          "max": 0.5,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 0.5,
+          "max": 5,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "Máximo",
+          "min": 8,
+          "max": 10,
+          "unit": "µg/kg/min"
+        }
+      ],
+      "category": "Vasodilatadores"
+    },
+    {
+      "name": "Nicardipino",
+      "description": "Calcioantagonista dihidropiridínico IV. Vasodilatador arterial selectivo. Emergencia hipertensiva, HTA perioperatoria, HSA. Sin taquicardia refleja significativa.",
+      "ampulePresentation": "25 mg / 10 mL",
+      "ampuleAmount": 25,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 10,
+      "standardDilutionMl": 250,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Inicio",
+          "min": 5,
+          "max": 5,
+          "unit": "mg/h"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 2.5,
+          "max": 15,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Vasodilatadores"
+    },
+    {
+      "name": "Clevidipino",
+      "description": "Calcioantagonista dihidropiridínico ultracorto (T½ 1-2 min). Esterasas plasmáticas. Formulación lipídica. Control preciso de PA perioperatoria. Sin ajuste hepático/renal.",
+      "ampulePresentation": "50 mg / 100 mL (0.5 mg/mL)",
+      "ampuleAmount": 50,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 100,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Inicio",
+          "min": 1,
+          "max": 2,
+          "unit": "mg/h"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 4,
+          "max": 16,
+          "unit": "mg/h"
+        },
+        {
+          "label": "Máximo",
+          "min": 16,
+          "max": 32,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Vasodilatadores"
+    },
+    {
+      "name": "Hidralazina",
+      "description": "Vasodilatador arterial directo. Crisis hipertensiva, hipertensión en embarazo (preeclampsia). Taquicardia refleja significativa. Inicio 10-20 min IV, duración 4-6h.",
+      "ampulePresentation": "20 mg / 1 mL",
+      "ampuleAmount": 20,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 1,
+      "standardDilutionMl": 50,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo: 5-10 mg c/20-30 min",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Vasodilatadores"
+    },
+    {
+      "name": "Fenoldopam",
+      "description": "Agonista selectivo D1. Vasodilatación renal y sistémica, ↑ flujo renal y natriuresis. Emergencia hipertensiva, protección renal perioperatoria.",
+      "ampulePresentation": "10 mg / 1 mL",
+      "ampuleAmount": 10,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 1,
+      "standardDilutionMl": 250,
+      "typicalDoseUnit": "µg/kg/min",
+      "doseRanges": [
+        {
+          "label": "Inicio",
+          "min": 0.1,
+          "max": 0.1,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 0.1,
+          "max": 1.6,
+          "unit": "µg/kg/min"
+        }
+      ],
+      "category": "Vasodilatadores"
+    },
+    {
+      "name": "Nimodipino IV",
+      "description": "Calcioantagonista con selectividad cerebrovascular. Prevención y tratamiento de vasoespasmo cerebral post-HSA. Administración por catéter central preferentemente.",
+      "ampulePresentation": "10 mg / 50 mL",
+      "ampuleAmount": 10,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 50,
+      "standardDilutionMl": 50,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Inicio",
+          "min": 1,
+          "max": 1,
+          "unit": "mg/h"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 1,
+          "max": 2,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Vasodilatadores"
+    },
+    {
+      "name": "Labetalol",
+      "description": "Bloqueador α1 y β no selectivo (β:α 7:1 IV). Reduce PA sin taquicardia refleja. Emergencia hipertensiva, preeclampsia/eclampsia, disección aórtica. CI: asma, bradicardia, BAV.",
+      "ampulePresentation": "100 mg / 20 mL",
+      "ampuleAmount": 100,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 20,
+      "standardDilutionMl": 250,
+      "typicalDoseUnit": "mg/min",
+      "doseRanges": [
+        {
+          "label": "Bolo: 10-20 mg c/10 min",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/min"
+        },
+        {
+          "label": "Infusión",
+          "min": 0.5,
+          "max": 2,
+          "unit": "mg/min"
+        },
+        {
+          "label": "Infusión",
+          "min": 30,
+          "max": 120,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Antihipertensivos"
+    },
+    {
+      "name": "Fentolamina",
+      "description": "Antagonista α adrenérgico no selectivo (α1 y α2). Crisis hipertensiva por feocromocitoma, interacción tiramina-IMAO, extravasación de vasopresores. Taquicardia refleja.",
+      "ampulePresentation": "10 mg / 1 mL",
+      "ampuleAmount": 10,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 1,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "mg/min",
+      "doseRanges": [
+        {
+          "label": "Infusión",
+          "min": 0.1,
+          "max": 0.3,
+          "unit": "mg/min"
+        },
+        {
+          "label": "Infusión",
+          "min": 6,
+          "max": 18,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Antihipertensivos"
+    },
+    {
+      "name": "Enalaprilato",
+      "description": "IECA IV. Emergencia hipertensiva, HTA perioperatoria. Inicio 15-30 min, duración 6h. CI: embarazo, estenosis bilateral de arteria renal, angioedema previo.",
+      "ampulePresentation": "1.25 mg / 1 mL",
+      "ampuleAmount": 1.25,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 1,
+      "standardDilutionMl": 50,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo: 1.25 mg c/6h",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Antihipertensivos"
+    },
+    {
+      "name": "Urapidil",
+      "description": "Antagonista α1 + agonista 5-HT1A central. Reduce PA sin taquicardia refleja significativa. Emergencia hipertensiva, control de PA perioperatoria. Disponibilidad variable.",
+      "ampulePresentation": "50 mg / 10 mL",
+      "ampuleAmount": 50,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 10,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo: 12.5-25 mg",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/h"
+        },
+        {
+          "label": "Infusión",
+          "min": 9,
+          "max": 30,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Antihipertensivos"
+    },
+    {
+      "name": "Epoprostenol (Prostaciclina)",
+      "description": "PGI2. Vasodilatador pulmonar y antiagregante plaquetario. HTP severa. T½ 6 min. Infusión continua sin interrupciones (rebote letal). Vía central exclusiva.",
+      "ampulePresentation": "1.5 mg (liofilizado)",
+      "ampuleAmount": 1.5,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 0,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "µg/kg/min",
+      "doseRanges": [
+        {
+          "label": "Inicio",
+          "min": 0.001,
+          "max": 0.002,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 0.025,
+          "max": 0.05,
+          "unit": "µg/kg/min"
+        }
+      ],
+      "category": "Prostaglandinas / HTP"
+    },
+    {
+      "name": "Treprostinil",
+      "description": "Análogo de prostaciclina más estable que epoprostenol (T½ 4.5 h). HTP, falla de VD. Administración IV, SC o inhalada. Menor riesgo de rebote.",
+      "ampulePresentation": "10 mg / 10 mL",
+      "ampuleAmount": 10,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 10,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "µg/kg/min",
+      "doseRanges": [
+        {
+          "label": "Inicio",
+          "min": 0.00125,
+          "max": 0.00625,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 0.025,
+          "max": 0.125,
+          "unit": "µg/kg/min"
+        }
+      ],
+      "category": "Prostaglandinas / HTP"
+    },
+    {
+      "name": "Alprostadil (PGE1)",
+      "description": "PGE1. Mantiene permeable el conducto arterioso en cardiopatías congénitas ductus-dependientes. Vasodilatador pulmonar, enfermedad arterial periférica severa.",
+      "ampulePresentation": "500 µg / 1 mL",
+      "ampuleAmount": 500,
+      "ampuleUnit": "µg",
+      "ampuleVolumeMl": 1,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "µg/kg/min",
+      "doseRanges": [
+        {
+          "label": "Ductus inicio",
+          "min": 0.05,
+          "max": 0.1,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "Ductus mant.",
+          "min": 0.01,
+          "max": 0.05,
+          "unit": "µg/kg/min"
+        }
+      ],
+      "category": "Prostaglandinas / HTP"
+    },
+    {
+      "name": "Heparina no fraccionada",
+      "description": "Potencia antitrombina III (factores IIa y Xa). TEV, SCA, CEC, profilaxis. Monitorizar TTPa o anti-Xa. Riesgo de HIT. Reversible con protamina.",
+      "ampulePresentation": "25000 U / 5 mL",
+      "ampuleAmount": 25000,
+      "ampuleUnit": "U",
+      "ampuleVolumeMl": 5,
+      "standardDilutionMl": 250,
+      "typicalDoseUnit": "U/h",
+      "doseRanges": [
+        {
+          "label": "TVP/TEP",
+          "min": 800,
+          "max": 1300,
+          "unit": "U/h"
+        },
+        {
+          "label": "SCA",
+          "min": 800,
+          "max": 1000,
+          "unit": "U/h"
+        },
+        {
+          "label": "Profilaxis",
+          "min": 400,
+          "max": 500,
+          "unit": "U/h"
+        }
+      ],
+      "category": "Anticoagulantes"
+    },
+    {
+      "name": "Bivalirudina",
+      "description": "Inhibidor directo de trombina. Anticoagulación en ICP, alternativa a heparina en HIT. T½ 25 min. No requiere cofactores.",
+      "ampulePresentation": "250 mg (liofilizado)",
+      "ampuleAmount": 250,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 0,
+      "standardDilutionMl": 500,
+      "typicalDoseUnit": "mg/kg/h",
+      "doseRanges": [
+        {
+          "label": "ICP",
+          "min": 1.75,
+          "max": 1.75,
+          "unit": "mg/kg/h"
+        },
+        {
+          "label": "Post-ICP",
+          "min": 0.2,
+          "max": 0.25,
+          "unit": "mg/kg/h"
+        },
+        {
+          "label": "HIT/CEC",
+          "min": 0.15,
+          "max": 0.2,
+          "unit": "mg/kg/h"
+        }
+      ],
+      "category": "Anticoagulantes"
+    },
+    {
+      "name": "Argatroban",
+      "description": "Inhibidor directo de trombina. Metabolismo hepático. Primera línea en HIT. Monitorizar TTPa. Ajustar en IH (no renal).",
+      "ampulePresentation": "250 mg / 2.5 mL",
+      "ampuleAmount": 250,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 2.5,
+      "standardDilutionMl": 250,
+      "typicalDoseUnit": "µg/kg/min",
+      "doseRanges": [
+        {
+          "label": "HIT",
+          "min": 0.5,
+          "max": 2,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "IH (Child-Pugh B)",
+          "min": 0.5,
+          "max": 0.5,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "ICP",
+          "min": 25,
+          "max": 25,
+          "unit": "µg/kg/min"
+        }
+      ],
+      "category": "Anticoagulantes"
+    },
+    {
+      "name": "Cangrelor",
+      "description": "Inhibidor directo reversible P2Y12 IV. Acción inmediata, T½ 3-6 min. Antiagregación puente en pacientes que no pueden tomar antiplaquetarios orales o durante ICP.",
+      "ampulePresentation": "50 mg (liofilizado)",
+      "ampuleAmount": 50,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 0,
+      "standardDilutionMl": 250,
+      "typicalDoseUnit": "µg/kg/min",
+      "doseRanges": [
+        {
+          "label": "ICP",
+          "min": 4,
+          "max": 4,
+          "unit": "µg/kg/min"
+        }
+      ],
+      "category": "Anticoagulantes"
+    },
+    {
+      "name": "Tirofibán",
+      "description": "Inhibidor de glicoproteína IIb/IIIa plaquetaria. Antiagregación IV en SCA de alto riesgo e ICP. T½ 2h. Ajustar en IR.",
+      "ampulePresentation": "12.5 mg / 50 mL",
+      "ampuleAmount": 12.5,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 50,
+      "standardDilutionMl": 50,
+      "typicalDoseUnit": "µg/kg/min",
+      "doseRanges": [
+        {
+          "label": "Mantenimiento",
+          "min": 0.1,
+          "max": 0.15,
+          "unit": "µg/kg/min"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 6,
+          "max": 9,
+          "unit": "µg/kg/h"
+        }
+      ],
+      "category": "Anticoagulantes"
+    },
+    {
+      "name": "Eptifibatida",
+      "description": "Inhibidor reversible de glicoproteína IIb/IIIa. SCA de alto riesgo, ICP. Bolo + infusión. Ajustar en IR. T½ 2.5 h.",
+      "ampulePresentation": "20 mg / 10 mL",
+      "ampuleAmount": 20,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 10,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "µg/kg/min",
+      "doseRanges": [
+        {
+          "label": "Mantenimiento",
+          "min": 2,
+          "max": 2,
+          "unit": "µg/kg/min"
+        }
+      ],
+      "category": "Anticoagulantes"
+    },
+    {
+      "name": "Alteplasa (tPA)",
+      "description": "Activador tisular de plasminógeno recombinante. Trombolisis en IAM, ACV isquémico agudo, TEP masivo. Riesgo de sangrado mayor incluyendo HIC.",
+      "ampulePresentation": "50 mg (liofilizado)",
+      "ampuleAmount": 50,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 0,
+      "standardDilutionMl": 50,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "TEP masivo (2h)",
+          "min": 50,
+          "max": 50,
+          "unit": "mg/h"
+        },
+        {
+          "label": "IAM (1h)",
+          "min": 35,
+          "max": 35,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Trombolíticos"
+    },
+    {
+      "name": "Tenecteplasa",
+      "description": "tPA modificado de 3ª generación. Mayor especificidad por fibrina y T½ 20-24 min. Permite bolo único. IAM y ACV (uso creciente).",
+      "ampulePresentation": "50 mg (liofilizado)",
+      "ampuleAmount": 50,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 0,
+      "standardDilutionMl": 10,
+      "typicalDoseUnit": "mg/min",
+      "doseRanges": [
+        {
+          "label": "Bolo (5-10 seg)",
+          "min": 30,
+          "max": 50,
+          "unit": "mg/min"
+        }
+      ],
+      "category": "Trombolíticos"
+    },
+    {
+      "name": "Estreptoquinasa",
+      "description": "Trombolítico antigénico. IAM, TEP. Menor costo, mayor riesgo de reacciones alérgicas y resistencia (no readministrar). Uso en declive.",
+      "ampulePresentation": "1500000 U (liofilizado)",
+      "ampuleAmount": 1500000,
+      "ampuleUnit": "U",
+      "ampuleVolumeMl": 0,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "U/h",
+      "doseRanges": [
+        {
+          "label": "IAM (1h)",
+          "min": 1500000,
+          "max": 1500000,
+          "unit": "U/h"
+        },
+        {
+          "label": "TEP (24h)",
+          "min": 100000,
+          "max": 100000,
+          "unit": "U/h"
+        }
+      ],
+      "category": "Trombolíticos"
+    },
+    {
+      "name": "Ácido tranexámico",
+      "description": "Antifibrinolítico análogo de lisina. Inhibe activación de plasminógeno. Reduce sangrado en cirugía cardíaca, ortopédica, obstétrica, trauma (CRASH-2/3) y hemorragia GI.",
+      "ampulePresentation": "1000 mg / 10 mL",
+      "ampuleAmount": 1000,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 10,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "mg/kg/h",
+      "doseRanges": [
+        {
+          "label": "Cirugía cardíaca",
+          "min": 2,
+          "max": 5,
+          "unit": "mg/kg/h"
+        },
+        {
+          "label": "CRASH-2 trauma",
+          "min": 125,
+          "max": 125,
+          "unit": "mg/h"
+        },
+        {
+          "label": "Cirugía cardíaca",
+          "min": 33,
+          "max": 83,
+          "unit": "µg/kg/min"
+        }
+      ],
+      "category": "Antifibrinolíticos"
+    },
+    {
+      "name": "Ácido aminocaproico",
+      "description": "Antifibrinolítico análogo de lisina, 10x menos potente que TXA. Cirugía cardíaca, prostatectomía. Alternativa cuando TXA no está disponible.",
+      "ampulePresentation": "5000 mg / 20 mL",
+      "ampuleAmount": 5000,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 20,
+      "standardDilutionMl": 250,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Mantenimiento",
+          "min": 1000,
+          "max": 1250,
+          "unit": "mg/h"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 15,
+          "max": 20,
+          "unit": "mg/kg/h"
+        }
+      ],
+      "category": "Antifibrinolíticos"
+    },
+    {
+      "name": "Albúmina humana 20%",
+      "description": "Coloide de origen humano. Hipoalbuminemia severa, paracentesis evacuadoras (>5L), síndrome hepatorrenal, peritonitis bacteriana espontánea.",
+      "ampulePresentation": "10 g / 50 mL (20%)",
+      "ampuleAmount": 10000,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 50,
+      "standardDilutionMl": 50,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo: 50-100 mL en 30-60 min",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Reposición / Reanimación"
+    },
+    {
+      "name": "Manitol 20%",
+      "description": "Diurético osmótico. Reduce PIC y presión intraocular. Neuroprotección en TCE y neurocirugía. Hipovolemia por diuresis osmótica. Vigilar osmolaridad sérica (<320 mOsm/L).",
+      "ampulePresentation": "50 g / 250 mL (20%)",
+      "ampuleAmount": 50000,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 250,
+      "standardDilutionMl": 250,
+      "typicalDoseUnit": "mg/kg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo PIC: 0.25-1 g/kg en 20-30 min",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/kg/h"
+        }
+      ],
+      "category": "Reposición / Reanimación"
+    },
+    {
+      "name": "Salino hipertónico 3%",
+      "description": "Cristaloide hipertónico. Hiponatremia sintomática severa, edema cerebral, hipertensión intracraneal, reanimación de pequeño volumen. Vigilar Na (no >8-10 mEq/L/24h).",
+      "ampulePresentation": "500 mL (3% NaCl)",
+      "ampuleAmount": 15000,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 500,
+      "standardDilutionMl": 500,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo PIC: 250 mL en 10-20 min",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/h"
+        },
+        {
+          "label": "Hipo Na sint: 100 mL en 10 min",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Reposición / Reanimación"
+    },
+    {
+      "name": "Salino hipertónico 23.4%",
+      "description": "Cristaloide ultrahipertónico. Edema cerebral severo, herniación inminente. Bolo IV exclusivo por catéter venoso central. 30 mL ≈ 250 mL de SSH 3%.",
+      "ampulePresentation": "30 mL (23.4% NaCl)",
+      "ampuleAmount": 7020,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 30,
+      "standardDilutionMl": 30,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo herniación: 30 mL en 5-10 min",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Reposición / Reanimación"
+    },
+    {
+      "name": "Bicarbonato de sodio 8.4%",
+      "description": "Buffer alcalino. Acidosis metabólica severa (pH <7.1), hiperkalemia con cambios ECG, intoxicación por tricíclicos/salicilatos, alcalinización urinaria.",
+      "ampulePresentation": "50 mEq / 50 mL (8.4%)",
+      "ampuleAmount": 50,
+      "ampuleUnit": "U",
+      "ampuleVolumeMl": 50,
+      "standardDilutionMl": 250,
+      "typicalDoseUnit": "U/h",
+      "doseRanges": [
+        {
+          "label": "Infusión",
+          "min": 50,
+          "max": 150,
+          "unit": "U/h"
+        },
+        {
+          "label": "Bolo paro (1 mEq/kg)",
+          "min": 0,
+          "max": 0,
+          "unit": "U/h"
+        }
+      ],
+      "category": "Reposición / Reanimación"
+    },
+    {
+      "name": "Sulfato de magnesio",
+      "description": "Tratamiento/prevención de eclampsia, torsades, broncoespasmo severo, hipomagnesemia, arritmias. Tocolítico. Monitorizar reflejos y niveles séricos.",
+      "ampulePresentation": "5000 mg / 10 mL (50%)",
+      "ampuleAmount": 5000,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 10,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Eclampsia mant.",
+          "min": 1000,
+          "max": 2000,
+          "unit": "mg/h"
+        },
+        {
+          "label": "Reposición",
+          "min": 500,
+          "max": 1000,
+          "unit": "mg/h"
+        },
+        {
+          "label": "Broncoespasmo",
+          "min": 1000,
+          "max": 2000,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Electrolitos"
+    },
+    {
+      "name": "Cloruro de potasio (KCl)",
+      "description": "Reposición de potasio. Hipokalemia sintomática o severa (<3 mEq/L). NUNCA en bolo IV directo. Periférica máx. 20 mEq/h, central máx. 40 mEq/h con monitor cardíaco.",
+      "ampulePresentation": "20 mEq / 10 mL",
+      "ampuleAmount": 20,
+      "ampuleUnit": "U",
+      "ampuleVolumeMl": 10,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "U/h",
+      "doseRanges": [
+        {
+          "label": "Periférica",
+          "min": 10,
+          "max": 20,
+          "unit": "U/h"
+        },
+        {
+          "label": "Central (monitor)",
+          "min": 20,
+          "max": 40,
+          "unit": "U/h"
+        }
+      ],
+      "category": "Electrolitos"
+    },
+    {
+      "name": "Gluconato de calcio 10%",
+      "description": "93 mg de Ca2+ elemental por gramo. Hipocalcemia, hiperkalemia, hipermagnesemia, toxicidad por calcioantagonistas, transfusión masiva. Menos irritante por vía periférica que CaCl2.",
+      "ampulePresentation": "1000 mg / 10 mL (10%)",
+      "ampuleAmount": 1000,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 10,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Reposición",
+          "min": 500,
+          "max": 2000,
+          "unit": "mg/h"
+        },
+        {
+          "label": "Transfusión masiva",
+          "min": 1000,
+          "max": 3000,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Electrolitos"
+    },
+    {
+      "name": "Cloruro de calcio 10%",
+      "description": "272 mg de Ca2+ elemental por gramo (3x gluconato). Vía CVC preferente. Hipocalcemia severa, paro cardíaco, hiperkalemia aguda, intoxicación por MgSO4 o calcioantagonistas.",
+      "ampulePresentation": "1000 mg / 10 mL (10%)",
+      "ampuleAmount": 1000,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 10,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Reposición",
+          "min": 500,
+          "max": 1000,
+          "unit": "mg/h"
+        },
+        {
+          "label": "Bolo paro: 1 g IV",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Electrolitos"
+    },
+    {
+      "name": "Fosfato de potasio",
+      "description": "Reposición de fósforo (y aporta potasio). Hipofosfatemia severa (<1.5 mg/dL). Vigilar Ca2+ (riesgo de precipitación). Infusión lenta.",
+      "ampulePresentation": "30 mmol / 15 mL",
+      "ampuleAmount": 30,
+      "ampuleUnit": "U",
+      "ampuleVolumeMl": 15,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "U/h",
+      "doseRanges": [
+        {
+          "label": "Reposición",
+          "min": 7.5,
+          "max": 15,
+          "unit": "U/h"
+        }
+      ],
+      "category": "Electrolitos"
+    },
+    {
+      "name": "Insulina Regular",
+      "description": "Captación celular de glucosa. CAD, EHH, hiperkalemia y control glucémico perioperatorio. Monitorizar glucemia c/1h y K+ frecuentemente.",
+      "ampulePresentation": "100 U / 1 mL",
+      "ampuleAmount": 100,
+      "ampuleUnit": "U",
+      "ampuleVolumeMl": 1,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "U/h",
+      "doseRanges": [
+        {
+          "label": "CAD/EHH",
+          "min": 5,
+          "max": 14,
+          "unit": "U/h"
+        },
+        {
+          "label": "Control glucémico",
+          "min": 0.5,
+          "max": 5,
+          "unit": "U/h"
+        },
+        {
+          "label": "Máximo habitual",
+          "min": 10,
+          "max": 15,
+          "unit": "U/h"
+        }
+      ],
+      "category": "Insulina"
+    },
+    {
+      "name": "Oxitocina",
+      "description": "Hormona peptídica. Estimula contracciones uterinas. Inducción/conducción de parto, profilaxis y tratamiento de hemorragia postparto. Hipotensión transitoria en bolo IV.",
+      "ampulePresentation": "10 U / 1 mL",
+      "ampuleAmount": 10,
+      "ampuleUnit": "U",
+      "ampuleVolumeMl": 1,
+      "standardDilutionMl": 500,
+      "typicalDoseUnit": "U/h",
+      "doseRanges": [
+        {
+          "label": "Hemorragia postparto",
+          "min": 40,
+          "max": 80,
+          "unit": "U/h"
+        },
+        {
+          "label": "Profilaxis postparto",
+          "min": 10,
+          "max": 40,
+          "unit": "U/h"
+        }
+      ],
+      "category": "Oxitócicos"
+    },
+    {
+      "name": "Carbetocina",
+      "description": "Análogo sintético de oxitocina con T½ más larga (40 min). Profilaxis de hemorragia postparto en cesárea. Bolo único IV de 100 µg, sin necesidad de infusión.",
+      "ampulePresentation": "100 µg / 1 mL",
+      "ampuleAmount": 100,
+      "ampuleUnit": "µg",
+      "ampuleVolumeMl": 1,
+      "standardDilutionMl": 10,
+      "typicalDoseUnit": "µg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo único: 100 µg IV",
+          "min": 0,
+          "max": 0,
+          "unit": "µg/h"
+        }
+      ],
+      "category": "Oxitócicos"
+    },
+    {
+      "name": "Metilergonovina",
+      "description": "Alcaloide ergótico. Hemorragia postparto refractaria a oxitocina. CI: HTA, preeclampsia, enfermedad coronaria. Vasoconstricción potente.",
+      "ampulePresentation": "0.2 mg / 1 mL",
+      "ampuleAmount": 0.2,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 1,
+      "standardDilutionMl": 10,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo IM/IV: 0.2 mg c/2-4h",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Oxitócicos"
+    },
+    {
+      "name": "Aminofilina",
+      "description": "Inhibidor PDE (metilxantina). Broncodilatador y estimulante respiratorio. Asma severo refractario, apnea del prematuro. Rango terapéutico estrecho.",
+      "ampulePresentation": "250 mg / 10 mL",
+      "ampuleAmount": 250,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 10,
+      "standardDilutionMl": 250,
+      "typicalDoseUnit": "mg/kg/h",
+      "doseRanges": [
+        {
+          "label": "Mantenimiento",
+          "min": 0.5,
+          "max": 0.7,
+          "unit": "mg/kg/h"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 8.3,
+          "max": 11.7,
+          "unit": "µg/kg/min"
+        }
+      ],
+      "category": "Broncodilatadores"
+    },
+    {
+      "name": "Salbutamol IV",
+      "description": "Agonista β2. Broncodilatador IV de rescate para estatus asmático refractario a nebulización. Taquicardia, temblor, hipokalemia.",
+      "ampulePresentation": "5 mg / 5 mL",
+      "ampuleAmount": 5,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 5,
+      "standardDilutionMl": 50,
+      "typicalDoseUnit": "µg/min",
+      "doseRanges": [
+        {
+          "label": "Inicio",
+          "min": 3,
+          "max": 5,
+          "unit": "µg/min"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 5,
+          "max": 20,
+          "unit": "µg/min"
+        }
+      ],
+      "category": "Broncodilatadores"
+    },
+    {
+      "name": "Furosemida",
+      "description": "Diurético de asa (Na-K-2Cl). Infusión continua más eficaz y menos ototóxica que bolos repetidos. IC descompensada, sobrecarga de volumen, edema refractario.",
+      "ampulePresentation": "100 mg / 10 mL",
+      "ampuleAmount": 100,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 10,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Inicio",
+          "min": 5,
+          "max": 10,
+          "unit": "mg/h"
+        },
+        {
+          "label": "Mantenimiento",
+          "min": 10,
+          "max": 40,
+          "unit": "mg/h"
+        },
+        {
+          "label": "Resistencia",
+          "min": 40,
+          "max": 80,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Diuréticos"
+    },
+    {
+      "name": "Bumetanida",
+      "description": "Diurético de asa. 1 mg ≈ 40 mg furosemida. Ventaja: mayor biodisponibilidad y menor variabilidad. Alternativa en resistencia a furosemida.",
+      "ampulePresentation": "0.5 mg / 2 mL",
+      "ampuleAmount": 0.5,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 2,
+      "standardDilutionMl": 50,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Infusión",
+          "min": 0.5,
+          "max": 2,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Diuréticos"
+    },
+    {
+      "name": "Pantoprazol",
+      "description": "IBP. Profilaxis y tratamiento de HDA, úlcera por estrés en UCI, esofagitis erosiva. Infusión continua post-hemostasia endoscópica.",
+      "ampulePresentation": "40 mg (liofilizado)",
+      "ampuleAmount": 40,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 0,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Post-hemostasia",
+          "min": 8,
+          "max": 8,
+          "unit": "mg/h"
+        },
+        {
+          "label": "Profilaxis UCI",
+          "min": 2,
+          "max": 4,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Gastroprotectores"
+    },
+    {
+      "name": "Omeprazol",
+      "description": "IBP. Indicaciones similares a pantoprazol. Menor estabilidad en solución IV. Post-hemostasia endoscópica, profilaxis de úlcera por estrés.",
+      "ampulePresentation": "40 mg (liofilizado)",
+      "ampuleAmount": 40,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 0,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Post-hemostasia",
+          "min": 8,
+          "max": 8,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Gastroprotectores"
+    },
+    {
+      "name": "Ondansetrón",
+      "description": "Antagonista 5-HT3. Profilaxis y tratamiento de NVPO y NV inducidas por quimioterapia. Prolongación QT a dosis altas. Bolo IV lento o infusión.",
+      "ampulePresentation": "8 mg / 4 mL",
+      "ampuleAmount": 8,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 4,
+      "standardDilutionMl": 50,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo: 4-8 mg c/8h",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Antieméticos"
+    },
+    {
+      "name": "Metoclopramida",
+      "description": "Antagonista D2 con efecto procinético. NVPO, gastroparesia, antiemético en quimioterapia. Síntomas extrapiramidales (especialmente jóvenes y dosis altas).",
+      "ampulePresentation": "10 mg / 2 mL",
+      "ampuleAmount": 10,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 2,
+      "standardDilutionMl": 50,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo: 10 mg IV c/6-8h",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Antieméticos"
+    },
+    {
+      "name": "Droperidol",
+      "description": "Butirofenona antagonista D2. NVPO, sedación adyuvante. Black-box por prolongación QT (controvertido a dosis bajas). Síntomas extrapiramidales.",
+      "ampulePresentation": "2.5 mg / 1 mL",
+      "ampuleAmount": 2.5,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 1,
+      "standardDilutionMl": 10,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo NVPO: 0.625-1.25 mg IV",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Antieméticos"
+    },
+    {
+      "name": "Fenitoína",
+      "description": "Bloqueador de canales de Na+. Estatus epiléptico (2ª línea), profilaxis post-neurocirugía. Velocidad máx. 50 mg/min (riesgo arritmia/hipotensión). No con dextrosa.",
+      "ampulePresentation": "250 mg / 5 mL",
+      "ampuleAmount": 250,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 5,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "mg/min",
+      "doseRanges": [
+        {
+          "label": "Carga (máx)",
+          "min": 25,
+          "max": 50,
+          "unit": "mg/min"
+        }
+      ],
+      "category": "Antiepilépticos"
+    },
+    {
+      "name": "Levetiracetam",
+      "description": "Antiepiléptico (proteína SV2A). Estatus epiléptico, profilaxis post-quirúrgica y TEC. Sin interacciones significativas, no hepatotóxico, ajustar en IR.",
+      "ampulePresentation": "500 mg / 5 mL",
+      "ampuleAmount": 500,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 5,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Infusión 15 min",
+          "min": 2000,
+          "max": 4000,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Antiepilépticos"
+    },
+    {
+      "name": "Valproato sódico",
+      "description": "Antiepiléptico de amplio espectro. Estatus epiléptico (alternativa a fenitoína). Hiperamonemia, hepatotoxicidad, trombocitopenia. CI en enfermedad hepática.",
+      "ampulePresentation": "500 mg / 5 mL",
+      "ampuleAmount": 500,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 5,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "mg/kg/h",
+      "doseRanges": [
+        {
+          "label": "Mantenimiento",
+          "min": 1,
+          "max": 2,
+          "unit": "mg/kg/h"
+        }
+      ],
+      "category": "Antiepilépticos"
+    },
+    {
+      "name": "Lacosamida",
+      "description": "Aumenta la inactivación lenta de canales de Na+. Alternativa IV cuando vía oral no disponible. Menos efectos cardiovasculares que fenitoína. Precaución con PR prolongado.",
+      "ampulePresentation": "200 mg / 20 mL",
+      "ampuleAmount": 200,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 20,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Infusión 15-60 min",
+          "min": 200,
+          "max": 800,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Antiepilépticos"
+    },
+    {
+      "name": "Fenobarbital",
+      "description": "Barbitúrico antiepiléptico de larga acción. Estatus epiléptico refractario, abstinencia alcohólica refractaria. Sedación prolongada, depresión respiratoria.",
+      "ampulePresentation": "200 mg / 1 mL",
+      "ampuleAmount": 200,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 1,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "mg/min",
+      "doseRanges": [
+        {
+          "label": "Carga máx",
+          "min": 30,
+          "max": 60,
+          "unit": "mg/min"
+        }
+      ],
+      "category": "Antiepilépticos"
+    },
+    {
+      "name": "Hidrocortisona",
+      "description": "Glucocorticoide con actividad mineralocorticoide. Insuficiencia suprarrenal aguda, shock séptico refractario, estatus asmático. Infusión continua más estable que bolos.",
+      "ampulePresentation": "100 mg (liofilizado)",
+      "ampuleAmount": 100,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 0,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Shock séptico (cont.)",
+          "min": 8,
+          "max": 10,
+          "unit": "mg/h"
+        },
+        {
+          "label": "Insuf. suprarrenal",
+          "min": 4,
+          "max": 8,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Corticosteroides"
+    },
+    {
+      "name": "Dexametasona",
+      "description": "Glucocorticoide sintético 25x más potente que hidrocortisona. Sin actividad mineralocorticoide. Edema cerebral, profilaxis NVPO, laringitis, maduración pulmonar fetal. T½ larga.",
+      "ampulePresentation": "8 mg / 2 mL",
+      "ampuleAmount": 8,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 2,
+      "standardDilutionMl": 50,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Edema cerebral",
+          "min": 0.5,
+          "max": 4,
+          "unit": "mg/h"
+        },
+        {
+          "label": "Bolo NVPO: 4-8 mg IV",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Corticosteroides"
+    },
+    {
+      "name": "Metilprednisolona",
+      "description": "Glucocorticoide 5x más potente que hidrocortisona. Pulsos IV para rechazo de trasplante, exacerbación de asma, enfermedades autoinmunes. Menor actividad mineralocorticoide.",
+      "ampulePresentation": "500 mg (liofilizado)",
+      "ampuleAmount": 500,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 0,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Pulso 30-60 min",
+          "min": 500,
+          "max": 1000,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Corticosteroides"
+    },
+    {
+      "name": "Vancomicina",
+      "description": "Glucopéptido activo contra Gram (+) incluyendo MRSA. Infusión extendida mejora PK/PD (AUC/MIC). Nefrotóxica. Síndrome del hombre rojo si infusión rápida.",
+      "ampulePresentation": "1000 mg (liofilizado)",
+      "ampuleAmount": 1000,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 0,
+      "standardDilutionMl": 250,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Intermitente 1-2h",
+          "min": 500,
+          "max": 1000,
+          "unit": "mg/h"
+        },
+        {
+          "label": "Continua 24h",
+          "min": 60,
+          "max": 125,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Antibióticos"
+    },
+    {
+      "name": "Meropenem",
+      "description": "Carbapenem amplio espectro. Infusión extendida (3h) optimiza T>MIC. Infecciones severas por Gram (-) MDR. Menor umbral convulsivo que imipenem.",
+      "ampulePresentation": "1000 mg (liofilizado)",
+      "ampuleAmount": 1000,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 0,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Extendida 3h",
+          "min": 333,
+          "max": 666,
+          "unit": "mg/h"
+        },
+        {
+          "label": "Continua 24h",
+          "min": 125,
+          "max": 250,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Antibióticos"
+    },
+    {
+      "name": "Piperacilina/Tazobactam",
+      "description": "β-lactámico + inhibidor de β-lactamasa. Amplio espectro incluyendo Pseudomonas. Infusión extendida (4h) mejora PK/PD.",
+      "ampulePresentation": "4500 mg (liofilizado)",
+      "ampuleAmount": 4500,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 0,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Extendida 4h",
+          "min": 1125,
+          "max": 1125,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Antibióticos"
+    },
+    {
+      "name": "Linezolid",
+      "description": "Oxazolidinona contra Gram (+) incluyendo MRSA y VRE. Inhibidor MAO. Trombocitopenia en >14 días. No requiere ajuste renal.",
+      "ampulePresentation": "600 mg / 300 mL",
+      "ampuleAmount": 600,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 300,
+      "standardDilutionMl": 300,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Infusión 30-120 min",
+          "min": 300,
+          "max": 1200,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Antibióticos"
+    },
+    {
+      "name": "Caspofungina",
+      "description": "Equinocandina (inhibe β-1,3-glucano). Candidiasis invasiva, aspergilosis refractaria, neutropenia febril empírica. Ajustar en IH moderada.",
+      "ampulePresentation": "50 mg (liofilizado)",
+      "ampuleAmount": 50,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 0,
+      "standardDilutionMl": 250,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Infusión 1h",
+          "min": 35,
+          "max": 70,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Antifúngicos"
+    },
+    {
+      "name": "Anfotericina B liposomal",
+      "description": "Poliénico de amplio espectro. Formulación liposomal con menor nefrotoxicidad. Infecciones fúngicas sistémicas graves. Reacciones infusionales frecuentes.",
+      "ampulePresentation": "50 mg (liofilizado)",
+      "ampuleAmount": 50,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 0,
+      "standardDilutionMl": 250,
+      "typicalDoseUnit": "mg/kg/h",
+      "doseRanges": [
+        {
+          "label": "Infusión 1-2h",
+          "min": 1.5,
+          "max": 5,
+          "unit": "mg/kg/h"
+        }
+      ],
+      "category": "Antifúngicos"
+    },
+    {
+      "name": "N-acetilcisteína (NAC)",
+      "description": "Precursor de glutatión. Antídoto en intoxicación por acetaminofén (protocolo 21h), mucolítico, falla hepática aguda. Reacciones anafilactoides en fase de carga.",
+      "ampulePresentation": "2000 mg / 10 mL",
+      "ampuleAmount": 2000,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 10,
+      "standardDilutionMl": 250,
+      "typicalDoseUnit": "mg/kg/h",
+      "doseRanges": [
+        {
+          "label": "Fase 1 (1h)",
+          "min": 150,
+          "max": 150,
+          "unit": "mg/kg/h"
+        },
+        {
+          "label": "Fase 2 (4h)",
+          "min": 12.5,
+          "max": 12.5,
+          "unit": "mg/kg/h"
+        },
+        {
+          "label": "Fase 3 (16h)",
+          "min": 6.25,
+          "max": 6.25,
+          "unit": "mg/kg/h"
+        }
+      ],
+      "category": "Antídotos / Reanimación"
+    },
+    {
+      "name": "Octreótido",
+      "description": "Análogo de somatostatina. HDA variceal, síndrome carcinoide, fístulas pancreáticas, hiperinsulinismo. Reduce flujo esplácnico y secreción de GH, insulina, glucagón.",
+      "ampulePresentation": "0.6 mg / 5 mL",
+      "ampuleAmount": 600,
+      "ampuleUnit": "µg",
+      "ampuleVolumeMl": 5,
+      "standardDilutionMl": 50,
+      "typicalDoseUnit": "µg/h",
+      "doseRanges": [
+        {
+          "label": "HDA variceal",
+          "min": 25,
+          "max": 50,
+          "unit": "µg/h"
+        },
+        {
+          "label": "Carcinoide",
+          "min": 50,
+          "max": 200,
+          "unit": "µg/h"
+        }
+      ],
+      "category": "Antídotos / Reanimación"
+    },
+    {
+      "name": "Desmopresina (DDAVP)",
+      "description": "Análogo de vasopresina con acción V2 selectiva. Diabetes insípida central, hemofilia A leve, EvW tipo 1, uremia con sangrado. Libera factor VIII y vWF.",
+      "ampulePresentation": "4 µg / 1 mL",
+      "ampuleAmount": 4,
+      "ampuleUnit": "µg",
+      "ampuleVolumeMl": 1,
+      "standardDilutionMl": 50,
+      "typicalDoseUnit": "µg/h",
+      "doseRanges": [
+        {
+          "label": "Diabetes insípida",
+          "min": 0.5,
+          "max": 2,
+          "unit": "µg/h"
+        },
+        {
+          "label": "Bolo hemostático: 0.3 µg/kg",
+          "min": 0,
+          "max": 0,
+          "unit": "µg/h"
+        }
+      ],
+      "category": "Antídotos / Reanimación"
+    },
+    {
+      "name": "Glucagón",
+      "description": "Hormona hiperglucemiante. Antídoto en sobredosis de β-bloqueadores y calcioantagonistas, hipoglucemia severa. Efecto inotrópico y cronotrópico independiente de β.",
+      "ampulePresentation": "1 mg (liofilizado)",
+      "ampuleAmount": 1,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 0,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Sobredosis β-bloq",
+          "min": 2,
+          "max": 5,
+          "unit": "mg/h"
+        },
+        {
+          "label": "Sobredosis Ca-antag",
+          "min": 2,
+          "max": 10,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Antídotos / Reanimación"
+    },
+    {
+      "name": "Hidroxocobalamina",
+      "description": "Antídoto de elección en intoxicación por cianuro (incluyendo nitroprusiato). Se une al cianuro formando cianocobalamina (B12). Cambia color de orina y piel a rojizo transitorio.",
+      "ampulePresentation": "5000 mg (liofilizado)",
+      "ampuleAmount": 5000,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 0,
+      "standardDilutionMl": 200,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo: 5 g IV en 15 min",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Antídotos / Reanimación"
+    },
+    {
+      "name": "Azul de metileno",
+      "description": "Antídoto en metahemoglobinemia. Coadyuvante en shock vasopléjico refractario (inhibe NO sintasa). CI en déficit de G6PD. Tinción azul-verdosa transitoria de la orina.",
+      "ampulePresentation": "50 mg / 5 mL (1%)",
+      "ampuleAmount": 50,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 5,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "mg/kg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo: 1-2 mg/kg en 5 min",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/kg/h"
+        },
+        {
+          "label": "Shock vasopléjico",
+          "min": 0.25,
+          "max": 1,
+          "unit": "mg/kg/h"
+        }
+      ],
+      "category": "Antídotos / Reanimación"
+    },
+    {
+      "name": "Fisostigmina",
+      "description": "Inhibidor de colinesterasa que atraviesa la BHE. Antídoto en intoxicación anticolinérgica central (delirium, agitación). Reversión de efectos centrales de escopolamina, atropina, antihistamínicos.",
+      "ampulePresentation": "1 mg / 1 mL",
+      "ampuleAmount": 1,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 1,
+      "standardDilutionMl": 10,
+      "typicalDoseUnit": "mg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo: 0.5-2 mg IV lento",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/h"
+        }
+      ],
+      "category": "Antídotos / Reanimación"
+    },
+    {
+      "name": "Dantroleno",
+      "description": "Antagonista del receptor de rianodina. Tratamiento de hipertermia maligna y síndrome neuroléptico maligno. Bolo IV de 2.5 mg/kg repetible. Difícil de reconstituir.",
+      "ampulePresentation": "20 mg (liofilizado)",
+      "ampuleAmount": 20,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 0,
+      "standardDilutionMl": 60,
+      "typicalDoseUnit": "mg/kg/h",
+      "doseRanges": [
+        {
+          "label": "Bolo: 2.5 mg/kg c/5-10 min",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/kg/h"
+        }
+      ],
+      "category": "Antídotos / Reanimación"
+    },
+    {
+      "name": "Emulsión lipídica 20%",
+      "description": "Antídoto en intoxicación por anestésicos locales (LAST) y otras toxicidades por fármacos lipofílicos. Mecanismo de 'lipid sink'. Protocolo: bolo + infusión.",
+      "ampulePresentation": "100 mL (20%)",
+      "ampuleAmount": 20000,
+      "ampuleUnit": "mg",
+      "ampuleVolumeMl": 100,
+      "standardDilutionMl": 100,
+      "typicalDoseUnit": "mg/kg/min",
+      "doseRanges": [
+        {
+          "label": "LAST infusión",
+          "min": 4.2,
+          "max": 4.2,
+          "unit": "mg/kg/min"
+        },
+        {
+          "label": "Bolo: 1.5 mL/kg en 1 min",
+          "min": 0,
+          "max": 0,
+          "unit": "mg/kg/min"
+        }
+      ],
+      "category": "Antídotos / Reanimación"
+    }
+  ]
+}

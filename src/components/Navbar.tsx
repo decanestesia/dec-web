@@ -14,84 +14,58 @@ export function Navbar() {
   return (
     <nav
       className="sticky top-0 z-50"
-      style={{
-        background: "var(--bg-secondary)",
-        borderBottom: "1px solid var(--border)",
-      }}
+      style={{ background: "var(--bg-1)", borderBottom: "1px solid var(--border)" }}
     >
-      <div className="container-dec flex items-center justify-between h-12">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 no-underline">
+      <div className="wrap flex items-center justify-between h-11">
+        <Link href="/" className="flex items-center gap-2" style={{ textDecoration: "none" }}>
           <span
-            className="text-xs font-bold tracking-widest"
-            style={{ color: "var(--accent)" }}
+            className="mono"
+            style={{ color: "var(--accent)", fontSize: "0.75rem", fontWeight: 700, letterSpacing: "0.08em" }}
           >
             ▸ DEC
           </span>
           <span
-            className="text-xs hidden sm:inline"
-            style={{ color: "var(--text-muted)", fontFamily: "SF Mono, monospace" }}
+            className="mono hidden sm:inline"
+            style={{ color: "var(--text-3)", fontSize: "0.6rem" }}
           >
-            α 0.1
-          </span> 
+            α0.1
+          </span>
+          <span
+            className="hidden sm:inline"
+            style={{
+              width: 6, height: 6, borderRadius: "50%",
+              background: "var(--accent)",
+              boxShadow: "0 0 8px var(--accent)",
+              display: "inline-block",
+            }}
+          />
         </Link>
 
-        {/* Nav links */}
-        <div className="flex items-center gap-0">
-          <NavLink href="/" active={pathname === "/"}>
-            inicio
-          </NavLink>
-          <NavLink href="/farmacos" active={isActive("/farmacos")}>
-            fármacos
-          </NavLink>
+        <div className="flex items-center gap-0.5">
+          <Link href="/" className={`nav-link ${pathname === "/" ? "nav-link-active" : ""}`}>
+            sys
+          </Link>
+          <Link href="/farmacos" className={`nav-link ${isActive("/farmacos") ? "nav-link-active" : ""}`}>
+            db/farmacos
+          </Link>
+          <Link href="/calculadora" className={`nav-link ${isActive("/calculadora") ? "nav-link-active" : ""}`}>
+            calc
+          </Link>
 
-          {/* Separator */}
-          <div
-            className="w-px h-4 mx-2"
-            style={{ background: "var(--border-light)" }}
-          />
+          <div style={{ width: 1, height: 14, background: "var(--border-hi)", margin: "0 0.4rem" }} />
 
-          {/* Theme toggle */}
           <button
             onClick={toggle}
-            className="px-2 py-1 text-xs transition-colors"
+            className="mono"
             style={{
-              color: "var(--text-muted)",
-              background: "transparent",
-              border: "none",
-              cursor: "pointer",
-              fontFamily: "SF Mono, monospace",
+              background: "none", border: "none", cursor: "pointer",
+              color: "var(--text-3)", fontSize: "0.6rem", padding: "0.3rem",
             }}
-            title={theme === "dark" ? "Modo claro" : "Modo oscuro"}
           >
-            {theme === "dark" ? "[light]" : "[dark]"}
+            {theme === "dark" ? "◐ light" : "◑ dark"}
           </button>
         </div>
       </div>
     </nav>
-  );
-}
-
-function NavLink({
-  href,
-  active,
-  children,
-}: {
-  href: string;
-  active: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <Link
-      href={href}
-      className="px-3 py-1 text-xs no-underline transition-colors"
-      style={{
-        color: active ? "var(--accent)" : "var(--text-muted)",
-        fontFamily: "SF Mono, monospace",
-        borderBottom: active ? "1px solid var(--accent)" : "1px solid transparent",
-      }}
-    >
-      {children}
-    </Link>
   );
 }

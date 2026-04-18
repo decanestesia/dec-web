@@ -2,15 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
-import {
-  Drug,
-  DrugCatalog,
-  getCategories,
-  getDrugsInCategory,
-  searchDrugs,
-  slugify,
-  CATEGORY_ICONS,
-} from "@/lib/drugs";
+import { DrugCatalog, Drug, getCategories, getDrugsInCategory, searchDrugs, slugify, CATEGORY_ICONS } from "@/lib/drugs";
 import drugsData from "../../../public/drugs.json";
 
 const catalog = drugsData as DrugCatalog;
@@ -20,185 +12,88 @@ export default function FarmacosPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const categories = useMemo(() => getCategories(catalog.drugs), []);
-
   const results = useMemo(() => {
     if (query.trim()) return searchDrugs(catalog.drugs, query);
-    if (selectedCategory === "__all__")
-      return [...catalog.drugs].sort((a, b) => a.name.localeCompare(b.name));
-    if (selectedCategory)
-      return getDrugsInCategory(catalog.drugs, selectedCategory);
+    if (selectedCategory === "__all__") return [...catalog.drugs].sort((a, b) => a.name.localeCompare(b.name));
+    if (selectedCategory) return getDrugsInCategory(catalog.drugs, selectedCategory);
     return [];
   }, [query, selectedCategory]);
 
-  const showCategories = !query.trim() && !selectedCategory;
+  const showCats = !query.trim() && !selectedCategory;
 
   return (
-    <div className="container-dec py-8">
+    <div className="wrap" style={{ paddingTop: "1.5rem", paddingBottom: "3rem" }}>
       {/* Header */}
-      <div className="mb-6">
-        <div
-          className="text-xs mb-2"
-          style={{ color: "var(--text-muted)", fontFamily: "SF Mono, monospace" }}
-        >
-          <span style={{ color: "var(--accent)" }}>$</span> cat /farmacos
-          <span className="cursor-blink" />
-        </div>
-        <h1 className="text-2xl sm:text-3xl font-bold mb-1">
-          Catálogo de Fármacos
-        </h1>
-        <p
-          className="text-xs"
-          style={{ color: "var(--text-muted)", fontFamily: "SF Mono, monospace" }}
-        >
-          {catalog.drugs.length} fármacos · {categories.length} categorías ·
-          v{catalog.version} · {catalog.lastUpdated}
+      <div style={{ marginBottom: "1.25rem" }}>
+        <div className="prompt mono blink" style={{ marginBottom: "0.5rem" }}><b>$</b> cat /db/farmacos</div>
+        <h1 style={{ fontSize: "1.6rem", fontWeight: 700 }}>Catálogo de Fármacos</h1>
+        <p className="mono" style={{ color: "var(--text-3)", fontSize: "0.65rem", marginTop: "0.25rem" }}>
+          {catalog.drugs.length} fármacos · {categories.length} categorías · v{catalog.version} · {catalog.lastUpdated}
         </p>
       </div>
 
       {/* Search */}
-      <div className="relative mb-6">
-        <span
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-xs"
-          style={{ color: "var(--text-muted)", fontFamily: "SF Mono, monospace" }}
-        >
-          ⌕
-        </span>
+      <div className="search-box" style={{ marginBottom: "1.25rem" }}>
+        <span className="search-icon mono">⌕</span>
         <input
           type="text"
-          className="search-input"
           placeholder="buscar fármaco, categoría o descripción..."
           value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            if (e.target.value) setSelectedCategory(null);
-          }}
+          onChange={(e) => { setQuery(e.target.value); if (e.target.value) setSelectedCategory(null); }}
         />
         {query && (
           <button
             onClick={() => setQuery("")}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-xs"
-            style={{
-              color: "var(--text-muted)",
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              fontFamily: "SF Mono, monospace",
-            }}
-          >
-            [×]
-          </button>
+            className="mono"
+            style={{ position: "absolute", right: "0.5rem", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "var(--text-3)", fontSize: "0.7rem" }}
+          >[×]</button>
         )}
       </div>
 
-      {/* Breadcrumb when category selected */}
+      {/* Breadcrumb */}
       {selectedCategory && (
-        <div
-          className="flex items-center gap-2 mb-4 text-xs animate-fade-in"
-          style={{ fontFamily: "SF Mono, monospace" }}
-        >
-          <button
-            onClick={() => setSelectedCategory(null)}
-            className="btn-ghost"
-            style={{ padding: "0.25rem 0.5rem", fontSize: "0.7rem" }}
-          >
-            ← back
-          </button>
-          <span style={{ color: "var(--text-muted)" }}>/</span>
-          <span style={{ color: "var(--text-secondary)" }}>
-            {selectedCategory === "__all__"
-              ? `todos (${catalog.drugs.length})`
-              : `${CATEGORY_ICONS[selectedCategory] || ""} ${selectedCategory} (${results.length})`}
+        <div className="fade-up" style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
+          <button onClick={() => setSelectedCategory(null)} className="btn btn-outline" style={{ padding: "0.2rem 0.5rem", fontSize: "0.6rem" }}>← back</button>
+          <span className="mono" style={{ color: "var(--text-3)", fontSize: "0.65rem" }}>/</span>
+          <span className="mono" style={{ color: "var(--text-1)", fontSize: "0.65rem" }}>
+            {selectedCategory === "__all__" ? `todos (${catalog.drugs.length})` : `${CATEGORY_ICONS[selectedCategory] || ""} ${selectedCategory} (${results.length})`}
           </span>
         </div>
       )}
 
-      {/* Search results count */}
       {query.trim() && (
-        <p
-          className="text-xs mb-4"
-          style={{ color: "var(--text-muted)", fontFamily: "SF Mono, monospace" }}
-        >
-          {results.length === 0
-            ? "// sin resultados — intenta otro término"
-            : `// ${results.length} resultado${results.length !== 1 ? "s" : ""}`}
+        <p className="mono" style={{ color: "var(--text-3)", fontSize: "0.65rem", marginBottom: "0.75rem" }}>
+          {results.length === 0 ? "// sin resultados" : `// ${results.length} resultado${results.length !== 1 ? "s" : ""}`}
         </p>
       )}
 
-      {/* Categories grid */}
-      {showCategories && (
-        <div className="animate-fade-in">
-          <div
-            className="text-xs font-semibold tracking-widest uppercase mb-3"
-            style={{ color: "var(--text-muted)" }}
-          >
-            Categorías
-          </div>
-          <div className="category-grid mb-6">
+      {/* Categories */}
+      {showCats && (
+        <div className="fade-up">
+          <div className="prompt mono" style={{ marginBottom: "0.5rem" }}><b>$</b> ls categorías/</div>
+          <div className="cat-grid" style={{ marginBottom: "1rem" }}>
             {categories.map((cat) => {
               const count = getDrugsInCategory(catalog.drugs, cat).length;
               return (
                 <button
                   key={cat}
                   onClick={() => setSelectedCategory(cat)}
-                  className="text-left p-3 transition-all"
-                  style={{
-                    background: "var(--bg-card)",
-                    cursor: "pointer",
-                    border: "none",
-                    color: "var(--text-primary)",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = "var(--bg-card-hover)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = "var(--bg-card)";
-                  }}
+                  className="card-interactive"
+                  style={{ padding: "0.65rem", background: "var(--bg-2)", border: "none", textAlign: "left", cursor: "pointer", color: "var(--text-0)" }}
                 >
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-base">
-                      {CATEGORY_ICONS[cat] || "📦"}
-                    </span>
-                    <span
-                      className="text-xs"
-                      style={{
-                        color: "var(--text-muted)",
-                        fontFamily: "SF Mono, monospace",
-                      }}
-                    >
-                      {count}
-                    </span>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.25rem" }}>
+                    <span style={{ fontSize: "1rem" }}>{CATEGORY_ICONS[cat] || "📦"}</span>
+                    <span className="mono" style={{ color: "var(--text-3)", fontSize: "0.6rem" }}>{count}</span>
                   </div>
-                  <div
-                    className="text-xs font-medium leading-tight"
-                    style={{ color: "var(--text-secondary)" }}
-                  >
-                    {cat}
-                  </div>
+                  <div style={{ color: "var(--text-1)", fontSize: "0.7rem", fontWeight: 500, lineHeight: 1.3 }}>{cat}</div>
                 </button>
               );
             })}
           </div>
-
           <button
             onClick={() => setSelectedCategory("__all__")}
-            className="w-full text-center p-3 transition-all"
-            style={{
-              background: "var(--bg-card)",
-              border: "1px solid var(--border)",
-              borderRadius: "2px",
-              cursor: "pointer",
-              color: "var(--text-secondary)",
-              fontFamily: "SF Mono, monospace",
-              fontSize: "0.75rem",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = "var(--accent-border)";
-              e.currentTarget.style.color = "var(--accent)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = "var(--border)";
-              e.currentTarget.style.color = "var(--text-secondary)";
-            }}
+            className="card-interactive mono"
+            style={{ width: "100%", padding: "0.6rem", background: "var(--bg-2)", border: "1px solid var(--border)", color: "var(--text-2)", fontSize: "0.7rem", cursor: "pointer", textAlign: "center" }}
           >
             [ ver todos — {catalog.drugs.length} fármacos ]
           </button>
@@ -207,29 +102,20 @@ export default function FarmacosPage() {
 
       {/* Drug list */}
       {results.length > 0 && (
-        <div className="drug-grid animate-fade-in">
+        <div className="drug-grid fade-up">
           {results.map((drug, i) => (
             <DrugCard key={drug.name + i} drug={drug} />
           ))}
         </div>
       )}
 
-      {/* Empty search */}
+      {/* Empty */}
       {query.trim() && results.length === 0 && (
-        <div
-          className="text-center py-16 animate-fade-in"
-          style={{ fontFamily: "SF Mono, monospace" }}
-        >
-          <div className="text-3xl mb-3" style={{ opacity: 0.3 }}>
-            💀
-          </div>
-          <p className="text-sm mb-1" style={{ color: "var(--text-secondary)" }}>
-            Sin resultados
-          </p>
-          <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-            Ese fármaco no está en nuestra base de datos.
-            <br />
-            Si existe, probablemente tampoco está en tu hospital.
+        <div className="fade-up" style={{ textAlign: "center", padding: "4rem 0" }}>
+          <div style={{ fontSize: "2.5rem", opacity: 0.2, marginBottom: "0.75rem" }}>💀</div>
+          <p style={{ color: "var(--text-1)", fontSize: "0.9rem", marginBottom: "0.25rem" }}>Sin resultados</p>
+          <p className="mono" style={{ color: "var(--text-3)", fontSize: "0.65rem" }}>
+            Ese fármaco no está en nuestra base de datos.<br />Si existe, probablemente tampoco está en tu hospital.
           </p>
         </div>
       )}
@@ -241,42 +127,19 @@ function DrugCard({ drug }: { drug: Drug }) {
   return (
     <Link
       href={`/farmacos/${slugify(drug.name)}`}
-      className="block p-4 transition-all no-underline"
-      style={{ background: "var(--bg-card)" }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.background = "var(--bg-card-hover)";
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.background = "var(--bg-card)";
-      }}
+      className="card-interactive"
+      style={{ display: "block", padding: "0.75rem", textDecoration: "none", color: "inherit" }}
     >
-      <div className="flex items-start justify-between gap-2 mb-1.5">
-        <h3
-          className="text-sm font-semibold leading-tight"
-          style={{ color: "var(--text-primary)" }}
-        >
-          {drug.name}
-        </h3>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "0.5rem", marginBottom: "0.35rem" }}>
+        <h3 style={{ color: "var(--text-0)", fontSize: "0.8rem", fontWeight: 600, lineHeight: 1.3 }}>{drug.name}</h3>
       </div>
-
-      <span className="badge badge-category">{drug.category}</span>
-
-      <p
-        className="text-xs mt-2 leading-relaxed"
-        style={{
-          color: "var(--text-muted)",
-          display: "-webkit-box",
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: "vertical",
-          overflow: "hidden",
-        }}
-      >
+      <span className="tag tag-accent">{drug.category}</span>
+      <p style={{ color: "var(--text-3)", fontSize: "0.7rem", marginTop: "0.4rem", lineHeight: 1.5, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical" as const, overflow: "hidden" }}>
         {drug.description}
       </p>
-
-      <div className="flex items-center gap-2 mt-2.5">
-        <span className="badge badge-unit">{drug.ampulePresentation}</span>
-        <span className="badge badge-unit">{drug.typicalDoseUnit}</span>
+      <div style={{ display: "flex", gap: "0.35rem", marginTop: "0.5rem" }}>
+        <span className="tag tag-muted mono">{drug.ampulePresentation}</span>
+        <span className="tag tag-muted mono">{drug.typicalDoseUnit}</span>
       </div>
     </Link>
   );

@@ -1,5 +1,5 @@
 // ============================================================
-// Drug types and data loading — Supabase + local fallback
+// Drug types and data loading
 // ============================================================
 
 export interface DrugDoseRange {
@@ -27,10 +27,6 @@ export interface DrugCatalog {
   lastUpdated: string;
   drugs: Drug[];
 }
-
-// Remote URL (Supabase Storage — single source of truth)
-export const REMOTE_DRUGS_URL =
-  "https://smaazlgvonzcajjvbefk.supabase.co/storage/v1/object/public/drug-data/drugs.json";
 
 // Category display order
 const CATEGORY_ORDER = [
@@ -64,7 +60,7 @@ const CATEGORY_ORDER = [
   "Antídotos / Reanimación",
 ];
 
-// Category icons
+// Category icons (emoji for web)
 export const CATEGORY_ICONS: Record<string, string> = {
   "Vasopresores": "⬆️",
   "Inotrópicos": "💪",
@@ -106,16 +102,8 @@ export function slugify(name: string): string {
     .replace(/^-|-$/g, "");
 }
 
-// Load catalog from Supabase with local fallback (client-side)
+// Load catalog from JSON
 export async function loadCatalog(): Promise<DrugCatalog> {
-  try {
-    const res = await fetch(REMOTE_DRUGS_URL, {
-      next: { revalidate: 3600 }, // revalidate every hour
-    });
-    if (res.ok) return res.json();
-  } catch {
-    console.warn("Failed to fetch remote catalog, using local fallback");
-  }
   const res = await fetch("/drugs.json");
   return res.json();
 }

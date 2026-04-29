@@ -9,10 +9,12 @@ import {
   getDrugsInCategory,
   sortAdverseEffects,
   sortWarnings,
+  hasMolecularData,
   SEVERITY_COLOR,
   type DrugDetail,
 } from "@/lib/drugs";
 import { InfusionCalculator } from "./InfusionCalculator";
+import { MolecularSection } from "./MolecularSection";
 
 export async function generateStaticParams() {
   const catalog = loadCatalogSync();
@@ -56,6 +58,8 @@ export default async function DrugDetailPage({ params }: Props) {
 
   const blackBoxWarnings = detail?.warnings.filter((w) => w.is_black_box) ?? [];
   const otherWarnings = detail?.warnings.filter((w) => !w.is_black_box) ?? [];
+  const showMolecular =
+    detail?.molecular && hasMolecularData(detail.molecular);
 
   return (
     <div
@@ -116,6 +120,9 @@ export default async function DrugDetailPage({ params }: Props) {
               <span className="tag tag-accent">{drug.category}</span>
               {drug.infusion && drug.infusion.length > 0 && (
                 <span className="tag tag-accent mono">CALC</span>
+              )}
+              {showMolecular && (
+                <span className="tag tag-accent mono">MOL</span>
               )}
             </div>
           </div>
@@ -197,6 +204,16 @@ export default async function DrugDetailPage({ params }: Props) {
           <InfusionCalculator
             drugName={drug.name}
             entries={drug.infusion}
+          />
+        </Section>
+      )}
+
+      {/* Molecular data (NEW v16.2) */}
+      {showMolecular && detail?.molecular && (
+        <Section title="ESTRUCTURA QUÍMICA">
+          <MolecularSection
+            drugName={drug.name}
+            molecular={detail.molecular}
           />
         </Section>
       )}

@@ -1,5 +1,6 @@
 // ============================================================
 // DEC drugs data layer — hybrid (snapshot + Supabase fetch)
+// v16.2 — añade datos moleculares (PubChem)
 // ============================================================
 
 // ---------- Snapshot types (drugs.json, ~240 KB) ----------
@@ -169,16 +170,31 @@ export interface BrandName {
   is_available: boolean | null;
 }
 
+// NEW v16.2: Molecular data from PubChem
+export interface MolecularData {
+  formula: string | null;
+  molecular_weight: number | null;
+  smiles: string | null;
+  inchi: string | null;
+  inchi_key: string | null;
+  logp: number | null;
+  pka: number | null;
+  pka_type: string | null;
+  solubility: string | null;
+  protein_binding: string | null;
+}
+
 export interface DrugDetail {
   pharmacology: PharmacologyEntry[];
   adverse_effects: AdverseEffect[];
   warnings: Warning[];
   pregnancy: Pregnancy | null;
   brands: BrandName[];
+  molecular: MolecularData | null;  // NEW v16.2
 }
 
 export async function fetchDrugDetail(drugId: string): Promise<DrugDetail> {
-  const [pharm, ae, warn, preg, brands] = await Promise.all([
+  const [pharm, ae, warn, preg, brands, molecular] = await Promise.all([
     sb<PharmacologyEntry[]>(
       `drug_pharmacology?drug_id=eq.${drugId}&select=property,value,details,sort_order&order=sort_order.asc`
     ),
@@ -194,6 +210,10 @@ export async function fetchDrugDetail(drugId: string): Promise<DrugDetail> {
     sb<BrandName[]>(
       `drug_brand_names?drug_id=eq.${drugId}&select=brand_name,manufacturer,country,is_available`
     ),
+    // NEW v16.2: molecular data
+    sb<MolecularData[]>(
+      `drug_molecular?drug_id=eq.${drugId}&select=formula,molecular_weight,smiles,inchi,inchi_key,logp,pka,pka_type,solubility,protein_binding&limit=1`
+    ),
   ]);
   return {
     pharmacology: pharm,
@@ -201,6 +221,7 @@ export async function fetchDrugDetail(drugId: string): Promise<DrugDetail> {
     warnings: warn,
     pregnancy: preg[0] ?? null,
     brands,
+    molecular: molecular[0] ?? null,
   };
 }
 
@@ -237,10 +258,83 @@ export function sortWarnings(warnings: Warning[]): Warning[] {
   });
 }
 
-// Severity color map (uses CSS variables from globals.css)
 export const SEVERITY_COLOR: Record<string, string> = {
   "life-threatening": "var(--red)",
   severe: "var(--amber)",
   moderate: "var(--accent)",
   mild: "var(--text-2)",
 };
+
+// ---------- Molecular helpers (v16.2) ----------
+
+/** Convert formula like "C8H9NO2" to JSX-friendly array with subscripts. */
+export function parseFormulaToTokens(
+  formula: string
+): Array<{ text: string; sub: boolean }> {
+  const tokens: Array<{ text: string; sub: boolean }> = [];
+  // Match: element symbol (uppercase + optional lowercase) followed by optional digits
+  const regex = /([A-Z][a-z]?)(\d*)/g;
+  let match;
+  while ((match = regex.exec(formula)) !== null) {
+    if (match[1]) tokens.push({ text: match[1], sub: false });
+    if (match[2]) tokens.push({ text: match[2], sub: true });
+  }
+  // Also handle salts/charges with · or +/- (rare, e.g. "C13H16N2·HCl")
+  // For unmatched chars like ·, +, -, [, ], display as-is
+  if (tokens.length === 0) return [{ text: formula, sub: false }];
+  return tokens;
+}
+
+/** Qualitative interpretation of LogP for clinicians. */
+export function interpretLogP(logp: number): {
+  label: string;
+  description: string;
+} {
+  if (logp < -1) {
+    return {
+      label: "Hidrofílico",
+      description: "Pobre paso por membranas; biodisponibilidad oral baja",
+    };
+  }
+  if (logp < 1) {
+    return {
+      label: "Polar moderado",
+      description: "Distribución acuosa; absorción intestinal variable",
+    };
+  }
+  if (logp < 3) {
+    return {
+      label: "Lipofílico balanceado",
+      description: "Buena absorción y distribución tisular",
+    };
+  }
+  if (logp < 5) {
+    return {
+      label: "Lipofílico",
+      description: "Alta penetración tisular; SNC accesible",
+    };
+  }
+  return {
+    label: "Muy lipofílico",
+    description: "Acumulación en tejido adiposo; metabolismo hepático extenso",
+  };
+}
+
+/** PubChem URL given an InChI Key (canonical, stable). */
+export function pubchemUrl(inchiKey: string): string {
+  return `https://pubchem.ncbi.nlm.nih.gov/#query=${encodeURIComponent(inchiKey)}`;
+}
+
+/** Has any meaningful molecular data to display? */
+export function hasMolecularData(m: MolecularData | null): boolean {
+  if (!m) return false;
+  return !!(
+    m.formula ||
+    m.molecular_weight ||
+    m.smiles ||
+    m.logp !== null ||
+    m.pka !== null ||
+    m.solubility ||
+    m.protein_binding
+  );
+}

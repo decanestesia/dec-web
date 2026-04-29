@@ -6,19 +6,20 @@ import {
   findDrugBySlug,
   fetchDrugDetail,
   slugify,
+  getDrugsInCategory,
   sortAdverseEffects,
   sortWarnings,
+  SEVERITY_COLOR,
+  type DrugDetail,
 } from "@/lib/drugs";
 import { InfusionCalculator } from "./InfusionCalculator";
 
-// Pre-render todas las páginas en build time (SSG)
 export async function generateStaticParams() {
   const catalog = loadCatalogSync();
   return catalog.drugs.map((d) => ({ slug: slugify(d.name) }));
 }
 
-// Revalidación incremental cada 5 min para datos de Supabase
-export const revalidate = 300;
+export const revalidate = 300; // ISR: 5 min
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -28,7 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const catalog = loadCatalogSync();
   const drug = findDrugBySlug(catalog.drugs, slug);
-  if (!drug) return { title: "Fármaco no encontrado" };
+  if (!drug) return { title: "No encontrado" };
   return {
     title: drug.name,
     description: drug.description.slice(0, 160) || drug.mechanism_of_action,
@@ -39,261 +40,554 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export default async function DrugPage({ params }: Props) {
+export default async function DrugDetailPage({ params }: Props) {
   const { slug } = await params;
   const catalog = loadCatalogSync();
   const drug = findDrugBySlug(catalog.drugs, slug);
   if (!drug) notFound();
 
-  // Fetch rich detail at request time
-  const detail = await fetchDrugDetail(drug.id).catch(() => null);
+  const detail: DrugDetail | null = await fetchDrugDetail(drug.id).catch(
+    () => null
+  );
+
+  const related = getDrugsInCategory(catalog.drugs, drug.category)
+    .filter((d) => d.id !== drug.id)
+    .slice(0, 6);
+
+  const blackBoxWarnings = detail?.warnings.filter((w) => w.is_black_box) ?? [];
+  const otherWarnings = detail?.warnings.filter((w) => !w.is_black_box) ?? [];
 
   return (
-    <article className="container mx-auto px-4 py-8 max-w-4xl">
-      {/* Breadcrumbs */}
-      <nav className="text-sm text-foreground/60 mb-4">
-        <Link href="/farmacos" className="hover:text-emerald-600">
-          Catálogo
-        </Link>{" "}
-        / <span>{drug.category}</span>
+    <div
+      className="wrap"
+      style={{
+        paddingTop: "1.5rem",
+        paddingBottom: "3rem",
+        maxWidth: 760,
+        margin: "0 auto",
+      }}
+    >
+      {/* Breadcrumb */}
+      <nav
+        className="mono"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "0.4rem",
+          marginBottom: "1.5rem",
+          fontSize: "0.65rem",
+          color: "var(--text-3)",
+          flexWrap: "wrap",
+        }}
+      >
+        <Link
+          href="/farmacos"
+          style={{ color: "var(--accent)", textDecoration: "none" }}
+        >
+          fármacos
+        </Link>
+        <span>/</span>
+        <span>{drug.category.toLowerCase()}</span>
+        <span>/</span>
+        <span style={{ color: "var(--text-1)" }}>{drug.name.toLowerCase()}</span>
       </nav>
 
       {/* Header */}
-      <header className="mb-6 pb-4 border-b border-foreground/10">
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <h1 className="text-4xl font-bold mb-1">{drug.name}</h1>
+      <header style={{ marginBottom: "1.5rem" }}>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: "0.75rem" }}>
+          <span style={{ fontSize: "1.8rem" }}>{drug.category_icon}</span>
+          <div style={{ flex: 1 }}>
+            <h1 style={{ fontSize: "1.6rem", fontWeight: 700, lineHeight: 1.2 }}>
+              {drug.name}
+            </h1>
             {drug.generic_name && drug.generic_name !== drug.name && (
-              <p className="text-foreground/60 italic">{drug.generic_name}</p>
+              <p
+                className="mono"
+                style={{
+                  color: "var(--text-3)",
+                  fontSize: "0.65rem",
+                  marginTop: "0.25rem",
+                }}
+              >
+                {drug.generic_name}
+              </p>
             )}
+            <div style={{ display: "flex", gap: "0.35rem", marginTop: "0.5rem", flexWrap: "wrap" }}>
+              <span className="tag tag-accent">{drug.category}</span>
+              {drug.infusion && drug.infusion.length > 0 && (
+                <span className="tag tag-accent mono">CALC</span>
+              )}
+            </div>
           </div>
-          <span className="px-3 py-1 rounded-full bg-foreground/5 border border-foreground/10 text-sm">
-            {drug.category_icon} {drug.category}
-          </span>
         </div>
       </header>
 
+      {/* Black box warnings — top, prominent */}
+      {blackBoxWarnings.length > 0 && (
+        <div
+          className="panel"
+          style={{
+            borderLeft: "3px solid var(--red)",
+            marginBottom: "1.5rem",
+            background: "rgba(239,68,68,0.05)",
+          }}
+        >
+          <div className="panel-header">
+            <span
+              className="dot"
+              style={{
+                background: "var(--red)",
+                boxShadow: "0 0 6px var(--red)",
+              }}
+            />
+            ADVERTENCIA DE CAJA NEGRA — FDA
+          </div>
+          <div className="panel-body">
+            {blackBoxWarnings.map((w, i) => (
+              <p
+                key={i}
+                style={{
+                  color: "var(--text-1)",
+                  fontSize: "0.8rem",
+                  lineHeight: 1.7,
+                  marginBottom:
+                    i < blackBoxWarnings.length - 1 ? "0.5rem" : 0,
+                }}
+              >
+                {w.description}
+              </p>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Description */}
       {drug.description && (
-        <section className="mb-6">
-          <h2 className="text-xl font-semibold mb-2">Descripción clínica</h2>
-          <p className="leading-relaxed">{drug.description}</p>
-        </section>
+        <Section title="DESCRIPCIÓN CLÍNICA">
+          <p
+            style={{
+              color: "var(--text-1)",
+              fontSize: "0.85rem",
+              lineHeight: 1.7,
+            }}
+          >
+            {drug.description}
+          </p>
+        </Section>
       )}
 
-      {/* Mechanism of action */}
+      {/* Mechanism */}
       {drug.mechanism_of_action && (
-        <section className="mb-6">
-          <h2 className="text-xl font-semibold mb-2">Mecanismo de acción</h2>
-          <p className="leading-relaxed text-foreground/85">
+        <Section title="MECANISMO DE ACCIÓN">
+          <p
+            style={{
+              color: "var(--text-1)",
+              fontSize: "0.85rem",
+              lineHeight: 1.7,
+            }}
+          >
             {drug.mechanism_of_action}
           </p>
-        </section>
+        </Section>
       )}
 
-      {/* Infusion calculator (fusion calc + encyclopedia) */}
+      {/* Infusion calculator */}
       {drug.infusion && drug.infusion.length > 0 && (
-        <section className="mb-6 p-4 rounded-lg border border-emerald-500/30 bg-emerald-500/5">
-          <h2 className="text-xl font-semibold mb-3 flex items-center gap-2">
-            <span>🧮</span> Calculadora de infusión
-          </h2>
-          <InfusionCalculator drugName={drug.name} entries={drug.infusion} />
-        </section>
-      )}
-
-      {/* Black box warnings (top, prominent) */}
-      {detail && detail.warnings.some((w) => w.is_black_box) && (
-        <section className="mb-6 p-4 rounded-lg border-2 border-red-600 bg-red-50 dark:bg-red-950/30">
-          <h2 className="text-xl font-bold mb-2 text-red-700 dark:text-red-400 flex items-center gap-2">
-            ⚠️ Advertencias de caja negra (FDA)
-          </h2>
-          <ul className="space-y-2">
-            {detail.warnings
-              .filter((w) => w.is_black_box)
-              .map((w, i) => (
-                <li key={i} className="text-sm leading-relaxed">
-                  {w.description}
-                </li>
-              ))}
-          </ul>
-        </section>
+        <Section title="CALCULADORA DE INFUSIÓN">
+          <InfusionCalculator
+            drugName={drug.name}
+            entries={drug.infusion}
+          />
+        </Section>
       )}
 
       {/* Pharmacology */}
       {detail && detail.pharmacology.length > 0 && (
-        <section className="mb-6">
-          <h2 className="text-xl font-semibold mb-3">Farmacología</h2>
-          <dl className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
-            {detail.pharmacology.map((p, i) => (
-              <div key={i} className="border-l-2 border-emerald-500 pl-3 py-1">
-                <dt className="text-sm font-semibold text-foreground/70">
-                  {p.property}
-                </dt>
-                <dd className="text-sm">{p.value}</dd>
-                {p.details && (
-                  <dd className="text-xs text-foreground/60 mt-0.5">
-                    {p.details}
-                  </dd>
-                )}
-              </div>
-            ))}
-          </dl>
-        </section>
+        <Section title="FARMACOLOGÍA">
+          <div className="panel">
+            <div className="panel-body" style={{ padding: 0 }}>
+              {detail.pharmacology.map((p, i) => (
+                <div
+                  key={i}
+                  className="data-row"
+                  style={{
+                    padding: "0.5rem 0.75rem",
+                    flexWrap: "wrap",
+                    gap: "0.5rem",
+                  }}
+                >
+                  <span
+                    className="data-label"
+                    style={{ flexShrink: 0, fontWeight: 500 }}
+                  >
+                    {p.property}
+                  </span>
+                  <span
+                    style={{
+                      color: "var(--text-0)",
+                      fontSize: "0.78rem",
+                      textAlign: "right",
+                      flex: 1,
+                      minWidth: 0,
+                    }}
+                  >
+                    {p.value}
+                    {p.details && (
+                      <div
+                        className="mono"
+                        style={{
+                          color: "var(--text-3)",
+                          fontSize: "0.65rem",
+                          marginTop: "0.25rem",
+                        }}
+                      >
+                        {p.details}
+                      </div>
+                    )}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Section>
       )}
 
       {/* Adverse effects */}
       {detail && detail.adverse_effects.length > 0 && (
-        <section className="mb-6">
-          <h2 className="text-xl font-semibold mb-3">Efectos adversos</h2>
-          <ul className="space-y-1">
-            {sortAdverseEffects(detail.adverse_effects).map((ae, i) => (
-              <li
-                key={i}
-                className="flex items-start gap-2 text-sm py-1 border-b border-foreground/5 last:border-0"
-              >
-                <SeverityBadge severity={ae.severity} />
-                <span className="flex-1">
-                  {ae.effect}
-                  {ae.organ_system && (
-                    <span className="text-foreground/50 ml-2">
-                      · {ae.organ_system}
-                    </span>
-                  )}
-                  {ae.frequency && (
-                    <span className="text-foreground/50 ml-2 italic">
-                      ({ae.frequency})
-                    </span>
-                  )}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
+        <Section title="EFECTOS ADVERSOS">
+          <div className="panel">
+            <div className="panel-body" style={{ padding: 0 }}>
+              {sortAdverseEffects(detail.adverse_effects).map((ae, i) => (
+                <div
+                  key={i}
+                  style={{
+                    padding: "0.5rem 0.75rem",
+                    borderBottom: "1px solid var(--border)",
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: "0.5rem",
+                  }}
+                >
+                  <span
+                    className="mono"
+                    title={ae.severity ?? ""}
+                    style={{
+                      flexShrink: 0,
+                      fontSize: "0.55rem",
+                      fontWeight: 700,
+                      letterSpacing: "0.05em",
+                      textTransform: "uppercase",
+                      padding: "0.15rem 0.35rem",
+                      border: "1px solid",
+                      borderColor: ae.severity
+                        ? SEVERITY_COLOR[ae.severity]
+                        : "var(--border-hi)",
+                      color: ae.severity
+                        ? SEVERITY_COLOR[ae.severity]
+                        : "var(--text-3)",
+                      minWidth: 60,
+                      textAlign: "center",
+                    }}
+                  >
+                    {(ae.severity ?? "?").slice(0, 4)}
+                  </span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div
+                      style={{
+                        color: "var(--text-0)",
+                        fontSize: "0.78rem",
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      {ae.effect}
+                    </div>
+                    <div
+                      className="mono"
+                      style={{
+                        color: "var(--text-3)",
+                        fontSize: "0.6rem",
+                        marginTop: "0.15rem",
+                      }}
+                    >
+                      {ae.organ_system && <span>{ae.organ_system}</span>}
+                      {ae.organ_system && ae.frequency && <span> · </span>}
+                      {ae.frequency && (
+                        <span style={{ fontStyle: "italic" }}>
+                          {ae.frequency}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Section>
       )}
 
       {/* Warnings & contraindications */}
-      {detail && detail.warnings.some((w) => !w.is_black_box) && (
-        <section className="mb-6">
-          <h2 className="text-xl font-semibold mb-3">
-            Advertencias y contraindicaciones
-          </h2>
-          <ul className="space-y-2">
-            {sortWarnings(detail.warnings)
-              .filter((w) => !w.is_black_box)
-              .map((w, i) => (
-                <li
-                  key={i}
-                  className={`p-3 rounded text-sm ${
-                    w.is_contraindication
-                      ? "bg-red-500/10 border-l-4 border-red-500"
-                      : "bg-amber-500/10 border-l-4 border-amber-500"
-                  }`}
+      {otherWarnings.length > 0 && (
+        <Section title="ADVERTENCIAS Y CONTRAINDICACIONES">
+          <div style={{ display: "grid", gap: "0.5rem" }}>
+            {sortWarnings(otherWarnings).map((w, i) => (
+              <div
+                key={i}
+                className="panel"
+                style={{
+                  borderLeft: `3px solid ${
+                    w.is_contraindication ? "var(--red)" : "var(--amber)"
+                  }`,
+                }}
+              >
+                <div
+                  style={{
+                    padding: "0.5rem 0.75rem",
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: "0.5rem",
+                  }}
                 >
-                  <div className="font-medium text-xs uppercase tracking-wide mb-1 text-foreground/70">
-                    {w.is_contraindication ? "Contraindicación" : "Advertencia"}
-                  </div>
-                  {w.description}
-                </li>
-              ))}
-          </ul>
-        </section>
+                  <span
+                    className="tag mono"
+                    style={{
+                      flexShrink: 0,
+                      color: w.is_contraindication
+                        ? "var(--red)"
+                        : "var(--amber)",
+                      borderColor: w.is_contraindication
+                        ? "var(--red)"
+                        : "var(--amber)",
+                      background: "transparent",
+                    }}
+                  >
+                    {w.is_contraindication ? "CI" : "WARN"}
+                  </span>
+                  <p
+                    style={{
+                      color: "var(--text-1)",
+                      fontSize: "0.78rem",
+                      lineHeight: 1.6,
+                      flex: 1,
+                    }}
+                  >
+                    {w.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Section>
       )}
 
       {/* Pregnancy & lactation */}
       {detail && detail.pregnancy && (
-        <section className="mb-6">
-          <h2 className="text-xl font-semibold mb-3">Embarazo y lactancia</h2>
-          <div className="p-4 rounded-lg bg-foreground/5">
-            {detail.pregnancy.fda_old_category && (
-              <div className="mb-2">
-                <span className="font-semibold">Categoría FDA: </span>
-                <span
-                  className={`px-2 py-0.5 rounded text-sm font-bold ${
-                    detail.pregnancy.fda_old_category === "X"
-                      ? "bg-red-600 text-white"
-                      : detail.pregnancy.fda_old_category === "D"
-                        ? "bg-orange-500 text-white"
-                        : detail.pregnancy.fda_old_category === "C"
-                          ? "bg-amber-500 text-white"
-                          : "bg-emerald-500 text-white"
-                  }`}
+        <Section title="EMBARAZO Y LACTANCIA">
+          <div className="panel">
+            <div
+              className="panel-body"
+              style={{ display: "grid", gap: "0.5rem" }}
+            >
+              {detail.pregnancy.fda_old_category && (
+                <div className="data-row">
+                  <span className="data-label">Categoría FDA</span>
+                  <span
+                    className="mono"
+                    style={{
+                      padding: "0.15rem 0.5rem",
+                      fontWeight: 700,
+                      fontSize: "0.7rem",
+                      color: "#000",
+                      background: pregnancyColor(
+                        detail.pregnancy.fda_old_category
+                      ),
+                    }}
+                  >
+                    {detail.pregnancy.fda_old_category}
+                  </span>
+                </div>
+              )}
+              {detail.pregnancy.fda_narrative && (
+                <p
+                  style={{
+                    color: "var(--text-1)",
+                    fontSize: "0.78rem",
+                    lineHeight: 1.6,
+                  }}
                 >
-                  {detail.pregnancy.fda_old_category}
-                </span>
-              </div>
-            )}
-            {detail.pregnancy.fda_narrative && (
-              <p className="text-sm leading-relaxed mb-2">
-                {detail.pregnancy.fda_narrative}
-              </p>
-            )}
-            {detail.pregnancy.lactation_notes && (
-              <p className="text-sm">
-                <strong>Lactancia:</strong> {detail.pregnancy.lactation_notes}
-              </p>
-            )}
+                  {detail.pregnancy.fda_narrative}
+                </p>
+              )}
+              {detail.pregnancy.lactation_notes && (
+                <p
+                  style={{
+                    color: "var(--text-1)",
+                    fontSize: "0.78rem",
+                    lineHeight: 1.6,
+                    paddingTop: "0.5rem",
+                    borderTop: "1px solid var(--border)",
+                  }}
+                >
+                  <strong style={{ color: "var(--text-0)" }}>
+                    Lactancia:{" "}
+                  </strong>
+                  {detail.pregnancy.lactation_notes}
+                </p>
+              )}
+            </div>
           </div>
-        </section>
+        </Section>
       )}
 
       {/* Brand names */}
       {detail && detail.brands.length > 0 && (
-        <section className="mb-6">
-          <h2 className="text-xl font-semibold mb-3">Marcas comerciales</h2>
-          <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <Section title="MARCAS COMERCIALES">
+          <div className="info-grid">
             {detail.brands.map((b, i) => (
-              <li
-                key={i}
-                className="text-sm p-2 rounded bg-foreground/5 flex items-center justify-between"
-              >
-                <span className="font-medium">{b.brand_name}</span>
-                <span className="text-xs text-foreground/60 text-right">
-                  {b.manufacturer && <div>{b.manufacturer}</div>}
-                  {b.country && <div>{b.country}</div>}
+              <div key={i}>
+                <span
+                  style={{
+                    color: "var(--text-0)",
+                    fontSize: "0.8rem",
+                    fontWeight: 600,
+                  }}
+                >
+                  {b.brand_name}
                 </span>
-              </li>
+                <span
+                  className="mono"
+                  style={{ color: "var(--text-3)", fontSize: "0.6rem" }}
+                >
+                  {b.manufacturer}
+                  {b.country && ` · ${b.country}`}
+                </span>
+              </div>
             ))}
-          </ul>
-        </section>
+          </div>
+        </Section>
+      )}
+
+      {/* Related */}
+      {related.length > 0 && (
+        <Section title={`OTROS ${drug.category.toUpperCase()}`}>
+          <div
+            className="grid-panel"
+            style={{
+              gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+            }}
+          >
+            {related.map((d) => (
+              <Link
+                key={d.id}
+                href={`/farmacos/${slugify(d.name)}`}
+                className="card-interactive"
+                style={{
+                  display: "block",
+                  padding: "0.6rem",
+                  textDecoration: "none",
+                  color: "inherit",
+                }}
+              >
+                <div
+                  style={{
+                    color: "var(--text-0)",
+                    fontSize: "0.8rem",
+                    fontWeight: 500,
+                  }}
+                >
+                  {d.name}
+                </div>
+                <div
+                  className="mono"
+                  style={{
+                    color: "var(--text-3)",
+                    fontSize: "0.6rem",
+                    marginTop: "0.2rem",
+                  }}
+                >
+                  {d.infusion?.[0]?.ampule_presentation ||
+                    d.infusion?.[0]?.dose_unit ||
+                    "ver ficha"}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </Section>
       )}
 
       {/* Disclaimer */}
-      <footer className="mt-8 p-4 rounded-lg bg-foreground/5 text-xs text-foreground/60 leading-relaxed">
-        Información de referencia clínica. No sustituye el juicio del
-        profesional ni la ficha técnica oficial. Verificar dosis y
-        contraindicaciones antes de cualquier prescripción.{" "}
-        <Link href="/legal/disclaimer" className="underline">
-          Ver descargo completo
-        </Link>
-        .
-      </footer>
-    </article>
+      <div
+        className="panel"
+        style={{ borderLeft: "3px solid var(--text-3)", marginTop: "2rem" }}
+      >
+        <div className="panel-body">
+          <p
+            className="mono"
+            style={{
+              color: "var(--text-3)",
+              fontSize: "0.65rem",
+              lineHeight: 1.7,
+            }}
+          >
+            ⚕️ Información de referencia clínica. Verifique dosis, dilución y
+            vía antes de administrar. No sustituye el juicio profesional ni la
+            ficha técnica oficial.{" "}
+            <Link
+              href="/legal/disclaimer"
+              style={{
+                color: "var(--accent)",
+                textDecoration: "underline",
+              }}
+            >
+              Ver descargo
+            </Link>
+            .
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }
 
-function SeverityBadge({ severity }: { severity: string | null }) {
-  const map: Record<string, { label: string; cls: string }> = {
-    "life-threatening": {
-      label: "L",
-      cls: "bg-red-600 text-white",
-    },
-    severe: { label: "S", cls: "bg-orange-500 text-white" },
-    moderate: { label: "M", cls: "bg-amber-500 text-white" },
-    mild: { label: "l", cls: "bg-emerald-500 text-white" },
-  };
-  const sev = severity ? map[severity] : null;
-  if (!sev)
-    return (
-      <span className="w-5 h-5 inline-block flex-shrink-0 rounded bg-foreground/20 text-white text-xs flex items-center justify-center font-bold">
-        ?
-      </span>
-    );
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
-    <span
-      title={severity ?? ""}
-      className={`w-5 h-5 inline-flex flex-shrink-0 rounded text-xs items-center justify-center font-bold ${sev.cls}`}
-    >
-      {sev.label}
-    </span>
+    <section style={{ marginBottom: "1.5rem" }}>
+      <h2
+        style={{
+          fontSize: "0.6rem",
+          fontWeight: 600,
+          letterSpacing: "0.12em",
+          color: "var(--text-3)",
+          marginBottom: "0.6rem",
+          paddingBottom: "0.35rem",
+          borderBottom: "1px solid var(--border)",
+        }}
+      >
+        {title}
+      </h2>
+      {children}
+    </section>
   );
+}
+
+function pregnancyColor(cat: string): string {
+  switch (cat.charAt(0)) {
+    case "X":
+      return "#ef4444";
+    case "D":
+      return "#f59e0b";
+    case "C":
+      return "#fbbf24";
+    case "B":
+      return "#10b981";
+    case "A":
+      return "#06b6d4";
+    default:
+      return "#7a8194";
+  }
 }

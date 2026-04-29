@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { DrugInfusionEntry } from "@/lib/drugs";
 
 interface Props {
@@ -10,69 +10,73 @@ interface Props {
 
 export function InfusionCalculator({ drugName, entries }: Props) {
   const [activeIdx, setActiveIdx] = useState(0);
-  const [weight, setWeight] = useState<number>(70);
-  const [dose, setDose] = useState<number>(0);
+  const [weight, setWeight] = useState("70");
+  const [dose, setDose] = useState("");
 
   const entry = entries[activeIdx];
 
   // Initialize dose to midpoint when entry changes
-  useMemo(() => {
-    if (entry && dose === 0) {
-      setDose((entry.dose_min + entry.dose_max) / 2 || entry.dose_min || 1);
+  useEffect(() => {
+    if (entry) {
+      const mid = (entry.dose_min + entry.dose_max) / 2 || entry.dose_min || 0;
+      setDose(mid > 0 ? mid.toFixed(2).replace(/\.?0+$/, "") : "");
     }
-  }, [entry, dose]);
+  }, [activeIdx, entry]);
 
-  // Calculate flow rate (mL/h) given dose, weight, dilution
   const calculation = useMemo(() => {
     if (!entry || !entry.ampule_amount || !entry.standard_dilution_ml) {
       return null;
     }
-    // Concentration mg or µg per mL of diluted solution
+    const w = parseFloat(weight) || 0;
+    const d = parseFloat(dose) || 0;
+    if (d <= 0) return null;
+
     const concentration = entry.ampule_amount / entry.standard_dilution_ml;
+    const u = entry.dose_unit.toLowerCase();
+    const needsWeight = u.includes("/kg");
+    if (needsWeight && w <= 0) return null;
 
     let mlPerHour: number;
-    let totalDoseLabel: string;
-    const u = entry.dose_unit.toLowerCase();
+    let totalDose: string;
 
-    // Convert dose to "amount per hour" matching ampule unit
     if (u.includes("mcg/kg/min") || u.includes("µg/kg/min")) {
-      // dose * weight = µg/min → * 60 = µg/h. Convert to ampule unit.
-      const ugPerHour = dose * weight * 60;
-      const amountPerHour =
-        entry.ampule_unit === "mg" ? ugPerHour / 1000 : ugPerHour;
-      mlPerHour = amountPerHour / concentration;
-      totalDoseLabel = `${(dose * weight).toFixed(2)} µg/min`;
+      const ugH = d * w * 60;
+      const amtH = entry.ampule_unit === "mg" ? ugH / 1000 : ugH;
+      mlPerHour = amtH / concentration;
+      totalDose = `${(d * w).toFixed(2)} µg/min`;
     } else if (u.includes("mcg/kg/h") || u.includes("µg/kg/h")) {
-      const ugPerHour = dose * weight;
-      const amountPerHour =
-        entry.ampule_unit === "mg" ? ugPerHour / 1000 : ugPerHour;
-      mlPerHour = amountPerHour / concentration;
-      totalDoseLabel = `${(dose * weight).toFixed(2)} µg/h`;
+      const ugH = d * w;
+      const amtH = entry.ampule_unit === "mg" ? ugH / 1000 : ugH;
+      mlPerHour = amtH / concentration;
+      totalDose = `${(d * w).toFixed(2)} µg/h`;
     } else if (u.includes("mg/kg/h")) {
-      const mgPerHour = dose * weight;
-      const amountPerHour =
+      const mgH = d * w;
+      const amtH =
         entry.ampule_unit === "µg" || entry.ampule_unit === "mcg"
-          ? mgPerHour * 1000
-          : mgPerHour;
-      mlPerHour = amountPerHour / concentration;
-      totalDoseLabel = `${(dose * weight).toFixed(2)} mg/h`;
+          ? mgH * 1000
+          : mgH;
+      mlPerHour = amtH / concentration;
+      totalDose = `${(d * w).toFixed(2)} mg/h`;
     } else if (u.includes("mg/kg/min")) {
-      const mgPerHour = dose * weight * 60;
-      const amountPerHour =
+      const mgH = d * w * 60;
+      const amtH =
         entry.ampule_unit === "µg" || entry.ampule_unit === "mcg"
-          ? mgPerHour * 1000
-          : mgPerHour;
-      mlPerHour = amountPerHour / concentration;
-      totalDoseLabel = `${(dose * weight).toFixed(2)} mg/min`;
+          ? mgH * 1000
+          : mgH;
+      mlPerHour = amtH / concentration;
+      totalDose = `${(d * w).toFixed(2)} mg/min`;
     } else if (u.includes("mg/h")) {
-      mlPerHour = dose / concentration;
-      totalDoseLabel = `${dose.toFixed(2)} mg/h`;
+      mlPerHour = d / concentration;
+      totalDose = `${d.toFixed(2)} mg/h`;
+    } else if (u.includes("mg/min")) {
+      mlPerHour = (d * 60) / concentration;
+      totalDose = `${d.toFixed(2)} mg/min`;
     } else if (u.includes("u/h") || u.includes("ui/h")) {
-      mlPerHour = dose / concentration;
-      totalDoseLabel = `${dose.toFixed(2)} U/h`;
+      mlPerHour = d / concentration;
+      totalDose = `${d.toFixed(2)} U/h`;
     } else if (u.includes("u/kg/h") || u.includes("ui/kg/h")) {
-      mlPerHour = (dose * weight) / concentration;
-      totalDoseLabel = `${(dose * weight).toFixed(2)} U/h`;
+      mlPerHour = (d * w) / concentration;
+      totalDose = `${(d * w).toFixed(2)} U/h`;
     } else {
       return null;
     }
@@ -80,107 +84,216 @@ export function InfusionCalculator({ drugName, entries }: Props) {
     return {
       concentration,
       mlPerHour,
-      totalDoseLabel,
+      mlPerMin: mlPerHour / 60,
+      totalDose,
     };
   }, [entry, dose, weight]);
 
   if (!entry) return null;
 
+  const needsWeight = entry.dose_unit.toLowerCase().includes("/kg");
+
   return (
-    <div className="space-y-3">
-      {/* Tabs si hay múltiples entradas */}
-      {entries.length > 1 && (
-        <div className="flex flex-wrap gap-1">
-          {entries.map((e, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => {
-                setActiveIdx(i);
-                setDose(0);
-              }}
-              className={`px-3 py-1 rounded text-xs ${
-                i === activeIdx
-                  ? "bg-emerald-600 text-white"
-                  : "bg-foreground/10 hover:bg-foreground/20"
-              }`}
-            >
-              {e.label}
-            </button>
-          ))}
-        </div>
-      )}
+    <div className="panel scanline">
+      <div className="panel-header">
+        <span className="dot" /> INFUSION CALC
+      </div>
+      <div className="panel-body" style={{ display: "grid", gap: "0.75rem" }}>
+        {/* Tabs si hay múltiples indicaciones */}
+        {entries.length > 1 && (
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "0.25rem",
+              paddingBottom: "0.5rem",
+              borderBottom: "1px solid var(--border)",
+            }}
+          >
+            {entries.map((e, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setActiveIdx(i)}
+                className="mono"
+                style={{
+                  padding: "0.25rem 0.5rem",
+                  fontSize: "0.6rem",
+                  letterSpacing: "0.05em",
+                  textTransform: "uppercase",
+                  background:
+                    i === activeIdx ? "var(--accent)" : "var(--bg-1)",
+                  color: i === activeIdx ? "#000" : "var(--text-2)",
+                  border: "1px solid",
+                  borderColor:
+                    i === activeIdx ? "var(--accent)" : "var(--border)",
+                  cursor: "pointer",
+                  transition: "all 0.15s",
+                }}
+              >
+                {e.label}
+              </button>
+            ))}
+          </div>
+        )}
 
-      {/* Presentación */}
-      {entry.ampule_presentation && (
-        <div className="text-sm">
-          <span className="text-foreground/60">Presentación: </span>
-          <strong>{entry.ampule_presentation}</strong>
-          {entry.standard_dilution_ml && (
-            <span className="text-foreground/60">
-              {" "}
-              · diluir a {entry.standard_dilution_ml} mL
+        {/* Presentación */}
+        {entry.ampule_presentation && (
+          <div
+            className="mono"
+            style={{
+              color: "var(--text-3)",
+              fontSize: "0.6rem",
+            }}
+          >
+            <span style={{ color: "var(--text-2)" }}>
+              {entry.ampule_presentation}
             </span>
-          )}
-        </div>
-      )}
+            {entry.standard_dilution_ml && (
+              <span> → diluir a {entry.standard_dilution_ml} mL</span>
+            )}
+          </div>
+        )}
 
-      {/* Inputs */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <label className="block">
-          <span className="text-sm font-medium">Peso (kg)</span>
+        {/* Weight */}
+        <div>
+          <label
+            className="mono"
+            style={{
+              color: "var(--text-3)",
+              fontSize: "0.6rem",
+              display: "block",
+              marginBottom: "0.25rem",
+            }}
+          >
+            PESO (kg){" "}
+            {!needsWeight && (
+              <span style={{ opacity: 0.4 }}>
+                — no requerido para esta unidad
+              </span>
+            )}
+          </label>
           <input
             type="number"
+            className="calc-input mono"
+            placeholder="70"
             value={weight}
-            onChange={(e) => setWeight(Number(e.target.value) || 0)}
+            onChange={(e) => setWeight(e.target.value)}
             min={0}
-            step={0.5}
-            className="w-full mt-1 px-3 py-2 rounded border border-foreground/20 bg-background"
+            step="0.5"
           />
-        </label>
-        <label className="block">
-          <span className="text-sm font-medium">
-            Dosis ({entry.dose_unit}){" "}
-            <span className="text-foreground/50 text-xs">
+        </div>
+
+        {/* Dose */}
+        <div>
+          <label
+            className="mono"
+            style={{
+              color: "var(--text-3)",
+              fontSize: "0.6rem",
+              display: "block",
+              marginBottom: "0.25rem",
+            }}
+          >
+            DOSIS ({entry.dose_unit}){" "}
+            <span style={{ opacity: 0.6 }}>
               [{entry.dose_min} – {entry.dose_max}]
             </span>
-          </span>
+          </label>
           <input
             type="number"
+            className="calc-input mono"
+            placeholder={String(entry.dose_min)}
             value={dose}
-            onChange={(e) => setDose(Number(e.target.value) || 0)}
-            min={0}
-            step={0.01}
-            className="w-full mt-1 px-3 py-2 rounded border border-foreground/20 bg-background"
+            onChange={(e) => setDose(e.target.value)}
+            step="any"
           />
-        </label>
+        </div>
+
+        {/* Concentration info */}
+        {entry.ampule_amount && entry.standard_dilution_ml && (
+          <div
+            className="mono"
+            style={{
+              color: "var(--text-3)",
+              fontSize: "0.6rem",
+              padding: "0.3rem 0",
+              borderTop: "1px solid var(--border)",
+            }}
+          >
+            CONCENTRACIÓN: {(entry.ampule_amount / entry.standard_dilution_ml).toFixed(3)}{" "}
+            {entry.ampule_unit}/mL
+          </div>
+        )}
+
+        {/* Result */}
+        {calculation ? (
+          <div
+            style={{
+              background: "var(--bg-1)",
+              padding: "1rem",
+              border: "1px solid var(--accent-border)",
+              textAlign: "center",
+            }}
+          >
+            <div className="calc-result">
+              {calculation.mlPerHour.toFixed(2)} mL/h
+            </div>
+            <div
+              className="mono"
+              style={{
+                color: "var(--text-2)",
+                fontSize: "0.7rem",
+                marginTop: "0.35rem",
+              }}
+            >
+              {calculation.mlPerMin.toFixed(3)} mL/min · dosis total{" "}
+              {calculation.totalDose}
+            </div>
+          </div>
+        ) : entry.ampule_amount && entry.standard_dilution_ml ? (
+          <div
+            className="mono"
+            style={{
+              color: "var(--text-3)",
+              fontSize: "0.65rem",
+              textAlign: "center",
+              padding: "0.75rem",
+              border: "1px dashed var(--border)",
+            }}
+          >
+            {needsWeight && (parseFloat(weight) || 0) <= 0
+              ? "↑ Ingrese el peso del paciente"
+              : !dose || (parseFloat(dose) || 0) <= 0
+                ? "↑ Ingrese una dosis válida"
+                : `Unidad ${entry.dose_unit} no soportada por la calculadora`}
+          </div>
+        ) : (
+          <div
+            className="mono"
+            style={{
+              color: "var(--text-3)",
+              fontSize: "0.65rem",
+              textAlign: "center",
+              padding: "0.5rem",
+            }}
+          >
+            // sin datos de ampolla para esta indicación
+          </div>
+        )}
+
+        <p
+          className="mono"
+          style={{
+            color: "var(--text-3)",
+            fontSize: "0.55rem",
+            opacity: 0.7,
+            textAlign: "center",
+          }}
+        >
+          // {drugName} · verificar siempre con la ficha técnica
+        </p>
       </div>
-
-      {/* Result */}
-      {calculation ? (
-        <div className="p-3 rounded bg-emerald-600 text-white">
-          <div className="text-xs uppercase tracking-wide opacity-80">
-            Flujo de la bomba
-          </div>
-          <div className="text-3xl font-bold tabular-nums">
-            {calculation.mlPerHour.toFixed(2)} mL/h
-          </div>
-          <div className="text-xs opacity-80 mt-1">
-            Dosis total: {calculation.totalDoseLabel} · Concentración:{" "}
-            {calculation.concentration.toFixed(3)} {entry.ampule_unit}/mL
-          </div>
-        </div>
-      ) : (
-        <div className="p-3 rounded bg-foreground/10 text-sm text-foreground/70">
-          Calculadora no disponible para esta unidad ({entry.dose_unit}).
-          Consulta el rango de dosis manualmente.
-        </div>
-      )}
-
-      <p className="text-xs text-foreground/50">
-        Resultado calculado para {drugName}. Verifica siempre con la ficha
-        técnica.
-      </p>
     </div>
   );
 }

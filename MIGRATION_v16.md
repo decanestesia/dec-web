@@ -1,72 +1,63 @@
-# DEC Web — Migración v16 a Supabase (Phase 9)
+# DEC Web — Migración v16.1 (estilo terminal corregido)
 
-## Cambios en este push
+## Cambios respecto a v16
 
-**Arquitectura híbrida snapshot + Supabase:**
+**v16 rompió la interfaz** porque las páginas nuevas usaban Tailwind genérico
+(`bg-foreground/5`, `border-foreground/10`, `container mx-auto`, `text-emerald-600`)
+que no existen en este repo. El sistema visual real usa CSS variables custom
+(`var(--text-0)`, `var(--accent)`, `var(--bg-2)`...) y clases utilitarias propias
+(`.wrap`, `.panel`, `.cat-grid`, `.drug-grid`, `.btn-fill`, `.tag`, `.mono`,
+`.search-box`, `.calc-input`, `.calc-result`, `.data-row`, `.scanline`...).
 
-- `public/drugs.json` regenerado: 493 fármacos, 56 categorías, 240 KB (vs 128 antes)
-- `src/lib/drugs.ts` reescrito con nuevo schema y helpers de fetch a Supabase
-- `src/app/farmacos/page.tsx` + `FarmacosClient.tsx`: listado por categorías + búsqueda
-- `src/app/farmacos/[slug]/page.tsx`: ficha completa con SSG + ISR (revalida cada 5 min)
-- `src/app/farmacos/[slug]/InfusionCalculator.tsx`: calculadora integrada por fármaco
-- `src/app/calculadora/page.tsx`: reescrita para reutilizar `InfusionCalculator`
-- `src/app/sitemap.ts`: incluye los 493 slugs
-- `src/app/page.tsx`: stats actualizadas (490+, 56, 125)
-- `src/app/layout.tsx`: meta description actualizada
-- `scripts/regenerate-drugs-json.mjs`: script para regenerar el snapshot
+**v16.1** reescribe los 4 archivos de UI con el lenguaje visual correcto:
 
-**Datos servidos en runtime desde Supabase:**
+- `src/app/farmacos/page.tsx` → grid `.cat-grid`, `.drug-grid`, `.search-box`, `.tag`
+- `src/app/farmacos/[slug]/page.tsx` → `.panel`, `.panel-header`, `.data-row`, `.info-grid`
+- `src/app/farmacos/[slug]/InfusionCalculator.tsx` → `.panel.scanline`, `.calc-input`, `.calc-result`
+- `src/app/calculadora/page.tsx` → `.search-box`, `.drug-grid`, `.btn`, `.btn-sm`
 
-En la página de detalle `/farmacos/[slug]`, además del snapshot estático, se hace fetch en runtime a:
+El resto se mantiene igual que v16:
 
-- `drug_pharmacology` (1,648 propiedades farmacocinéticas)
-- `drug_adverse_effects` (3,373 efectos adversos categorizados)
-- `drug_warnings` (929 advertencias incluyendo black box)
-- `drug_pregnancy` (490 entradas de embarazo/lactancia)
-- `drug_brand_names` (517 marcas comerciales)
-
-ISR cada 5 min: cuando actualices Supabase, las páginas se regeneran automáticamente sin redeploy.
+- Snapshot de 493 fármacos en 56 categorías (`public/drugs.json`)
+- Arquitectura híbrida: SSG + ISR cada 5 min con fetch a Supabase
+- Calculadora integrada en cada ficha (125 fármacos), con tabs si hay múltiples indicaciones
+- Sitemap con los 493 slugs
 
 ## Despliegue
 
-### Opción A: Aplicar este bundle sobre el repo local
+### Si ya hiciste el push de v16
+
+Sobrescribe los archivos con este bundle nuevo y haz un segundo commit:
 
 ```bash
-cd /ruta/a/dec-web                        # tu repo local
-tar xzf /ruta/a/dec-web-v16.tar.gz        # extrae el bundle
-git add -A
-git status                                # revisa archivos modificados
-git commit -m "feat(catálogo): migración v16 a Supabase, 493 fármacos, calculadora integrada"
-git push origin main
+cd ~/Documents/GitHub/dec-web
+tar xzf ~/Downloads/dec-web-v16-1.tar.gz
 ```
 
-Vercel detectará el push y desplegará automáticamente.
+En GitHub Desktop verás los archivos modificados. Commit y push:
 
-### Opción B: Subir vía GitHub web
+- **Summary:** `fix(catálogo): restaura estilo terminal en páginas v16`
 
-1. Descomprimir el tarball localmente.
-2. Subir cada archivo modificado vía GitHub web → drag-and-drop sobre las carpetas correspondientes.
-3. GitHub crea el commit; Vercel auto-deploya.
+### Si NO hiciste push de v16 todavía
 
-## Regeneración futura del snapshot
-
-Cuando agregues más fármacos a Supabase y quieras refrescar el snapshot estático:
+Aplica solo este bundle (incluye todo). Sobre tu repo limpio:
 
 ```bash
-node scripts/regenerate-drugs-json.mjs
-git add public/drugs.json
-git commit -m "data: regenera snapshot drugs.json"
-git push
+cd ~/Documents/GitHub/dec-web
+tar xzf ~/Downloads/dec-web-v16-1.tar.gz
 ```
 
-(Nota: las páginas de detalle ya se actualizan solas vía ISR cada 5 min sin tocar el snapshot.)
+Commit:
+
+- **Summary:** `feat(catálogo): migración v16 a Supabase, 493 fármacos, calculadora integrada`
 
 ## Verificación post-deploy
 
-- [ ] `https://decanestesia.com/farmacos` carga las 56 categorías
-- [ ] Buscar "metformina" devuelve resultado
-- [ ] `https://decanestesia.com/farmacos/metformina` muestra farmacología, efectos adversos, advertencias, embarazo, marcas
-- [ ] La calculadora aparece en `/farmacos/adrenalina` con tabs para indicaciones múltiples
-- [ ] `https://decanestesia.com/calculadora` permite seleccionar fármaco y calcular
-- [ ] `https://decanestesia.com/sitemap.xml` lista los 493 slugs
-- [ ] Lighthouse score > 90 en mobile y desktop
+Cuando Vercel termine el build:
+
+- [ ] `decanestesia.com` muestra "490+ fármacos" en stats (no 128+)
+- [ ] `decanestesia.com/farmacos` muestra grid de 56 categorías con íconos y conteos
+- [ ] Búsqueda "metformina" devuelve resultado con tag CALC si aplica
+- [ ] `decanestesia.com/farmacos/metformina` muestra: panel de descripción, mecanismo, panel de farmacología (T½, biodisponibilidad, etc.), efectos adversos con badges de severidad por color, advertencias con border rojo/ámbar, embarazo categoría B, marcas Glucophage
+- [ ] `decanestesia.com/farmacos/adrenalina` muestra calculadora con tabs (Bolo/Infusión)
+- [ ] `decanestesia.com/calculadora` permite seleccionar y calcular en estilo panel + scanline

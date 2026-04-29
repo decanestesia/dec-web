@@ -2,9 +2,6 @@
 /**
  * Regenera public/drugs.json desde Supabase.
  * Uso: node scripts/regenerate-drugs-json.mjs
- *
- * Lee del proyecto Supabase usando la anon key (pública).
- * No requiere autenticación adicional.
  */
 
 import { writeFileSync } from "node:fs";
@@ -19,7 +16,6 @@ const SUPABASE_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtYWF6bGd2b256Y2FqanZiZWZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MDIyOTUsImV4cCI6MjA5MjA3ODI5NX0.LVVuXue2FljP0mvINWV84NbFaLNbgoXr8Lbg8oiiMK4";
 
 async function fetchAll(table, params = {}) {
-  // Paginación: Supabase devuelve max 1000 por defecto
   const all = [];
   let offset = 0;
   const limit = 1000;
@@ -31,7 +27,6 @@ async function fetchAll(table, params = {}) {
         apikey: SUPABASE_KEY,
         Authorization: `Bearer ${SUPABASE_KEY}`,
         Range: `${offset}-${offset + limit - 1}`,
-        Prefer: "count=exact",
       },
     });
     if (!res.ok) throw new Error(`${table}: ${res.status} ${await res.text()}`);
@@ -49,7 +44,6 @@ const cats = await fetchAll("drug_categories", {
   order: "sort_order.asc",
 });
 const catsById = Object.fromEntries(cats.map((c) => [c.id, c]));
-console.log(`  ${cats.length} categorías`);
 
 console.log("Descargando mapeos...");
 const maps = await fetchAll("drug_category_map", {
@@ -58,7 +52,6 @@ const maps = await fetchAll("drug_category_map", {
 const primary = Object.fromEntries(
   maps.filter((m) => m.is_primary).map((m) => [m.drug_id, m.category_id])
 );
-console.log(`  ${maps.length} mapeos`);
 
 console.log("Descargando fármacos...");
 const drugs = await fetchAll("drugs", {
@@ -66,7 +59,6 @@ const drugs = await fetchAll("drugs", {
   is_published: "eq.true",
   order: "name.asc",
 });
-console.log(`  ${drugs.length} fármacos`);
 
 console.log("Descargando datos de infusión...");
 const infusions = await fetchAll("drug_infusion", {
@@ -78,9 +70,6 @@ const infByDrug = {};
 for (const i of infusions) {
   (infByDrug[i.drug_id] = infByDrug[i.drug_id] || []).push(i);
 }
-console.log(
-  `  ${infusions.length} entries para ${Object.keys(infByDrug).length} fármacos`
-);
 
 const drugsOut = [];
 for (const d of drugs) {
@@ -133,5 +122,5 @@ const snapshot = {
 
 writeFileSync(OUT_PATH, JSON.stringify(snapshot));
 console.log(
-  `\n✓ ${OUT_PATH}: ${drugsOut.length} fármacos en ${categoriesOut.length} categorías`
+  `✓ ${OUT_PATH}: ${drugsOut.length} fármacos en ${categoriesOut.length} categorías`
 );

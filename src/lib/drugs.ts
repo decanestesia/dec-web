@@ -80,6 +80,19 @@ export function getDrugsInCategory(drugs: Drug[], category: string): Drug[] {
     .sort((a, b) => a.name.localeCompare(b.name, "es"));
 }
 
+export function getCategories(drugs: Drug[]): string[] {
+  const seen = new Set<string>();
+  const ordered: { name: string; sort: number }[] = [];
+  for (const d of drugs) {
+    if (!seen.has(d.category)) {
+      seen.add(d.category);
+      ordered.push({ name: d.category, sort: d.category_sort });
+    }
+  }
+  ordered.sort((a, b) => a.sort - b.sort || a.name.localeCompare(b.name, "es"));
+  return ordered.map((o) => o.name);
+}
+
 // ---------- Snapshot loading ----------
 
 let _cached: DrugCatalog | null = null;
@@ -101,15 +114,6 @@ export async function loadCatalog(): Promise<DrugCatalog> {
   return data;
 }
 
-// ---------- Format dose range ----------
-
-export function formatDoseRange(range: DrugInfusionEntry): string {
-  if (range.dose_min === 0 && range.dose_max === 0) return range.label;
-  if (range.dose_min === range.dose_max)
-    return `${range.dose_min} ${range.dose_unit}`;
-  return `${range.dose_min} – ${range.dose_max} ${range.dose_unit}`;
-}
-
 // ---------- Supabase fetch (rich detail data) ----------
 
 const SUPABASE_URL = "https://smaazlgvonzcajjvbefk.supabase.co";
@@ -123,7 +127,6 @@ async function sb<T>(path: string): Promise<T> {
       Authorization: `Bearer ${SUPABASE_KEY}`,
       Accept: "application/json",
     },
-    // Cache server-side for 5 min, client revalidates
     next: { revalidate: 300 },
   });
   if (!res.ok) throw new Error(`Supabase ${path}: ${res.status}`);
@@ -201,7 +204,7 @@ export async function fetchDrugDetail(drugId: string): Promise<DrugDetail> {
   };
 }
 
-// ---------- Severity / category helpers ----------
+// ---------- Severity / sort helpers ----------
 
 export const SEVERITY_ORDER: Record<string, number> = {
   "life-threatening": 0,
@@ -233,3 +236,11 @@ export function sortWarnings(warnings: Warning[]): Warning[] {
     return oa - ob;
   });
 }
+
+// Severity color map (uses CSS variables from globals.css)
+export const SEVERITY_COLOR: Record<string, string> = {
+  "life-threatening": "var(--red)",
+  severe: "var(--amber)",
+  moderate: "var(--accent)",
+  mild: "var(--text-2)",
+};

@@ -12,8 +12,6 @@ import drugsData from "../../../public/drugs.json";
 import { InfusionCalculator } from "@/app/farmacos/[slug]/InfusionCalculator";
 
 const catalog = drugsData as DrugCatalog;
-
-// Pre-filter: solo fármacos con datos de infusión (los que tienen calculadora)
 const drugsWithCalc = catalog.drugs.filter(
   (d) => d.infusion && d.infusion.length > 0
 );
@@ -24,97 +22,222 @@ export default function CalculadoraPage() {
 
   const filtered = useMemo(() => {
     if (!searchQ.trim()) return drugsWithCalc.slice(0, 30);
-    const r = searchDrugs(drugsWithCalc, searchQ);
-    return r.slice(0, 30);
+    return searchDrugs(drugsWithCalc, searchQ).slice(0, 30);
   }, [searchQ]);
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <header className="mb-6">
-        <h1 className="text-4xl font-bold mb-2">Calculadora de infusión</h1>
-        <p className="text-foreground/70 text-sm">
-          {drugsWithCalc.length} fármacos con calculadora bidireccional
-          integrada. Selecciona un fármaco para calcular dosis ↔ flujo de bomba.
+    <div
+      className="wrap"
+      style={{ paddingTop: "1.5rem", paddingBottom: "3rem", maxWidth: 760 }}
+    >
+      {/* Header */}
+      <div style={{ marginBottom: "1.25rem" }}>
+        <div className="prompt mono blink" style={{ marginBottom: "0.5rem" }}>
+          <b>$</b> ./infusion-calc.sh
+        </div>
+        <h1 style={{ fontSize: "1.6rem", fontWeight: 700 }}>
+          Calculadora de Infusión
+        </h1>
+        <p
+          className="mono"
+          style={{
+            color: "var(--text-3)",
+            fontSize: "0.65rem",
+            marginTop: "0.25rem",
+          }}
+        >
+          {drugsWithCalc.length} fármacos con cálculo bidireccional · v
+          {catalog.version}
         </p>
-      </header>
+      </div>
 
       {!selected ? (
         <>
           {/* Search */}
-          <div className="mb-4">
+          <div className="search-box" style={{ marginBottom: "1.25rem" }}>
+            <span className="search-icon mono">⌕</span>
             <input
-              type="search"
+              type="text"
+              placeholder="seleccionar fármaco..."
               value={searchQ}
               onChange={(e) => setSearchQ(e.target.value)}
-              placeholder="Buscar fármaco con calculadora…"
-              className="w-full px-4 py-3 rounded-lg border border-foreground/20 bg-background focus:outline-none focus:ring-2 focus:ring-emerald-500"
               autoFocus
             />
+            {searchQ && (
+              <button
+                onClick={() => setSearchQ("")}
+                className="mono"
+                style={{
+                  position: "absolute",
+                  right: "0.5rem",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  color: "var(--text-3)",
+                  fontSize: "0.7rem",
+                }}
+              >
+                [×]
+              </button>
+            )}
           </div>
 
-          {/* Drug list */}
-          {filtered.length === 0 ? (
-            <p className="text-center py-8 text-foreground/60">
-              Sin resultados. ¿Buscaste un fármaco que no tiene calculadora? Ve
-              a <Link href="/farmacos" className="underline">el catálogo</Link>{" "}
-              completo.
+          {searchQ.trim() && (
+            <p
+              className="mono"
+              style={{
+                color: "var(--text-3)",
+                fontSize: "0.65rem",
+                marginBottom: "0.75rem",
+              }}
+            >
+              {filtered.length === 0
+                ? "// sin resultados"
+                : `// ${filtered.length} resultado${filtered.length !== 1 ? "s" : ""}`}
             </p>
-          ) : (
-            <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
-              {filtered.map((d) => (
-                <li key={d.id}>
-                  <button
-                    type="button"
-                    onClick={() => setSelected(d)}
-                    className="w-full text-left p-3 rounded-lg border border-foreground/10 hover:border-emerald-500 hover:bg-emerald-500/5 transition"
-                  >
-                    <div className="font-medium">{d.name}</div>
-                    <div className="text-xs text-foreground/60 mt-1">
-                      {d.category_icon} {d.category} ·{" "}
-                      {d.infusion?.length ?? 0} indicación
-                      {(d.infusion?.length ?? 0) === 1 ? "" : "es"}
-                    </div>
-                  </button>
-                </li>
-              ))}
-            </ul>
           )}
-        </>
-      ) : (
-        <div>
-          {/* Header with selected drug */}
-          <div className="mb-4 flex items-center justify-between gap-2 flex-wrap">
-            <div>
-              <h2 className="text-2xl font-bold">{selected.name}</h2>
-              <p className="text-sm text-foreground/60">
-                {selected.category_icon} {selected.category}
+
+          {/* Drug list */}
+          {filtered.length > 0 ? (
+            <div className="drug-grid fade-up">
+              {filtered.map((d) => (
+                <button
+                  key={d.id}
+                  onClick={() => setSelected(d)}
+                  className="card-interactive"
+                  style={{
+                    padding: "0.75rem",
+                    background: "var(--bg-2)",
+                    border: "none",
+                    textAlign: "left",
+                    cursor: "pointer",
+                    color: "inherit",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      gap: "0.5rem",
+                      marginBottom: "0.35rem",
+                    }}
+                  >
+                    <h3
+                      style={{
+                        color: "var(--text-0)",
+                        fontSize: "0.8rem",
+                        fontWeight: 600,
+                        lineHeight: 1.3,
+                      }}
+                    >
+                      {d.name}
+                    </h3>
+                    <span className="tag tag-accent mono">CALC</span>
+                  </div>
+                  <span className="tag tag-accent">{d.category}</span>
+                  <div
+                    className="mono"
+                    style={{
+                      color: "var(--text-3)",
+                      fontSize: "0.6rem",
+                      marginTop: "0.5rem",
+                    }}
+                  >
+                    {d.infusion!.length} indicación
+                    {d.infusion!.length === 1 ? "" : "es"}
+                    {d.infusion![0]?.ampule_presentation &&
+                      ` · ${d.infusion![0].ampule_presentation}`}
+                  </div>
+                </button>
+              ))}
+            </div>
+          ) : searchQ.trim() ? (
+            <div
+              className="fade-up"
+              style={{ textAlign: "center", padding: "3rem 0" }}
+            >
+              <div
+                style={{
+                  fontSize: "2.5rem",
+                  opacity: 0.2,
+                  marginBottom: "0.75rem",
+                }}
+              >
+                💀
+              </div>
+              <p
+                className="mono"
+                style={{
+                  color: "var(--text-3)",
+                  fontSize: "0.65rem",
+                  lineHeight: 1.7,
+                }}
+              >
+                Sin calculadora para ese fármaco.
+                <br />
+                <Link
+                  href="/farmacos"
+                  style={{ color: "var(--accent)", textDecoration: "none" }}
+                >
+                  → buscar en el catálogo completo
+                </Link>
               </p>
             </div>
-            <div className="flex gap-2">
+          ) : null}
+        </>
+      ) : (
+        <div className="fade-up">
+          {/* Selected drug header */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              justifyContent: "space-between",
+              gap: "0.75rem",
+              marginBottom: "1.25rem",
+              flexWrap: "wrap",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem" }}>
+              <span style={{ fontSize: "1.5rem" }}>{selected.category_icon}</span>
+              <div>
+                <h2 style={{ fontSize: "1.2rem", fontWeight: 700, lineHeight: 1.2 }}>
+                  {selected.name}
+                </h2>
+                <span
+                  className="tag tag-accent"
+                  style={{ marginTop: "0.35rem" }}
+                >
+                  {selected.category}
+                </span>
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap" }}>
               <button
-                type="button"
                 onClick={() => setSelected(null)}
-                className="px-3 py-1 text-sm rounded border border-foreground/20 hover:bg-foreground/5"
+                className="btn btn-outline btn-sm"
               >
-                ← Cambiar
+                ← cambiar
               </button>
               <Link
                 href={`/farmacos/${slugify(selected.name)}`}
-                className="px-3 py-1 text-sm rounded bg-emerald-600 text-white hover:bg-emerald-700"
+                className="btn btn-fill btn-sm"
+                style={{ textDecoration: "none" }}
               >
-                Ver ficha completa →
+                ficha completa →
               </Link>
             </div>
           </div>
 
           {/* Calculator */}
           {selected.infusion && (
-            <div className="p-4 rounded-lg border border-emerald-500/30 bg-emerald-500/5">
-              <InfusionCalculator
-                drugName={selected.name}
-                entries={selected.infusion}
-              />
-            </div>
+            <InfusionCalculator
+              drugName={selected.name}
+              entries={selected.infusion}
+            />
           )}
         </div>
       )}

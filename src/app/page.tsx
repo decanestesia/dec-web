@@ -125,7 +125,7 @@ export default function Home() {
           <Feat
             tag="ADV"
             title="Advertencias FDA"
-            desc="3,373 efectos adversos categorizados por severidad y sistema. 929 advertencias clínicas incluyendo black box. Categoría FDA de embarazo y datos de lactancia."
+            desc="3,373 efectos adversos por severidad y sistema. 929 advertencias incluyendo black box. Categoría FDA de embarazo y datos de lactancia."
           />
           <Feat
             tag="CALC"
@@ -140,7 +140,7 @@ export default function Home() {
           <Feat
             tag="SYNC"
             title="Siempre actualizada"
-            desc="Base de datos sincronizada con backend Supabase. Actualizaciones sin pasar por App Store."
+            desc="Backend Supabase con revalidación automática. Actualizaciones sin pasar por App Store."
           />
         </div>
       </section>

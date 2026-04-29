@@ -13,16 +13,18 @@ interface Props {
   molecular: MolecularData;
 }
 
+// SmilesDrawer typing — only the parts we touch
 declare global {
   interface Window {
     SmilesDrawer?: {
-      Drawer: new (options: object) => {
+      SvgDrawer: new (options: object) => {
         draw: (
           tree: object,
           target: SVGElement | string,
-          theme: string
+          theme?: string
         ) => void;
       };
+      Drawer: new (options: object) => unknown;
       parse: (
         smiles: string,
         successCallback: (tree: object) => void,
@@ -33,103 +35,117 @@ declare global {
 }
 
 const SMILES_DRAWER_CDN =
-  "https://cdn.jsdelivr.net/npm/smiles-drawer@2.1.7/dist/smiles-drawer.min.js";
+  "https://unpkg.com/smiles-drawer@2.1.7/dist/smiles-drawer.min.js";
+
+// Module-level cache to avoid re-injecting the script per drug page navigation
+let scriptPromise: Promise<void> | null = null;
+
+function loadSmilesDrawer(): Promise<void> {
+  if (typeof window === "undefined") return Promise.reject(new Error("SSR"));
+  if (window.SmilesDrawer) return Promise.resolve();
+  if (scriptPromise) return scriptPromise;
+  scriptPromise = new Promise((resolve, reject) => {
+    const existing = document.querySelector<HTMLScriptElement>(
+      `script[data-smiles-drawer]`
+    );
+    if (existing) {
+      existing.addEventListener("load", () => resolve());
+      existing.addEventListener("error", () =>
+        reject(new Error("script load error"))
+      );
+      return;
+    }
+    const s = document.createElement("script");
+    s.src = SMILES_DRAWER_CDN;
+    s.async = true;
+    s.dataset.smilesDrawer = "true";
+    s.onload = () => resolve();
+    s.onerror = () => {
+      scriptPromise = null;
+      reject(new Error("CDN load failed"));
+    };
+    document.head.appendChild(s);
+  });
+  return scriptPromise;
+}
 
 export function MolecularSection({ drugName, molecular }: Props) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [drawState, setDrawState] = useState<"loading" | "ok" | "error">(
     "loading"
   );
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
 
-  // Detect dark/light from CSS variable to pass to SmilesDrawer
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const isDark = window
-      .matchMedia("(prefers-color-scheme: dark)")
-      .matches;
-    // Also check if html has data-theme
-    const htmlTheme = document.documentElement.getAttribute("data-theme");
-    setTheme(htmlTheme === "light" ? "light" : isDark ? "dark" : "light");
-  }, []);
-
-  // Load SmilesDrawer from CDN once and render
   useEffect(() => {
     if (!molecular.smiles || !svgRef.current) return;
 
     let cancelled = false;
-    const targetEl = svgRef.current;
+    const target = svgRef.current;
 
-    function tryDraw() {
-      if (cancelled) return;
-      if (!window.SmilesDrawer) return;
-      try {
-        const drawer = new window.SmilesDrawer.Drawer({
-          width: 320,
-          height: 220,
-          bondThickness: 1.0,
-          bondLength: 14,
-          shortBondLength: 0.85,
-          bondSpacing: 0.18 * 14,
-          atomVisualization: "default",
-          isomeric: true,
-          terminalCarbons: false,
-          fontSizeLarge: 11,
-          fontSizeSmall: 4,
-          padding: 8,
-        });
-        window.SmilesDrawer.parse(
-          molecular.smiles!,
-          (tree: object) => {
-            if (cancelled) return;
-            try {
-              drawer.draw(tree, targetEl, theme);
-              setDrawState("ok");
-            } catch {
+    // Pick theme from data-theme attribute, fallback to media query
+    const htmlTheme = document.documentElement.getAttribute("data-theme");
+    const isDark =
+      htmlTheme === "dark" ||
+      (htmlTheme !== "light" &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches);
+    const theme = isDark ? "dark" : "light";
+
+    loadSmilesDrawer()
+      .then(() => {
+        if (cancelled || !window.SmilesDrawer) return;
+        try {
+          // Clear previous content
+          while (target.firstChild) target.removeChild(target.firstChild);
+          // Use SvgDrawer (not Drawer — that's for canvas)
+          const drawer = new window.SmilesDrawer.SvgDrawer({
+            width: 320,
+            height: 200,
+            bondThickness: 1.0,
+            bondLength: 18,
+            shortBondLength: 0.85,
+            bondSpacing: 4,
+            atomVisualization: "default",
+            isomeric: true,
+            terminalCarbons: false,
+            fontSizeLarge: 11,
+            fontSizeSmall: 4,
+            padding: 6,
+            explicitHydrogens: false,
+          });
+          window.SmilesDrawer.parse(
+            molecular.smiles!,
+            (tree: object) => {
+              if (cancelled) return;
+              try {
+                drawer.draw(tree, target, theme);
+                setDrawState("ok");
+              } catch (e) {
+                console.error("[MolecularSection] draw error:", e);
+                setDrawState("error");
+              }
+            },
+            (err: unknown) => {
+              console.error("[MolecularSection] parse error:", err);
               setDrawState("error");
             }
-          },
-          () => {
-            setDrawState("error");
-          }
-        );
-      } catch {
+          );
+        } catch (e) {
+          console.error("[MolecularSection] init error:", e);
+          setDrawState("error");
+        }
+      })
+      .catch((e) => {
+        console.error("[MolecularSection] script load error:", e);
         setDrawState("error");
-      }
-    }
-
-    if (window.SmilesDrawer) {
-      tryDraw();
-      return () => {
-        cancelled = true;
-      };
-    }
-
-    // Inject script tag if not already present
-    let script = document.querySelector<HTMLScriptElement>(
-      `script[src="${SMILES_DRAWER_CDN}"]`
-    );
-    if (!script) {
-      script = document.createElement("script");
-      script.src = SMILES_DRAWER_CDN;
-      script.async = true;
-      script.onload = tryDraw;
-      script.onerror = () => setDrawState("error");
-      document.head.appendChild(script);
-    } else {
-      // Already injected by another instance, wait for it
-      script.addEventListener("load", tryDraw);
-    }
+      });
 
     return () => {
       cancelled = true;
     };
-  }, [molecular.smiles, theme]);
+  }, [molecular.smiles]);
 
   const formulaTokens = molecular.formula
     ? parseFormulaToTokens(molecular.formula)
     : null;
-
   const logpInterp =
     molecular.logp !== null ? interpretLogP(molecular.logp) : null;
 
@@ -138,37 +154,38 @@ export function MolecularSection({ drugName, molecular }: Props) {
       <div className="panel-header">
         <span className="dot" /> DATOS MOLECULARES
       </div>
-      <div
-        className="panel-body"
-        style={{ display: "grid", gap: "0.75rem" }}
-      >
-        {/* 2D structure + key info side by side on wide screens */}
+      <div className="panel-body" style={{ display: "grid", gap: "0.75rem" }}>
+        {/* Top row: 2D drawing + facts */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "auto 1fr",
+            gridTemplateColumns:
+              molecular.smiles ? "auto 1fr" : "1fr",
             gap: "1rem",
             alignItems: "start",
           }}
         >
-          {/* SMILES drawer SVG */}
+          {/* SVG drawing */}
           {molecular.smiles && (
             <div
               style={{
-                background: theme === "dark" ? "var(--bg-1)" : "#fff",
+                background: "#fff",
                 border: "1px solid var(--border)",
                 padding: "0.4rem",
                 width: 200,
-                height: 150,
+                minHeight: 140,
                 position: "relative",
                 flexShrink: 0,
+                borderRadius: 2,
               }}
+              aria-label={`Estructura química 2D de ${drugName}`}
             >
               <svg
                 ref={svgRef}
-                viewBox="0 0 320 220"
+                viewBox="0 0 320 200"
+                preserveAspectRatio="xMidYMid meet"
                 width="100%"
-                height="100%"
+                height="130"
                 style={{ display: "block" }}
               />
               {drawState === "loading" && (
@@ -180,7 +197,7 @@ export function MolecularSection({ drugName, molecular }: Props) {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    color: "var(--text-3)",
+                    color: "#888",
                     fontSize: "0.55rem",
                     pointerEvents: "none",
                   }}
@@ -197,7 +214,7 @@ export function MolecularSection({ drugName, molecular }: Props) {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    color: "var(--text-3)",
+                    color: "#888",
                     fontSize: "0.55rem",
                     pointerEvents: "none",
                   }}
@@ -316,7 +333,7 @@ export function MolecularSection({ drugName, molecular }: Props) {
           </div>
         </div>
 
-        {/* Solubility (full width) */}
+        {/* Solubility */}
         {molecular.solubility && (
           <div
             style={{
@@ -336,13 +353,19 @@ export function MolecularSection({ drugName, molecular }: Props) {
             >
               SOLUBILIDAD
             </div>
-            <div style={{ color: "var(--text-1)", fontSize: "0.78rem", lineHeight: 1.5 }}>
+            <div
+              style={{
+                color: "var(--text-1)",
+                fontSize: "0.78rem",
+                lineHeight: 1.5,
+              }}
+            >
               {molecular.solubility}
             </div>
           </div>
         )}
 
-        {/* Identifiers (collapsible-feel block) */}
+        {/* Identifiers */}
         {(molecular.smiles || molecular.inchi_key) && (
           <details
             style={{
@@ -404,20 +427,6 @@ export function MolecularSection({ drugName, molecular }: Props) {
             </a>
           </div>
         )}
-
-        {/* Aria label for accessibility on the SVG */}
-        <span
-          className="visually-hidden"
-          style={{
-            position: "absolute",
-            width: 1,
-            height: 1,
-            overflow: "hidden",
-            clip: "rect(0 0 0 0)",
-          }}
-        >
-          Estructura química 2D de {drugName}
-        </span>
       </div>
     </div>
   );

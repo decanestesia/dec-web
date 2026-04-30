@@ -15,13 +15,14 @@ import {
 } from "@/lib/drugs";
 import { InfusionCalculator } from "./InfusionCalculator";
 import { MolecularSection } from "./MolecularSection";
+import { InteractionsSection } from "./InteractionsSection";
 
 export async function generateStaticParams() {
   const catalog = loadCatalogSync();
   return catalog.drugs.map((d) => ({ slug: slugify(d.name) }));
 }
 
-export const revalidate = 300; // ISR: 5 min
+export const revalidate = 300;
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -60,6 +61,10 @@ export default async function DrugDetailPage({ params }: Props) {
   const otherWarnings = detail?.warnings.filter((w) => !w.is_black_box) ?? [];
   const showMolecular =
     detail?.molecular && hasMolecularData(detail.molecular);
+  const showInteractions =
+    detail?.interactions && detail.interactions.length > 0;
+  const hasContraindicatedInteraction =
+    detail?.interactions?.some((i) => i.severity === "contraindicated") ?? false;
 
   return (
     <div
@@ -124,12 +129,24 @@ export default async function DrugDetailPage({ params }: Props) {
               {showMolecular && (
                 <span className="tag tag-accent mono">MOL</span>
               )}
+              {showInteractions && (
+                <span
+                  className="tag mono"
+                  style={{
+                    color: hasContraindicatedInteraction ? "var(--red)" : "var(--amber)",
+                    borderColor: hasContraindicatedInteraction ? "var(--red)" : "var(--amber)",
+                    background: "transparent",
+                  }}
+                >
+                  {hasContraindicatedInteraction ? "⚠ CI" : "INT"}
+                </span>
+              )}
             </div>
           </div>
         </div>
       </header>
 
-      {/* Black box warnings — top, prominent */}
+      {/* Black box warnings */}
       {blackBoxWarnings.length > 0 && (
         <div
           className="panel"
@@ -208,7 +225,7 @@ export default async function DrugDetailPage({ params }: Props) {
         </Section>
       )}
 
-      {/* Molecular data (NEW v16.2) */}
+      {/* Molecular */}
       {showMolecular && detail?.molecular && (
         <Section title="ESTRUCTURA QUÍMICA">
           <MolecularSection
@@ -266,6 +283,22 @@ export default async function DrugDetailPage({ params }: Props) {
               ))}
             </div>
           </div>
+        </Section>
+      )}
+
+      {/* INTERACTIONS — NEW v16.3 */}
+      {showInteractions && detail && (
+        <Section
+          title={
+            hasContraindicatedInteraction
+              ? "⚠ INTERACCIONES — INCLUYE CONTRAINDICADAS"
+              : "INTERACCIONES FARMACOLÓGICAS"
+          }
+        >
+          <InteractionsSection
+            interactions={detail.interactions}
+            drugName={drug.name}
+          />
         </Section>
       )}
 

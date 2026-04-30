@@ -1,6 +1,6 @@
 // ============================================================
 // DEC drugs data layer — hybrid (snapshot + Supabase fetch)
-// v16.2 — añade datos moleculares (PubChem)
+// v16.3 — añade datos de interacciones farmacológicas
 // ============================================================
 
 // ---------- Snapshot types (drugs.json, ~240 KB) ----------
@@ -115,7 +115,7 @@ export async function loadCatalog(): Promise<DrugCatalog> {
   return data;
 }
 
-// ---------- Supabase fetch (rich detail data) ----------
+// ---------- Supabase fetch ----------
 
 const SUPABASE_URL = "https://smaazlgvonzcajjvbefk.supabase.co";
 const SUPABASE_KEY =
@@ -170,7 +170,6 @@ export interface BrandName {
   is_available: boolean | null;
 }
 
-// NEW v16.2: Molecular data from PubChem
 export interface MolecularData {
   formula: string | null;
   molecular_weight: number | null;
@@ -184,17 +183,36 @@ export interface MolecularData {
   protein_binding: string | null;
 }
 
+// NEW v16.3: Drug interactions
+export type InteractionSeverity =
+  | "contraindicated"
+  | "major"
+  | "moderate"
+  | "minor";
+
+export interface DrugInteraction {
+  id?: string;
+  drug_id: string;
+  interacts_with_id: string | null;
+  interacts_with_name: string;
+  severity: InteractionSeverity;
+  mechanism: string | null;
+  clinical_effect: string | null;
+  management: string | null;
+}
+
 export interface DrugDetail {
   pharmacology: PharmacologyEntry[];
   adverse_effects: AdverseEffect[];
   warnings: Warning[];
   pregnancy: Pregnancy | null;
   brands: BrandName[];
-  molecular: MolecularData | null;  // NEW v16.2
+  molecular: MolecularData | null;
+  interactions: DrugInteraction[]; // NEW v16.3
 }
 
 export async function fetchDrugDetail(drugId: string): Promise<DrugDetail> {
-  const [pharm, ae, warn, preg, brands, molecular] = await Promise.all([
+  const [pharm, ae, warn, preg, brands, molecular, interactions] = await Promise.all([
     sb<PharmacologyEntry[]>(
       `drug_pharmacology?drug_id=eq.${drugId}&select=property,value,details,sort_order&order=sort_order.asc`
     ),
@@ -210,9 +228,11 @@ export async function fetchDrugDetail(drugId: string): Promise<DrugDetail> {
     sb<BrandName[]>(
       `drug_brand_names?drug_id=eq.${drugId}&select=brand_name,manufacturer,country,is_available`
     ),
-    // NEW v16.2: molecular data
     sb<MolecularData[]>(
       `drug_molecular?drug_id=eq.${drugId}&select=formula,molecular_weight,smiles,inchi,inchi_key,logp,pka,pka_type,solubility,protein_binding&limit=1`
+    ),
+    sb<DrugInteraction[]>(
+      `drug_interactions?drug_id=eq.${drugId}&select=drug_id,interacts_with_id,interacts_with_name,severity,mechanism,clinical_effect,management`
     ),
   ]);
   return {
@@ -222,7 +242,19 @@ export async function fetchDrugDetail(drugId: string): Promise<DrugDetail> {
     pregnancy: preg[0] ?? null,
     brands,
     molecular: molecular[0] ?? null,
+    interactions,
   };
+}
+
+// Fetch interactions between two specific drugs (for the interaction checker)
+export async function fetchInteractionBetween(
+  drugAId: string,
+  drugBId: string
+): Promise<DrugInteraction[]> {
+  return sb<DrugInteraction[]>(
+    `drug_interactions?drug_id=eq.${drugAId}&interacts_with_id=eq.${drugBId}` +
+      `&select=drug_id,interacts_with_id,interacts_with_name,severity,mechanism,clinical_effect,management`
+  );
 }
 
 // ---------- Severity / sort helpers ----------
@@ -258,6 +290,23 @@ export function sortWarnings(warnings: Warning[]): Warning[] {
   });
 }
 
+// NEW v16.3: Sort interactions by severity (most dangerous first)
+export const INTERACTION_SEVERITY_ORDER: Record<InteractionSeverity, number> = {
+  contraindicated: 0,
+  major: 1,
+  moderate: 2,
+  minor: 3,
+};
+
+export function sortInteractions(items: DrugInteraction[]): DrugInteraction[] {
+  return [...items].sort((a, b) => {
+    const oa = INTERACTION_SEVERITY_ORDER[a.severity] ?? 99;
+    const ob = INTERACTION_SEVERITY_ORDER[b.severity] ?? 99;
+    if (oa !== ob) return oa - ob;
+    return a.interacts_with_name.localeCompare(b.interacts_with_name, "es");
+  });
+}
+
 export const SEVERITY_COLOR: Record<string, string> = {
   "life-threatening": "var(--red)",
   severe: "var(--amber)",
@@ -265,27 +314,44 @@ export const SEVERITY_COLOR: Record<string, string> = {
   mild: "var(--text-2)",
 };
 
-// ---------- Molecular helpers (v16.2) ----------
+// NEW v16.3: Color and label helpers for interaction severity
+export const INTERACTION_SEVERITY_COLOR: Record<InteractionSeverity, string> = {
+  contraindicated: "var(--red)",
+  major: "var(--amber)",
+  moderate: "var(--cyan, var(--accent))",
+  minor: "var(--text-3)",
+};
 
-/** Convert formula like "C8H9NO2" to JSX-friendly array with subscripts. */
+export const INTERACTION_SEVERITY_LABEL: Record<InteractionSeverity, string> = {
+  contraindicated: "CONTRAINDICADO",
+  major: "MAYOR",
+  moderate: "MODERADA",
+  minor: "MENOR",
+};
+
+export const INTERACTION_SEVERITY_BADGE: Record<InteractionSeverity, string> = {
+  contraindicated: "✕ NO",
+  major: "⚠ MAJOR",
+  moderate: "● MOD",
+  minor: "○ min",
+};
+
+// ---------- Molecular helpers ----------
+
 export function parseFormulaToTokens(
   formula: string
 ): Array<{ text: string; sub: boolean }> {
   const tokens: Array<{ text: string; sub: boolean }> = [];
-  // Match: element symbol (uppercase + optional lowercase) followed by optional digits
   const regex = /([A-Z][a-z]?)(\d*)/g;
   let match;
   while ((match = regex.exec(formula)) !== null) {
     if (match[1]) tokens.push({ text: match[1], sub: false });
     if (match[2]) tokens.push({ text: match[2], sub: true });
   }
-  // Also handle salts/charges with · or +/- (rare, e.g. "C13H16N2·HCl")
-  // For unmatched chars like ·, +, -, [, ], display as-is
   if (tokens.length === 0) return [{ text: formula, sub: false }];
   return tokens;
 }
 
-/** Qualitative interpretation of LogP for clinicians. */
 export function interpretLogP(logp: number): {
   label: string;
   description: string;
@@ -320,12 +386,10 @@ export function interpretLogP(logp: number): {
   };
 }
 
-/** PubChem URL given an InChI Key (canonical, stable). */
 export function pubchemUrl(inchiKey: string): string {
   return `https://pubchem.ncbi.nlm.nih.gov/#query=${encodeURIComponent(inchiKey)}`;
 }
 
-/** Has any meaningful molecular data to display? */
 export function hasMolecularData(m: MolecularData | null): boolean {
   if (!m) return false;
   return !!(

@@ -12,13 +12,14 @@ export function Navbar() {
 
   const isActive = (path: string) => pathname === path || pathname.startsWith(path + "/");
 
-  const links = [
-    { href: "/", label: "sys", exact: true },
-    { href: "/farmacos", label: "db/farmacos" },
-    { href: "/calculadora", label: "calc" },
-    { href: "/blog", label: "blog" },
-    { href: "/about", label: "about" },
-  ];
+const links = [
+  { href: "/", label: "sys", exact: true },
+  { href: "/farmacos", label: "db/farmacos" },
+  { href: "/interacciones", label: "interactions" },
+  { href: "/calculadora", label: "calc" },
+  { href: "/blog", label: "blog" },
+  { href: "/about", label: "about" },
+];
 
   return (
     <nav className="sticky top-0 z-50" style={{ background: "var(--bg-1)", borderBottom: "1px solid var(--border)" }}>

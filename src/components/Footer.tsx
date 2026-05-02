@@ -1,52 +1,162 @@
-"use client";
-
 import Link from "next/link";
 
 export function Footer() {
-  const y = new Date().getFullYear();
   return (
-    <footer style={{ background: "var(--bg-1)", borderTop: "1px solid var(--border)", marginTop: "4rem" }}>
-      <div className="wrap" style={{ padding: "2rem 1.5rem" }}>
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-8 mb-6">
-          <div>
-            <div className="mono" style={{ color: "var(--accent)", fontSize: "0.7rem", fontWeight: 700, marginBottom: "0.5rem" }}>▸ DEC</div>
-            <p className="mono" style={{ color: "var(--text-3)", fontSize: "0.6rem", lineHeight: 1.7 }}>
-              Diluciones, Dosis & Cálculos Anestésicos.
-              <br />Porque Google no debería ser tu
-              <br />consultor de dosis a las 3 AM.
-            </p>
+    <footer
+      style={{
+        marginTop: "4rem",
+        paddingTop: "2rem",
+        paddingBottom: "2rem",
+        borderTop: "1px solid var(--border)",
+        background: "var(--bg-1)",
+      }}
+    >
+      <div
+        className="wrap"
+        style={{
+          display: "flex",
+          gap: "2rem",
+          flexWrap: "wrap",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+        }}
+      >
+        {/* Columna 1: marca */}
+        <div style={{ minWidth: 200 }}>
+          <div
+            className="mono"
+            style={{
+              color: "var(--accent)",
+              fontSize: "0.7rem",
+              fontWeight: 700,
+              letterSpacing: "0.08em",
+              marginBottom: "0.4rem",
+            }}
+          >
+            ▸ DEC
           </div>
-          <div>
-            <FHeader>NAV</FHeader>
-            <FLink href="/">Inicio</FLink>
-            <FLink href="/farmacos">Fármacos</FLink>
-            <FLink href="/calculadora">Calculadora</FLink>
-            <FLink href="/blog">Blog</FLink>
-          </div>
-          <div>
-            <FHeader>INFO</FHeader>
-            <FLink href="/about">Sobre el autor</FLink>
-            <FLink href="/app-ios">App iOS</FLink>
-          </div>
-          <div>
-            <FHeader>LEGAL</FHeader>
-            <FLink href="/legal/disclaimer">Disclaimer médico</FLink>
-            <FLink href="/legal/privacidad">Privacidad</FLink>
-            <FLink href="/legal/terminos">Términos de uso</FLink>
-          </div>
+          <p
+            style={{
+              fontSize: "0.7rem",
+              color: "var(--text-3)",
+              lineHeight: 1.6,
+              marginBottom: "0.6rem",
+            }}
+          >
+            Diluciones, Dosis & Cálculos Anestésicos.
+            <br />
+            Para anestesiólogos que prefieren calcular antes que adivinar.
+          </p>
+          <p
+            className="mono"
+            style={{
+              fontSize: "0.6rem",
+              color: "var(--text-3)",
+              opacity: 0.6,
+            }}
+          >
+            // © 2026 · Dr. Jophiel Espaillat Caldentey
+          </p>
         </div>
-        <div style={{ borderTop: "1px solid var(--border)", paddingTop: "1rem", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
-          <span className="mono" style={{ color: "var(--text-3)", fontSize: "0.6rem" }}>© {y} Dr. Jophiel Espaillat C.</span>
-          <span className="mono" style={{ color: "var(--text-3)", fontSize: "0.55rem", opacity: 0.4 }}>&quot;Primum non nocere&quot; — pero primero calcula bien la dosis.</span>
+
+        {/* Columna 2: producto */}
+        <div>
+          <FooterTitle>producto</FooterTitle>
+          <FooterLink href="/farmacos">fármacos</FooterLink>
+          <FooterLink href="/calculadora">calculadora</FooterLink>
+          <FooterLink href="/interacciones">interacciones</FooterLink>
+          <FooterLink href="/blog">blog</FooterLink>
         </div>
+
+        {/* Columna 3: legales */}
+        <div>
+          <FooterTitle>legal</FooterTitle>
+          <FooterLink href="/legal/disclaimer">disclaimer médico</FooterLink>
+          <FooterLink href="/legal/privacidad">privacidad</FooterLink>
+          <FooterLink href="/legal/terminos">términos</FooterLink>
+        </div>
+
+        {/* Columna 4: contacto */}
+        <div>
+          <FooterTitle>contacto</FooterTitle>
+          <FooterLink href="mailto:hola@decanestesia.com" external>
+            hola@decanestesia.com
+          </FooterLink>
+          <FooterLink href="mailto:errores@decanestesia.com" external>
+            reportar error
+          </FooterLink>
+          <FooterLink href="/about">acerca de</FooterLink>
+        </div>
+      </div>
+
+      {/* Línea final con humor negro */}
+      <div
+        className="wrap"
+        style={{
+          marginTop: "2rem",
+          paddingTop: "1rem",
+          borderTop: "1px solid var(--border)",
+          textAlign: "center",
+        }}
+      >
+        <p
+          className="mono"
+          style={{
+            fontSize: "0.55rem",
+            color: "var(--text-3)",
+            opacity: 0.5,
+            letterSpacing: "0.06em",
+          }}
+        >
+          // herramienta de apoyo · no sustituye juicio profesional · si algo sale mal, la culpa no es del app
+        </p>
       </div>
     </footer>
   );
 }
 
-function FHeader({ children }: { children: React.ReactNode }) {
-  return <div style={{ color: "var(--text-2)", fontSize: "0.6rem", fontWeight: 600, letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "0.5rem" }}>{children}</div>;
+function FooterTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <h4
+      className="mono"
+      style={{
+        fontSize: "0.6rem",
+        color: "var(--text-3)",
+        letterSpacing: "0.1em",
+        marginBottom: "0.5rem",
+        textTransform: "uppercase",
+      }}
+    >
+      {children}
+    </h4>
+  );
 }
-function FLink({ href, children }: { href: string; children: React.ReactNode }) {
-  return <Link href={href} className="mono" style={{ display: "block", color: "var(--text-3)", fontSize: "0.6rem", textDecoration: "none", marginBottom: "0.3rem" }}>→ {children}</Link>;
+
+function FooterLink({
+  href,
+  children,
+  external = false,
+}: {
+  href: string;
+  children: React.ReactNode;
+  external?: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      target={external ? "_blank" : undefined}
+      rel={external ? "noopener noreferrer" : undefined}
+      style={{
+        display: "block",
+        fontSize: "0.7rem",
+        color: "var(--text-2)",
+        textDecoration: "none",
+        marginBottom: "0.3rem",
+        transition: "color 0.15s",
+      }}
+      className="footer-link"
+    >
+      {children}
+    </Link>
+  );
 }

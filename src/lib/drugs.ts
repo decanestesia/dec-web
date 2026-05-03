@@ -200,6 +200,31 @@ export interface DrugInteraction {
   clinical_effect: string | null;
   management: string | null;
 }
+// NEW v18: Drug dosing
+export type DosingPopulation =
+  | "adult"
+  | "pediatric"
+  | "neonate"
+  | "elderly"
+  | "renal_impairment"
+  | "hepatic_impairment"
+  | "obese"
+  | "critical_care"
+  | "pregnancy";
+
+export interface DosingEntry {
+  population: string;
+  indication: string | null;
+  route: string | null;
+  dose_min: number | null;
+  dose_max: number | null;
+  dose_unit: string | null;
+  frequency: string | null;
+  max_daily_dose: number | null;
+  max_daily_unit: string | null;
+  notes: string | null;
+  sort_order: number | null;
+}
 
 export interface DrugDetail {
   pharmacology: PharmacologyEntry[];
@@ -209,10 +234,11 @@ export interface DrugDetail {
   brands: BrandName[];
   molecular: MolecularData | null;
   interactions: DrugInteraction[]; // NEW v16.3
+  dosing: DosingEntry[]; // NEW v18
 }
 
 export async function fetchDrugDetail(drugId: string): Promise<DrugDetail> {
-  const [pharm, ae, warn, preg, brands, molecular, interactions] = await Promise.all([
+  const [pharm, ae, warn, preg, brands, molecular, interactions, dosing] = await Promise.all([
     sb<PharmacologyEntry[]>(
       `drug_pharmacology?drug_id=eq.${drugId}&select=property,value,details,sort_order&order=sort_order.asc`
     ),
@@ -234,6 +260,9 @@ export async function fetchDrugDetail(drugId: string): Promise<DrugDetail> {
     sb<DrugInteraction[]>(
       `drug_interactions?drug_id=eq.${drugId}&select=drug_id,interacts_with_id,interacts_with_name,severity,mechanism,clinical_effect,management`
     ),
+    sb<DosingEntry[]>(
+      `drug_dosing?drug_id=eq.${drugId}&select=population,indication,route,dose_min,dose_max,dose_unit,frequency,max_daily_dose,max_daily_unit,notes,sort_order&order=sort_order.asc`
+    ),
   ]);
   return {
     pharmacology: pharm,
@@ -243,6 +272,7 @@ export async function fetchDrugDetail(drugId: string): Promise<DrugDetail> {
     brands,
     molecular: molecular[0] ?? null,
     interactions,
+    dosing,
   };
 }
 

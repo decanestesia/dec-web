@@ -1,0 +1,26 @@
+PENDIENTE: Reemplazar este archivo con el contenido REAL que genera Apple.
+
+Pasos para obtener el contenido correcto:
+
+1. Ve a developer.apple.com → Identifiers → tu Services ID 
+   (com.decanestesia.dec.web) → Configure (al lado de "Sign In with Apple")
+
+2. En la sección "Domains and Subdomains" verifica que aparezca 
+   decanestesia.com con estado "Pending Verification"
+
+3. Apple te ofrecerá descargar el archivo apple-developer-domain-association.txt
+
+4. Reemplaza este archivo con el descargado (mismo nombre, en /public/.well-known/)
+
+5. Deploy a Vercel
+
+6. Vuelve a Apple developer y click "Verify" — debe pasar a estado verificado
+
+7. Si tarda más de 5 minutos, verifica que la URL responda 200:
+   https://decanestesia.com/.well-known/apple-developer-domain-association.txt
+   (debe mostrar el contenido en texto plano, no 404 ni redirect)
+
+NOTA: Hasta que esto esté hecho, Sign In with Apple en web NO funcionará.
+En iOS sí funciona (no requiere domain verification).
+
+// apple es estricto, pero al menos es predecible

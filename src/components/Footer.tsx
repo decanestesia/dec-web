@@ -71,9 +71,10 @@ export function Footer() {
         {/* Columna 3: legales */}
         <div>
           <FooterTitle>legal</FooterTitle>
-          <FooterLink href="/legal/disclaimer">disclaimer médico</FooterLink>
+          <FooterLink href="/legal/aviso-medico">aviso médico</FooterLink>
           <FooterLink href="/legal/privacidad">privacidad</FooterLink>
           <FooterLink href="/legal/terminos">términos</FooterLink>
+          <FooterLink href="/legal/cookies">cookies</FooterLink>
         </div>
 
         {/* Columna 4: contacto */}

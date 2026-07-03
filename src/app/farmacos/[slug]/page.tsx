@@ -17,6 +17,7 @@ import { InfusionCalculator } from "./InfusionCalculator";
 import { MolecularSection } from "./MolecularSection";
 import { InteractionsSection } from "./InteractionsSection";
 import { DosingSection } from "./DosingSection";
+import { AdministrationSection } from "./AdministrationSection";
 
 export async function generateStaticParams() {
   const catalog = loadCatalogSync();
@@ -218,6 +219,12 @@ export default async function DrugDetailPage({ params }: Props) {
 
       {/* Dosing — v18 */}
       <DosingSection entries={detail?.dosing ?? []} />
+
+      {/* Presentations & Administration — v18 */}
+      <AdministrationSection
+        presentations={detail?.presentations ?? []}
+        administration={detail?.administration ?? null}
+      />
 
       {/* Infusion calculator */}
       {drug.infusion && drug.infusion.length > 0 && (

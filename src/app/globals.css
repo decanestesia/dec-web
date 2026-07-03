@@ -178,3 +178,5 @@ body {
 /* Blog cards */
 .blog-card { border: 1px solid var(--border); background: var(--bg-2); padding: 1.25rem; transition: all 0.15s; }
 .blog-card:hover { border-color: var(--accent-border); background: var(--bg-hover); transform: translateY(-1px); }
+
+

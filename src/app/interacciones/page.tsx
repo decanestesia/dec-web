@@ -23,6 +23,7 @@ const SUPABASE_KEY =
 interface CheckResult {
   pair: [Drug, Drug];
   interactions: DrugInteraction[];
+  error?: boolean; // el fetch falló → "no verificado", NO "sin interacción"
 }
 
 export default function InteraccionesPage() {
@@ -80,7 +81,7 @@ export default function InteraccionesPage() {
               Authorization: `Bearer ${SUPABASE_KEY}`,
             },
           });
-          if (!r.ok) return { pair: [a, b] as [Drug, Drug], interactions: [] };
+          if (!r.ok) return { pair: [a, b] as [Drug, Drug], interactions: [], error: true };
           const items = (await r.json()) as DrugInteraction[];
           // Deduplicate (each interaction is stored bidirectionally)
           const seen = new Set<string>();
@@ -92,7 +93,7 @@ export default function InteraccionesPage() {
           });
           return { pair: [a, b] as [Drug, Drug], interactions: unique };
         } catch {
-          return { pair: [a, b] as [Drug, Drug], interactions: [] };
+          return { pair: [a, b] as [Drug, Drug], interactions: [], error: true };
         }
       })
     ).then((res) => {
@@ -420,7 +421,9 @@ function ResultsView({
   totalInteractions: number;
   dangerCount: number;
 }) {
-  const noInteractions = totalInteractions === 0;
+  // Un fallo de red NO es "sin interacción": no debe producir el banner verde.
+  const hadError = results.some((r) => r.error);
+  const noInteractions = totalInteractions === 0 && !hadError;
 
   return (
     <div>
@@ -432,9 +435,11 @@ function ResultsView({
           borderLeft: `3px solid ${
             dangerCount > 0
               ? "var(--red)"
-              : noInteractions
-                ? "var(--accent)"
-                : "var(--amber)"
+              : hadError
+                ? "var(--red)"
+                : noInteractions
+                  ? "var(--accent)"
+                  : "var(--amber)"
           }`,
         }}
       >
@@ -467,11 +472,13 @@ function ResultsView({
                 fontWeight: 600,
               }}
             >
-              {noInteractions
-                ? "Sin interacciones críticas registradas"
-                : dangerCount > 0
-                  ? `${dangerCount} interacción${dangerCount > 1 ? "es" : ""} crítica${dangerCount > 1 ? "s" : ""} detectada${dangerCount > 1 ? "s" : ""}`
-                  : `${totalInteractions} interacción${totalInteractions > 1 ? "es" : ""} de bajo riesgo`}
+              {dangerCount > 0
+                ? `${dangerCount} interacción${dangerCount > 1 ? "es" : ""} crítica${dangerCount > 1 ? "s" : ""} detectada${dangerCount > 1 ? "s" : ""}`
+                : hadError
+                  ? "No se pudo verificar — revisa tu conexión y reintenta"
+                  : noInteractions
+                    ? "Sin interacciones críticas registradas"
+                    : `${totalInteractions} interacción${totalInteractions > 1 ? "es" : ""} de bajo riesgo`}
             </div>
             {noInteractions && (
               <p

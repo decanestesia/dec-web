@@ -226,6 +226,34 @@ export interface DosingEntry {
   sort_order: number | null;
 }
 
+// NEW v18: Drug presentations
+export interface DrugPresentation {
+  form: string;
+  strength: string;
+  strength_value: number | null;
+  strength_unit: string | null;
+  volume: string | null;
+  volume_ml: number | null;
+  route: string | null;
+  packaging: string | null;
+}
+
+// NEW v18: Drug administration
+export interface DrugAdministration {
+  route: string;
+  instructions: string | null;
+  reconstitution: string | null;
+  dilution: string | null;
+  compatibility: string | null;
+  incompatibility: string | null;
+  stability: string | null;
+  max_rate: number | null;
+  rate_unit: string | null;
+  filter_required: boolean | null;
+  light_sensitive: boolean | null;
+  notes: string | null;
+}
+
 export interface DrugDetail {
   pharmacology: PharmacologyEntry[];
   adverse_effects: AdverseEffect[];
@@ -235,10 +263,45 @@ export interface DrugDetail {
   molecular: MolecularData | null;
   interactions: DrugInteraction[]; // NEW v16.3
   dosing: DosingEntry[]; // NEW v18
+  presentations: DrugPresentation[]; // NEW v18
+  administration: DrugAdministration | null; // NEW v18
+}
+
+// Detalle vacío por defecto (cuando ni Supabase ni el snapshot tienen datos).
+const EMPTY_DETAIL: DrugDetail = {
+  pharmacology: [],
+  adverse_effects: [],
+  warnings: [],
+  pregnancy: null,
+  brands: [],
+  molecular: null,
+  interactions: [],
+  dosing: [],
+  presentations: [],
+  administration: null,
+};
+
+// Fallback offline-first: si Supabase no responde (pausado/caído), servimos el
+// detalle desde el snapshot local completo (public/drugs-full.json). El shape de
+// cada entrada `detail[id]` es idéntico a DrugDetail (lo genera scripts/generate-snapshot.mjs).
+// require() cachea el JSON tras la primera lectura; solo la ficha (server component)
+// importa fetchDrugDetail, así que este blob nunca llega al bundle del cliente.
+// // un quirófano sin señal no es un quirófano sin datos
+function loadDetailFromSnapshot(drugId: string): DrugDetail {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const snap = require("../../public/drugs-full.json") as {
+      detail: Record<string, DrugDetail>;
+    };
+    return snap.detail[drugId] ?? EMPTY_DETAIL;
+  } catch {
+    return EMPTY_DETAIL;
+  }
 }
 
 export async function fetchDrugDetail(drugId: string): Promise<DrugDetail> {
-  const [pharm, ae, warn, preg, brands, molecular, interactions, dosing] = await Promise.all([
+  try {
+  const [pharm, ae, warn, preg, brands, molecular, interactions, dosing, presentations, administration] = await Promise.all([
     sb<PharmacologyEntry[]>(
       `drug_pharmacology?drug_id=eq.${drugId}&select=property,value,details,sort_order&order=sort_order.asc`
     ),
@@ -263,17 +326,29 @@ export async function fetchDrugDetail(drugId: string): Promise<DrugDetail> {
     sb<DosingEntry[]>(
       `drug_dosing?drug_id=eq.${drugId}&select=population,indication,route,dose_min,dose_max,dose_unit,frequency,max_daily_dose,max_daily_unit,notes,sort_order&order=sort_order.asc`
     ),
+    sb<DrugPresentation[]>(
+      `drug_presentations?drug_id=eq.${drugId}&select=form,strength,strength_value,strength_unit,volume,volume_ml,route,packaging&order=route.asc`
+    ),
+    sb<DrugAdministration[]>(
+      `drug_administration?drug_id=eq.${drugId}&select=route,instructions,reconstitution,dilution,compatibility,incompatibility,stability,max_rate,rate_unit,filter_required,light_sensitive,notes&limit=1`
+    ),
   ]);
-  return {
-    pharmacology: pharm,
-    adverse_effects: ae,
-    warnings: warn,
-    pregnancy: preg[0] ?? null,
-    brands,
-    molecular: molecular[0] ?? null,
-    interactions,
-    dosing,
-  };
+    return {
+      pharmacology: pharm,
+      adverse_effects: ae,
+      warnings: warn,
+      pregnancy: preg[0] ?? null,
+      brands,
+      molecular: molecular[0] ?? null,
+      interactions,
+      dosing,
+      presentations,
+      administration: administration[0] ?? null,
+    };
+  } catch {
+    // Supabase no respondió → snapshot local embebido.
+    return loadDetailFromSnapshot(drugId);
+  }
 }
 
 // Fetch interactions between two specific drugs (for the interaction checker)

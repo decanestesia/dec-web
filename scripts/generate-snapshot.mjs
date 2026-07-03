@@ -173,11 +173,14 @@ for (const d of drugs) {
     skipped++;
     continue;
   }
+  // Coerción defensiva: iOS decodifica label/dose_min/dose_max/dose_unit como
+  // NO opcionales. Un solo null aquí (regeneración futura) tumbaría TODO el
+  // snapshot embebido → colapso silencioso a legacy. Blindamos en origen.
   const inf = (infByDrug[d.id] || []).map((i) => ({
-    label: i.label,
-    dose_min: i.dose_min,
-    dose_max: i.dose_max,
-    dose_unit: i.dose_unit,
+    label: i.label || "",
+    dose_min: Number(i.dose_min) || 0,
+    dose_max: Number(i.dose_max) || 0,
+    dose_unit: i.dose_unit || "",
     standard_dilution_ml: i.standard_dilution_ml,
     ampule_amount: i.ampule_amount,
     ampule_unit: i.ampule_unit,
@@ -201,8 +204,13 @@ for (const d of drugs) {
   // Detalle: forma idéntica al DrugDetail de web y al DrugDetailBundle de iOS.
   detail[d.id] = {
     pharmacology: pharmBy[d.id] || [],
-    adverse_effects: aeBy[d.id] || [],
-    warnings: warnBy[d.id] || [],
+    // is_black_box / is_contraindication → Bool NO opcional en iOS: coerción a bool.
+    adverse_effects: (aeBy[d.id] || []).map((r) => ({ ...r, is_black_box: !!r.is_black_box })),
+    warnings: (warnBy[d.id] || []).map((r) => ({
+      ...r,
+      is_black_box: !!r.is_black_box,
+      is_contraindication: !!r.is_contraindication,
+    })),
     pregnancy: (pregBy[d.id] || [])[0] ?? null,
     brands: brandsBy[d.id] || [],
     molecular: (molBy[d.id] || [])[0] ?? null,

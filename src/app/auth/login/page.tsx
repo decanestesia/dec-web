@@ -31,7 +31,7 @@ export default async function LoginPage({
         <>
           ¿Problemas? Escribe a <a href="mailto:soporte@decanestesia.com" style={{ color: "var(--text-2)" }}>soporte@decanestesia.com</a>
           <br />
-          // se nos olvidan las contraseñas a todos
+          {"// se nos olvidan las contraseñas a todos"}
         </>
       }
     >

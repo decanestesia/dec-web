@@ -43,7 +43,7 @@ Web de DEC (Diluciones, Dosis & Cálculos Anestésicos) — herramienta clínica
 4. ✅ **Página /pro**: pricing §2.1 + matriz Free/Pro §3 + CTA (crear cuenta gratis + waitlist mailto; checkout Lemon Squeezy llega en D.5). Link `pro` en navbar.
 
 **iOS HECHO (3 jul 2026, rama `feat/v19-offline-storekit-paywall`, BUILD SUCCEEDED):**
-5. ✅ DrugDatabase v19 (snapshot embebido, detalle offline, throttle 24h) + StoreKit 2 (`StoreService`) + `PaywallView` + gating §3 (Electrolitos/ROTEM, HomeView + QuickNavMenu). Paquete `supabase-swift` cableado. Metadatos ASC en `Calculator/AppStore/metadata.md`. Falta: correr en device (sim local es iOS 18.5, app pide iOS 26) + gating "3/día" de interacciones (único gap §3).
+5. ✅ DrugDatabase v19 (snapshot embebido, detalle offline, throttle 24h) + StoreKit 2 (`StoreService`) + `PaywallView` + gating §3 (Electrolitos/ROTEM, HomeView + QuickNavMenu). Paquete `supabase-swift` cableado. Metadatos ASC en `Calculator/AppStore/metadata.md`. Falta: correr en device (sim local es iOS 18.5, app pide iOS 26). Gating "3/día" de interacciones → DECISIÓN: ilimitado en iOS v1 (el gating §3 core, calculadoras avanzadas, ya está; no degradar UX del quirófano).
 
 **Seguridad — auditoría 3 jul (pendiente de aplicar):**
 6. 🔴 **DB**: la anon key (pública) puede INSERT/UPDATE el catálogo clínico (policies `WITH CHECK true` + grants). El pipeline escribe con anon → fix coordinado: pipeline a service_role, luego revocar. SQL listo en `~/Documents/DEC-supabase-security.sql`. También: `create_discount_code` ejecutable por anon; search_path mutable. (Regla: mostrar SQL primero — no aplicado.)

@@ -38,7 +38,7 @@ export default async function SignupPage({
           </Link>
           .
           <br />
-          // los leemos por ti — pero te conviene mirarlos
+          {"// los leemos por ti — pero te conviene mirarlos"}
         </>
       }
     >

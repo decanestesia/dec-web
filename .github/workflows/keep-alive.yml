@@ -1,0 +1,47 @@
+# ─────────────────────────────────────────────────────────────
+# keep-alive — evita que el proyecto Supabase (free tier) se pause.
+#
+# Dos pausas de Supabase ya tumbaron web y app (ver Blueprint §4.1/§5).
+# Este cron hace un SELECT trivial (~200 bytes) cada 2 días; suficiente para
+# que el proyecto nunca cuente como "inactivo" (ventana de pausa: ~7 días sin
+# actividad en el plan free; margen de sobra).
+#
+# Capa 1 de 3 de la resiliencia: keep-alive + offline-first + backups.
+# Cuando haya usuarios reales → Supabase Pro ($25/mes) y esto pasa a ser red de seguridad.
+#
+# // un cron barato es más fiable que acordarse de abrir el dashboard
+# ─────────────────────────────────────────────────────────────
+name: keep-alive
+
+on:
+  schedule:
+    - cron: "0 6 */2 * *" # cada 2 días a las 06:00 UTC
+  workflow_dispatch: {} # permite dispararlo a mano desde la pestaña Actions
+
+# Un solo ping a la vez; no acumular ejecuciones si GitHub se retrasa.
+concurrency:
+  group: keep-alive
+  cancel-in-progress: true
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: SELECT contra Supabase REST
+        env:
+          SUPABASE_URL: https://smaazlgvonzcajjvbefk.supabase.co
+          # anon key PÚBLICA (RLS protege los datos) — la misma ya committeada
+          # en src/lib/drugs.ts. No es un secreto; inline para cero-setup.
+          SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtYWF6bGd2b256Y2FqanZiZWZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1MDIyOTUsImV4cCI6MjA5MjA3ODI5NX0.LVVuXue2FljP0mvINWV84NbFaLNbgoXr8Lbg8oiiMK4
+        run: |
+          code=$(curl -sS -o /dev/null -w "%{http_code}" \
+            -H "apikey: ${SUPABASE_ANON_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+            "${SUPABASE_URL}/rest/v1/catalog_metadata?select=version&id=eq.1")
+          echo "Supabase respondió HTTP $code"
+          if [ "$code" != "200" ]; then
+            echo "::error::keep-alive falló — Supabase devolvió HTTP $code"
+            exit 1
+          fi
+          echo "✓ proyecto vivo"

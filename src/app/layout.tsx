@@ -1,8 +1,10 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { UserMenu } from "@/components/UserMenu";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { CommandPalette } from "@/components/CommandPalette";
 
 export const viewport: Viewport = {
   themeColor: "#10b981",
@@ -67,9 +69,13 @@ export default function RootLayout({
     <html lang="es" suppressHydrationWarning>
       <body className="min-h-screen flex flex-col">
         <ThemeProvider>
-          <Navbar />
+          {/* Navbar recibe UserMenu como userSlot — UserMenu es server
+              component (lee la sesión), Navbar es client component (theme toggle).
+              Next.js permite pasar server components como props a client components. */}
+          <Navbar userSlot={<UserMenu />} />
           <main className="flex-1">{children}</main>
           <Footer />
+          <CommandPalette />
         </ThemeProvider>
       </body>
     </html>

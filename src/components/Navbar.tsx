@@ -17,7 +17,7 @@ export function Navbar({ userSlot }: { userSlot?: ReactNode }) {
     { href: "/", label: "sys", exact: true },
     { href: "/farmacos", label: "db/farmacos" },
     { href: "/interacciones", label: "interactions" },
-    { href: "/calculadora", label: "calc" },
+    { href: "/calculadoras", label: "calc" },
     { href: "/pro", label: "pro" },
     { href: "/blog", label: "blog" },
     { href: "/about", label: "about" },

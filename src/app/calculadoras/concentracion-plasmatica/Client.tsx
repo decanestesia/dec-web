@@ -17,6 +17,7 @@
 // ============================================================
 
 import { useMemo, useState } from "react";
+import { EXTENDED_MODELS } from "./pk-models-extended";
 
 // ------------------------------------------------------------
 // Modelo compartimental mamillar -> macroconstantes
@@ -30,7 +31,7 @@ import { useMemo, useState } from "react";
 // Un set de parámetros micro: volúmenes (L) y aclaramientos (L/min).
 // V1 = compartimento central; V2/V3 = periféricos; CL = eliminación;
 // Q2/Q3 = aclaramientos intercompartimentales.
-interface MicroParams {
+export interface MicroParams {
   V1: number; // L
   V2: number; // L
   V3: number; // L (0 si bicompartimental)
@@ -167,16 +168,27 @@ function cpSteadyState(clLmin: number, rateMgMin: number): number {
 // original es por-kg; para Marsh (propofol) V1 y CL escalan con peso.
 // ------------------------------------------------------------
 
-interface DrugModel {
+// Covariables del paciente. Los modelos por-peso clásicos (Marsh, Shafer,
+// Minto, midazolam) solo usan weightKg; los modelos generales (Eleveld,
+// Hannivoort, etc.) usan además edad, talla y sexo.
+export interface Cov {
+  weightKg: number;
+  ageYears: number;
+  heightCm: number;
+  sex: "male" | "female";
+}
+
+export interface DrugModel {
   id: string;
   name: string;
   note: string; // subtítulo clínico corto
   unit: "mcg" | "mg"; // unidad natural de la dosis clínica
   citation: string; // Vancouver breve del set PK
-  // función que devuelve MicroParams dado el peso (kg)
-  micro: (weightKg: number) => MicroParams;
+  // función que devuelve MicroParams dadas las covariables
+  micro: (c: Cov) => MicroParams;
   // rango típico de Cp de referencia (para orientar, no como target)
   refCp?: string;
+  peds?: boolean; // modelo pediátrico
 }
 
 // -- FENTANILO — Shafer SL, Varvel JR. Anesthesiology 1991;74:53-63
@@ -237,7 +249,7 @@ const MIDAZOLAM: DrugModel = {
   unit: "mg",
   citation:
     "Greenblatt DJ, et al. Anesthesiology. 1984;61:27-35; Stoelting Pharmacology (Vd 1-1.5 L/kg, CL 6-11 mL/kg/min).",
-  micro: (w) => ({
+  micro: ({ weightKg: w }) => ({
     V1: 0.15 * w,
     V2: 0.85 * w,
     V3: 0,
@@ -260,7 +272,7 @@ const PROPOFOL_MARSH: DrugModel = {
   unit: "mg",
   citation:
     "Marsh B, et al. Br J Anaesth. 1991;67:41-48 (Diprifusor; V1 0.228 L/kg, k fijas).",
-  micro: (w) => {
+  micro: ({ weightKg: w }) => {
     const V1 = 0.228 * w; // L
     const k10 = 0.119;
     const k12 = 0.112;
@@ -285,9 +297,14 @@ const PROPOFOL_MARSH: DrugModel = {
 
 const DRUGS: DrugModel[] = [
   PROPOFOL_MARSH,
-  FENTANYL,
+  ...EXTENDED_MODELS.filter((m) => ["propofol-eleveld", "paedfusor", "kataria"].includes(m.id)),
   REMIFENTANIL,
+  ...EXTENDED_MODELS.filter((m) => m.id === "remifentanil-eleveld"),
+  FENTANYL,
   MIDAZOLAM,
+  ...EXTENDED_MODELS.filter((m) => m.id.startsWith("dex_")),
+  ...EXTENDED_MODELS.filter((m) => m.id.startsWith("ketamine")),
+  ...EXTENDED_MODELS.filter((m) => m.id.startsWith("rocuronium")),
 ];
 
 // ------------------------------------------------------------
@@ -320,6 +337,9 @@ function formatCp(cpUgMl: number): { value: string; unit: string } {
 export default function ConcentracionPlasmaticaClient() {
   const [drugId, setDrugId] = useState<string>("propofol");
   const [weightText, setWeightText] = useState("70");
+  const [ageText, setAgeText] = useState("40");
+  const [heightText, setHeightText] = useState("170");
+  const [sex, setSex] = useState<"male" | "female">("male");
 
   // Bolo
   const [boloText, setBoloText] = useState("");
@@ -342,7 +362,13 @@ export default function ConcentracionPlasmaticaClient() {
   const result = useMemo(() => {
     if (weightKg === null || !(weightKg > 0)) return null;
 
-    const micro = drug.micro(weightKg);
+    const cov: Cov = {
+      weightKg,
+      ageYears: parseNum(ageText) ?? 40,
+      heightCm: parseNum(heightText) ?? 170,
+      sex,
+    };
+    const micro = drug.micro(cov);
     const exp = microToExponentials(micro);
 
     // --- BOLO ---
@@ -393,6 +419,9 @@ export default function ConcentracionPlasmaticaClient() {
   }, [
     drug,
     weightKg,
+    ageText,
+    heightText,
+    sex,
     boloText,
     boloElapsedText,
     infusionRateText,
@@ -523,37 +552,51 @@ export default function ConcentracionPlasmaticaClient() {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(2, 1fr)",
+              gridTemplateColumns: "repeat(3, 1fr)",
               gap: "0.75rem",
             }}
           >
             <div>
-              <label className="mono" style={labelStyle}>
-                Peso (kg)
-              </label>
-              <input
-                type="number"
-                inputMode="decimal"
-                className="calc-input mono"
-                placeholder="70"
-                value={weightText}
-                onChange={(e) => setWeightText(e.target.value)}
-                min={0}
-                step="any"
-              />
+              <label className="mono" style={labelStyle}>Peso (kg)</label>
+              <input type="number" inputMode="decimal" className="calc-input mono" placeholder="70" value={weightText} onChange={(e) => setWeightText(e.target.value)} min={0} step="any" />
             </div>
-            <div style={{ display: "flex", alignItems: "flex-end" }}>
-              <div
-                className="mono"
-                style={{
-                  color: "var(--text-3)",
-                  fontSize: "0.55rem",
-                  lineHeight: 1.5,
-                }}
-              >
-                {drug.refCp}
-              </div>
+            <div>
+              <label className="mono" style={labelStyle}>Edad (años)</label>
+              <input type="number" inputMode="decimal" className="calc-input mono" placeholder="40" value={ageText} onChange={(e) => setAgeText(e.target.value)} min={0} step="any" />
             </div>
+            <div>
+              <label className="mono" style={labelStyle}>Talla (cm)</label>
+              <input type="number" inputMode="decimal" className="calc-input mono" placeholder="170" value={heightText} onChange={(e) => setHeightText(e.target.value)} min={0} step="any" />
+            </div>
+          </div>
+
+          <div>
+            <label className="mono" style={labelStyle}>Sexo</label>
+            <div style={{ display: "flex", gap: "0.4rem" }}>
+              {(["male", "female"] as const).map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setSex(s)}
+                  className="mono"
+                  style={{
+                    flex: 1, padding: "0.45rem", fontSize: "0.7rem", cursor: "pointer",
+                    background: sex === s ? "var(--accent)" : "var(--bg-1)",
+                    color: sex === s ? "#000" : "var(--text-2)",
+                    border: `1px solid ${sex === s ? "var(--accent)" : "var(--border)"}`,
+                  }}
+                >
+                  {s === "male" ? "Masculino" : "Femenino"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="mono" style={{ color: "var(--text-3)", fontSize: "0.55rem", lineHeight: 1.5 }}>
+            {drug.refCp}
+            {!drug.peds && (
+              <span style={{ opacity: 0.6 }}> · edad/talla/sexo solo afectan a modelos generales (Eleveld, Hannivoort…)</span>
+            )}
           </div>
         </div>
       </div>

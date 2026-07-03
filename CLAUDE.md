@@ -42,9 +42,15 @@ Web de DEC (Diluciones, Dosis & Cálculos Anestésicos) — herramienta clínica
 3. ✅ **Fallback offline SSR**: `fetchDrugDetail` en `src/lib/drugs.ts` hace try Supabase → catch → `drugs-full.json` local. La base ya cargaba de JSON local.
 4. ✅ **Página /pro**: pricing §2.1 + matriz Free/Pro §3 + CTA (crear cuenta gratis + waitlist mailto; checkout Lemon Squeezy llega en D.5). Link `pro` en navbar.
 
-**Pendiente:**
-5. (Si hay tiempo) Lighthouse + fix horizontal-scroll bug conocido.
-6. **iOS offline-first v19**: `DrugDatabase.swift` (repo Calculator) debe embeber `drugs-full.json` completo → detalle offline desde el primer segundo + throttle 24h. Luego StoreKit 2 + PaywallView + gating §3.
+**iOS HECHO (3 jul 2026, rama `feat/v19-offline-storekit-paywall`, BUILD SUCCEEDED):**
+5. ✅ DrugDatabase v19 (snapshot embebido, detalle offline, throttle 24h) + StoreKit 2 (`StoreService`) + `PaywallView` + gating §3 (Electrolitos/ROTEM, HomeView + QuickNavMenu). Paquete `supabase-swift` cableado. Metadatos ASC en `Calculator/AppStore/metadata.md`. Falta: correr en device (sim local es iOS 18.5, app pide iOS 26) + gating "3/día" de interacciones (único gap §3).
+
+**Seguridad — auditoría 3 jul (pendiente de aplicar):**
+6. 🔴 **DB**: la anon key (pública) puede INSERT/UPDATE el catálogo clínico (policies `WITH CHECK true` + grants). El pipeline escribe con anon → fix coordinado: pipeline a service_role, luego revocar. SQL listo en `~/Documents/DEC-supabase-security.sql`. También: `create_discount_code` ejecutable por anon; search_path mutable. (Regla: mostrar SQL primero — no aplicado.)
+7. ✅ **Web** (aplicado en rama): open redirect en `next` saneado (`safeNext`); verificador de interacciones ya no muestra "sin interacción" ante fallo de red (falso negativo clínico).
+
+**Pendiente menor:**
+8. (Si hay tiempo) Lighthouse + horizontal-scroll bug. Lint pre-existente (comentarios JSX en login/signup footers, setState-in-effect en /interacciones). Dead code `src/lib/supabase.ts` (footgun PostgREST, sin call sites → candidato a borrar).
 
 ## MODELO FREE/PRO (gating web futuro)
 Catálogo completo gratis. Pro: interacciones ilimitadas (free: 3/día), detalle ampliado (farmacología completa/molecular/marcas — free ve resumen), calculadoras avanzadas, sin ads, sync. Verificar con is_pro() server-side.

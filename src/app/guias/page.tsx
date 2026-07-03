@@ -18,6 +18,7 @@ interface GuideCard {
 const GUIDES: GuideCard[] = [
   { href: "/guias/extubacion", icon: "🫁", title: "Extubación y destete", subtitle: "Criterios, SBT, RSBI, prueba de fuga, predictores de reintubación", tag: "WEAN" },
   { href: "/guias/transfusion", icon: "🩸", title: "Transfusión y hemoderivados", subtitle: "Umbrales, dosis, velocidad, compatibilidad, transfusión masiva", tag: "TX" },
+  { href: "/guias/hipertermia-maligna", icon: "🔥", title: "Hipertermia maligna", subtitle: "Reconocimiento, manejo paso a paso, dantroleno por peso, línea MHAUS", tag: "MH" },
 ];
 
 export default function GuiasPage() {

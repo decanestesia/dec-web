@@ -24,6 +24,10 @@ const CALCS: CalcCard[] = [
   { href: "/calculadoras/ventilacion", icon: "🫁", title: "Ventilación y vía aérea", subtitle: "Vt, TET (tamaño/profundidad), LMA, hoja — adultos y niños", tag: "VENT" },
   { href: "/calculadoras/rox", icon: "🩺", title: "Índice ROX", subtitle: "Predicción de fracaso de cánula nasal de alto flujo", tag: "ROX" },
   { href: "/calculadoras/concentracion-plasmatica", icon: "💉", title: "Concentración plasmática", subtitle: "Estimación farmacocinética (fentanilo, propofol, remifentanilo…)", tag: "PK" },
+  { href: "/calculadoras/anestesicos-locales", icon: "🧴", title: "Anestésicos locales (LAST)", subtitle: "Dosis máxima por peso, mg↔mL, tratamiento de LAST", tag: "LAST" },
+  { href: "/calculadoras/opioides-equianalgesia", icon: "⚖️", title: "Equianalgesia de opioides", subtitle: "Conversión entre opioides con tolerancia cruzada", tag: "OPIO" },
+  { href: "/calculadoras/apfel", icon: "🤢", title: "Score de Apfel (NVPO)", subtitle: "Riesgo de náusea y vómito postoperatorio", tag: "PONV" },
+  { href: "/calculadoras/emergencia-pediatrica", icon: "🚨", title: "Emergencias pediátricas", subtitle: "Dosis de reanimación por peso (PALS/APLS)", tag: "PEDS" },
 ];
 
 export default function CalculadorasPage() {

@@ -21,6 +21,9 @@ const CALCS: CalcCard[] = [
   { href: "/calculadoras/salino-hipertonico", icon: "🧪", title: "Salino hipertónico", subtitle: "Preparación NaCl 3% / 7.5% / 23.4%", tag: "NaCl" },
   { href: "/calculadoras/electrolitos", icon: "⚗️", title: "Electrolitos y gases", subtitle: "Acid-base, anión gap, déficit de agua, corrección de Na", tag: "ABG" },
   { href: "/calculadoras/rotem-teg", icon: "📈", title: "ROTEM / TEG", subtitle: "Análisis viscoelástico interpretado + manejo", tag: "VISCO" },
+  { href: "/calculadoras/ventilacion", icon: "🫁", title: "Ventilación y vía aérea", subtitle: "Vt, TET (tamaño/profundidad), LMA, hoja — adultos y niños", tag: "VENT" },
+  { href: "/calculadoras/rox", icon: "🩺", title: "Índice ROX", subtitle: "Predicción de fracaso de cánula nasal de alto flujo", tag: "ROX" },
+  { href: "/calculadoras/concentracion-plasmatica", icon: "💉", title: "Concentración plasmática", subtitle: "Estimación farmacocinética (fentanilo, propofol, remifentanilo…)", tag: "PK" },
 ];
 
 export default function CalculadorasPage() {

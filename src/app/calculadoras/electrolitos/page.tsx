@@ -109,12 +109,15 @@ function managementHyperNa(v: number, TBW: number | null): string {
   return `Déficit de agua libre aprox. ${f1(waterDef)} L. Reponer en 48-72h con D5W o agua VO. NO descender Na >10 mEq/L/24h (riesgo de edema cerebral).`;
 }
 
-function managementHypoK(v: number, weight: number | null): string {
+function managementHypoK(v: number, _weight: number | null): string {
   // port de ElectrolytesView.swift:315-322
+  // Regla aceptada: por cada ~0.3 mEq/L por debajo de 4.0 mEq/L ≈ 100 mEq de
+  // déficit corporal total (orientativo; la corrección se guía por niveles seriados).
+  // NO usa peso: la fórmula previa (0.3·peso·[3.5−K]) subestimaba el déficit ~15-40x.
   let deficit = "";
-  if (weight != null) {
-    const mEqDeficit = 0.3 * weight * (3.5 - v);
-    deficit = `Déficit aprox. ${f0(Math.max(mEqDeficit, 0))} mEq. `;
+  if (v < 4.0) {
+    const mEqDeficit = ((4.0 - v) / 0.3) * 100;
+    deficit = `Déficit corporal total estimado ~${f0(mEqDeficit)} mEq (orientativo; guiar reposición por niveles seriados). `;
   }
   return (
     deficit +

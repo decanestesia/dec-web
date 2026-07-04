@@ -384,6 +384,15 @@ function computeRotemFindings(d: RotemInputs): ViscoFinding[] {
 
   if (a10_ex !== null) {
     findings.push(analyzeA10Extem(a10_ex, a10_fib));
+    // FIBTEM bajo se evalúa SIEMPRE, aunque A10-EXTEM sea normal:
+    // la firmeza global puede estar conservada por plaquetas mientras el
+    // fibrinógeno está críticamente bajo (coagulopatía dilucional/traumática
+    // temprana). No suprimir la alerta de hipofibrinogenemia — es la terapia
+    // diana prioritaria (Görlinger; European Guideline Major Bleeding 6ª ed).
+    // Evitar duplicar el hallazgo cuando A10-EXTEM<30 ya lo emitió con FIBTEM.
+    if (a10_fib !== null && a10_fib < 7 && a10_ex >= 30) {
+      findings.push(analyzeFibtemAlone(a10_fib));
+    }
   } else if (a10_fib !== null) {
     findings.push(analyzeFibtemAlone(a10_fib));
   }

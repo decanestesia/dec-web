@@ -101,8 +101,9 @@ export default function SalinoHipertonicoPage() {
     }
     // x = V * (cTarget - cBase) / (cHigh - cBase)   ·  swift:53
     const x = (V * (cTarget - cBase)) / (cHigh - cBase);
-    // meqL(c) = c * 1000 / 58.44   ·  swift:54  (58.44 = PM NaCl)
-    const meqL = (c: number): number => (c * 1000.0) / 58.44;
+    // meqL(c) = c * 10000 / 58.44   ·  swift:54  (58.44 = PM NaCl)
+    // c en % (g/100 mL) → g/L (×10) → mg/L (×1000) → mEq/L Na⁺ (/58.44, valencia 1)
+    const meqL = (c: number): number => (c * 10000.0) / 58.44;
     return {
       volumeToRemove: x, // swift:56
       volumeToAdd: x, // swift:56

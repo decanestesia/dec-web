@@ -144,7 +144,9 @@ function PSP(
   hctPercent: number,
   cohortHctPercent: number
 ): number {
-  return tbvMl * ((hctPercent - cohortHctPercent) / hctPercent);
+  // Clamp a >=0: si el Hct del paciente ya está por debajo del objetivo/cohorte,
+  // no hay margen de pérdida permisible (evita mostrar valores negativos absurdos).
+  return Math.max(0, tbvMl * ((hctPercent - cohortHctPercent) / hctPercent));
 }
 
 // port de CalculatorEngine.swift:133-135

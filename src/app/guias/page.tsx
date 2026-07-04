@@ -43,6 +43,13 @@ const GUIDES: GuideCard[] = [
   { href: "/guias/crisis-celulas-falciformes", icon: "🩸", title: "Crisis de células falciformes", subtitle: "Evitar hipoxia/frío/acidosis, transfusión, STA", tag: "SICKLE" },
   { href: "/guias/bloqueos-regionales", icon: "🎯", title: "Bloqueos regionales — referencia", subtitle: "TAP, ESP, PECS, nervios · volúmenes y dosis máx", tag: "REGIONAL" },
   { href: "/guias/sindrome-reperfusion-aortico", icon: "⏱️", title: "Reperfusión por desclampaje aórtico", subtitle: "Desclampaje gradual, precarga, vasopresores", tag: "AORTA" },
+  { href: "/guias/dolor-agudo-postoperatorio", icon: "🩹", title: "Dolor agudo postoperatorio (multimodal)", subtitle: "Multimodal opioid-sparing, ketamina/lidocaína, regional, ERAS", tag: "DOLOR" },
+  { href: "/guias/paciente-renal-dialisis", icon: "🫘", title: "Paciente renal / en diálisis", subtitle: "Timing de diálisis, hiperkalemia, ajuste por ClCr, fístula", tag: "RENAL" },
+  { href: "/guias/insuficiencia-hepatica-perioperatoria", icon: "🫀", title: "Hepatopatía / cirrosis perioperatoria", subtitle: "Child-Pugh/MELD, coagulopatía rebalanceada, viscoelástico, cisatracurio, perfusión", tag: "HEPATO" },
+  { href: "/guias/paciente-marcapasos-dai", icon: "📟", title: "Marcapasos / DAI perioperatorio", subtitle: "Interferencia del electrobisturí, imán, reprogramación", tag: "DECI" },
+  { href: "/guias/isquemia-miocardica-perioperatoria", icon: "💔", title: "Isquemia miocárdica perioperatoria", subtitle: "MINS/IAM tipo 2, troponina, aporte/demanda", tag: "MINS" },
+  { href: "/guias/aspiracion-mendelson", icon: "🫁", title: "Aspiración pulmonar (Mendelson)", subtitle: "Prevención, RSI, manejo agudo, sin lavado ni ATB de rutina", tag: "ASPIR" },
+  { href: "/guias/obesidad-perioperatoria", icon: "⚖️", title: "Obesidad mórbida perioperatoria", subtitle: "Vía aérea en rampa, dosis por peso magro/ideal/real, AOS", tag: "OBESO" },
 ];
 
 export default function GuiasPage() {

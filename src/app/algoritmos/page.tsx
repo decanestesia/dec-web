@@ -28,6 +28,7 @@ const ALGOS: AlgoCard[] = [
   { href: "/algoritmos/via-aerea-dificil-pediatrica", icon: "🧒", title: "Vía aérea difícil pediátrica", subtitle: "DAS-PIA/APA, anatomía, tamaños", tag: "PEDS" },
   { href: "/algoritmos/asa-via-aerea-dificil", icon: "📋", title: "Algoritmo ASA 2022", subtitle: "Despierto vs inducción · acceso invasivo", tag: "ASA" },
   { href: "/algoritmos/perls", icon: "🫀", title: "PeRLS — Resucitación perioperatoria", subtitle: "ASA 2025 · brady/taqui/arresto · Hs y Ts", tag: "PeRLS" },
+  { href: "/algoritmos/hipotension-intraoperatoria", icon: "📉", title: "Hipotensión intraoperatoria", subtitle: "Diferencial rápido por causa + manejo dirigido", tag: "HIPOTA" },
 ];
 
 export default function AlgoritmosPage() {

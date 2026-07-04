@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FooterQuip } from "./FooterQuip";
 
 export function Footer() {
   return (
@@ -100,17 +101,7 @@ export function Footer() {
           textAlign: "center",
         }}
       >
-        <p
-          className="mono"
-          style={{
-            fontSize: "0.55rem",
-            color: "var(--text-3)",
-            opacity: 0.5,
-            letterSpacing: "0.06em",
-          }}
-        >
-          // herramienta de apoyo · no sustituye juicio profesional · si algo sale mal, la culpa no es del app
-        </p>
+        <FooterQuip />
       </div>
     </footer>
   );

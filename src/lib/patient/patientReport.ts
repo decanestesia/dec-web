@@ -51,19 +51,25 @@ export function openPatientReport(p: Patient): void {
 <title>Hoja de paciente — DEC</title>
 <style>
   * { box-sizing: border-box; }
-  body { font-family: -apple-system, system-ui, sans-serif; color: #111; margin: 32px; font-size: 13px; }
-  h1 { font-size: 18px; margin: 0 0 2px; }
-  .sub { color: #666; font-size: 11px; margin-bottom: 16px; }
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-  h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #0e9272; border-bottom: 1px solid #ddd; padding-bottom: 3px; margin: 18px 0 6px; }
+  body { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; color: #16171c; margin: 28px; font-size: 12px; line-height: 1.5; }
+  .brand { display: flex; align-items: baseline; gap: 8px; }
+  .brand b { color: #0e9272; font-size: 20px; letter-spacing: 1px; }
+  .prompt { color: #0e9272; font-size: 11px; }
+  h1 { font-size: 15px; margin: 10px 0 2px; font-weight: 700; }
+  .sub { color: #6b7280; font-size: 10.5px; margin-bottom: 18px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  h2 { font-size: 10.5px; text-transform: uppercase; letter-spacing: 1.5px; color: #0e9272; border-bottom: 1.5px solid #10b981; padding-bottom: 3px; margin: 16px 0 6px; }
+  h2::before { content: "// "; color: #9ca3af; }
   table { width: 100%; border-collapse: collapse; }
-  td { padding: 3px 0; vertical-align: top; }
-  td.k { color: #555; width: 60%; }
-  td.v { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
-  .foot { margin-top: 24px; color: #999; font-size: 10px; border-top: 1px solid #eee; padding-top: 8px; }
-  @media print { body { margin: 12mm; } .noprint { display: none; } }
+  td { padding: 3.5px 0; vertical-align: top; border-bottom: 1px dotted #e5e7eb; }
+  td.k { color: #6b7280; width: 58%; }
+  td.v { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; color: #111827; }
+  .foot { margin-top: 22px; color: #9ca3af; font-size: 9.5px; border-top: 1px solid #e5e7eb; padding-top: 8px; line-height: 1.6; }
+  .foot b { color: #6b7280; }
+  @media print { body { margin: 12mm; } }
 </style></head><body>
-<h1>DEC — Hoja de paciente</h1>
+<div class="brand"><b>▸ DEC</b> <span class="prompt">$ cat /paciente</span></div>
+<h1>Hoja de paciente</h1>
 <div class="sub">${esc(p.label || "Paciente")}${p.mrn ? " · exp. " + esc(p.mrn) : ""} · generado ${esc(stamp)}</div>
 <div class="grid">
   <div>
@@ -96,7 +102,7 @@ export function openPatientReport(p: Patient): void {
     </table>
   </div>
 </div>
-<div class="foot">Herramienta de apoyo clínico (DEC — decanestesia.com). Verifica cada dosis, concentración y vía contra el protocolo local y el inserto. Los datos del paciente son de uso exclusivo del médico y no salen de este dispositivo.</div>
+<div class="foot"><b>DEC · decanestesia.com</b> — herramienta de apoyo clínico. Verifica cada dosis, concentración y vía contra el protocolo local y el inserto: la app calcula, el médico decide y firma. Los datos del paciente son de uso exclusivo del médico y no salen de este dispositivo — ni nosotros los queremos.</div>
 <script>window.onload = function(){ setTimeout(function(){ window.print(); }, 250); };</script>
 </body></html>`;
 

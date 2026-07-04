@@ -164,6 +164,116 @@ function cpSteadyState(clLmin: number, rateMgMin: number): number {
 }
 
 // ------------------------------------------------------------
+// ke0 (constante de equilibrio plasma↔sitio efecto, min⁻¹) para el
+// sitio-efecto Ce. Estos NO son parámetros del set PK (V/CL): son valores
+// PD publicados y citados, replicados aquí para desacoplar esta calculadora
+// de src/lib/tci/. Cada uno lleva su fuente. Los modelos sin ke0 confirmado
+// devuelven 0 → esta calculadora solo traza Cp para ellos (no inventamos ke0).
+//
+// Fuentes (ya usadas y citadas en el proyecto):
+//  · Marsh (propofol)        1.21              Struys MMRF et al. Anesthesiology 2000;92:399-406 (Marsh modificado)
+//  · Eleveld propofol 2018   0.146·(WT/70)^−¼  Eleveld DJ et al. Br J Anaesth 2018;120:942-959 (ke0 arterial, Tabla 3)
+//  · Minto (remifentanilo)   0.595−0.007·(edad−40)  Minto CF et al. Anesthesiology 1997;86:24-33 (impl. STANPUMP)
+//  · Eleveld remifentanilo   1.09              Eleveld DJ et al. Anesthesiology 2017;126:1005-18 (referencia SEF)
+//  · Shafer (fentanilo)      0.147             Scott JC, Stanski DR. J Pharmacol Exp Ther 1987;240:159-166
+//  · Hannivoort (dexmed.)    0.0428            Colin PJ et al. Br J Anaesth 2017;119:200-210 (MOAA/S; experimental)
+// ------------------------------------------------------------
+interface Ke0Info {
+  ke0: number; // min⁻¹ (0 = modelo sin sitio-efecto disponible aquí)
+  source: string; // cita breve del ke0
+  note?: string; // caveat visible (ke0 pump-dependiente / experimental / etc.)
+}
+function ke0For(drugId: string, cov: Cov): Ke0Info {
+  switch (drugId) {
+    case "propofol": // Marsh modificado
+      return { ke0: 1.21, source: "Struys, Anesthesiology 2000 (Marsh modificado)" };
+    case "propofol-eleveld":
+      return {
+        ke0: 0.146 * Math.pow(cov.weightKg / 70, -0.25),
+        source: "Eleveld 2018 (ke0 arterial 0.146·(peso/70)^−¼)",
+      };
+    case "remifentanil": // Minto
+      return {
+        ke0: Math.max(0.01, 0.595 - 0.007 * (cov.ageYears - 40)),
+        source: "Minto 1997 (ke0 0.595−0.007·(edad−40); impl. STANPUMP)",
+      };
+    case "remifentanil-eleveld":
+      return {
+        ke0: 1.09,
+        source: "Eleveld 2017 (ke0 referencia 1.09; edad no ajustada)",
+        note: "ke0 de referencia (35 a/70 kg/♂); no se ajusta por edad. Endpoint SEF, no BIS.",
+      };
+    case "fentanyl":
+      return { ke0: 0.147, source: "Scott & Stanski 1987 (ke0 0.147)" };
+    case "dex_hannivoort":
+      return {
+        ke0: 0.0428,
+        source: "Colin 2017 (ke0 0.0428; MOAA/S)",
+        note: "ke0 experimental (endpoint MOAA/S; t½ke0 ≈ 16 min).",
+      };
+    default:
+      // Peds propofol, midazolam, Dyck/Morse dexmed., ketamina (Kamp), rocuronio:
+      // sin ke0 confirmado para ESTE set PK → solo Cp.
+      return { ke0: 0, source: "" };
+  }
+}
+
+// ------------------------------------------------------------
+// Muestreo de la trayectoria Cp(t) y Ce(t) sobre la ventana simulada, para
+// la gráfica. Cp reutiliza las MISMAS soluciones analíticas del bolo y la
+// infusión (cpBolus/cpInfusion) que la calculadora ya emplea — no cambia
+// ningún coeficiente PK. Ce se obtiene integrando numéricamente la ecuación
+// del sitio efecto dCe/dt = ke0·(Cp − Ce) (Euler, mismo álgebra que el motor
+// TCI del proyecto) sobre la Cp muestreada. Si ke0 = 0, Ce queda vacía.
+// ------------------------------------------------------------
+export interface TrajSample {
+  tMin: number;
+  cp: number; // µg/mL (== mg/L)
+  ce: number; // µg/mL — solo válido si hasCe
+}
+function sampleTrajectory(params: {
+  exp: Exponentials;
+  boloDoseMg: number | null; // bolo administrado en t=0 (mg), o null
+  rateMgMin: number | null; // infusión constante desde t=0 (mg/min), o null
+  ke0: number; // min⁻¹ (0 → sin Ce)
+  tMaxMin: number; // horizonte de simulación (min)
+}): { samples: TrajSample[]; hasCe: boolean } {
+  const { exp, boloDoseMg, rateMgMin, ke0, tMaxMin } = params;
+  const hasCe = ke0 > 0;
+
+  // Paso de integración fino para el sitio efecto (Euler estable con ke0
+  // rápidos ~1.2 min⁻¹); submuestreamos para dibujar ~180 puntos.
+  const tMax = tMaxMin > 0 ? tMaxMin : 1;
+  const dt = Math.min(0.05, tMax / 2000); // min
+  const drawStep = Math.max(1, Math.round(tMax / dt / 180));
+
+  const cpAt = (t: number): number => {
+    let cp = 0;
+    if (boloDoseMg !== null && boloDoseMg > 0) cp += cpBolus(exp, boloDoseMg, t);
+    if (rateMgMin !== null && rateMgMin > 0) cp += cpInfusion(exp, rateMgMin, t);
+    return cp;
+  };
+
+  const samples: TrajSample[] = [];
+  let ce = 0;
+  let t = 0;
+  let i = 0;
+  // t=0
+  samples.push({ tMin: 0, cp: cpAt(0), ce: 0 });
+  while (t < tMax - 1e-9) {
+    const step = Math.min(dt, tMax - t);
+    const cpNow = cpAt(t);
+    if (hasCe) ce += ke0 * (cpNow - ce) * step;
+    t += step;
+    i++;
+    if (i % drawStep === 0 || t >= tMax - 1e-9) {
+      samples.push({ tMin: t, cp: cpAt(t), ce: Math.max(0, ce) });
+    }
+  }
+  return { samples, hasCe };
+}
+
+// ------------------------------------------------------------
 // Catálogo de fármacos con parámetros PK poblacionales citados.
 // Los volúmenes/aclaramientos se escalan por peso donde el modelo
 // original es por-kg; para Marsh (propofol) V1 y CL escalan con peso.
@@ -391,10 +501,11 @@ export default function ConcentracionPlasmaticaClient() {
     const boloElapsed = parseNum(boloElapsedText) ?? 0;
     let cpBoloUgMl: number | null = null;
     let cpBoloPeakUgMl: number | null = null;
+    let boloDoseMg: number | null = null; // dosis en mg para la trayectoria
     if (boloDose !== null && boloDose > 0 && boloElapsed >= 0) {
-      const doseMg = drug.unit === "mcg" ? boloDose / 1000 : boloDose;
-      cpBoloUgMl = cpBolus(exp, doseMg, boloElapsed);
-      cpBoloPeakUgMl = cpBolus(exp, doseMg, 0); // pico teórico t=0 (dosis/V1)
+      boloDoseMg = drug.unit === "mcg" ? boloDose / 1000 : boloDose;
+      cpBoloUgMl = cpBolus(exp, boloDoseMg, boloElapsed);
+      cpBoloPeakUgMl = cpBolus(exp, boloDoseMg, 0); // pico teórico t=0 (dosis/V1)
     }
 
     // --- INFUSIÓN ---
@@ -402,6 +513,7 @@ export default function ConcentracionPlasmaticaClient() {
     const infElapsed = parseNum(infusionElapsedText) ?? 0;
     let cpInfUgMl: number | null = null;
     let cpSsUgMl: number | null = null;
+    let rateMgMinOut: number | null = null; // tasa en mg/min para la trayectoria
     if (rateInput !== null && rateInput > 0 && infElapsed >= 0) {
       // rate en unidad/kg/(min|h) -> mg/min total
       const perMin =
@@ -409,6 +521,7 @@ export default function ConcentracionPlasmaticaClient() {
       const totalUnitPerMin = perMin * weightKg; // unidad/min (mcg o mg)
       const rateMgMin =
         drug.unit === "mcg" ? totalUnitPerMin / 1000 : totalUnitPerMin;
+      rateMgMinOut = rateMgMin;
       cpInfUgMl = cpInfusion(exp, rateMgMin, infElapsed);
       cpSsUgMl = cpSteadyState(micro.CL, rateMgMin);
     }
@@ -425,11 +538,16 @@ export default function ConcentracionPlasmaticaClient() {
     return {
       micro,
       exp,
+      cov,
       cpBoloUgMl,
       cpBoloPeakUgMl,
       cpInfUgMl,
       cpSsUgMl,
       cpTotalUgMl,
+      boloDoseMg,
+      rateMgMin: rateMgMinOut,
+      boloElapsed,
+      infElapsed,
     };
   }, [
     drug,
@@ -449,6 +567,35 @@ export default function ConcentracionPlasmaticaClient() {
     if (!result) return null;
     return result.exp.lambda.map((l) => (l > 0 ? Math.LN2 / l : Infinity));
   }, [result]);
+
+  // ke0 del fármaco activo (para el sitio efecto Ce). Depende del paciente
+  // (peso/edad en Eleveld/Minto). 0 → el modelo no tiene sitio efecto aquí.
+  const ke0Info = useMemo<Ke0Info | null>(() => {
+    if (!result) return null;
+    return ke0For(drugId, result.cov);
+  }, [drugId, result]);
+
+  // Trayectoria Cp/Ce para la gráfica. Horizonte = cubre los tiempos que el
+  // usuario introdujo (bolo/infusión) con un mínimo razonable para ver la
+  // subida/caída y el retraso del sitio efecto.
+  const trajectory = useMemo(() => {
+    if (!result || !ke0Info) return null;
+    const hasBolo = result.boloDoseMg !== null;
+    const hasInf = result.rateMgMin !== null;
+    if (!hasBolo && !hasInf) return null;
+
+    const elapsedMax = Math.max(result.boloElapsed, result.infElapsed, 0);
+    // Ventana: al menos 15 min, y ~1.4× el mayor tiempo introducido, acotada.
+    const tMaxMin = clamp(Math.max(15, elapsedMax * 1.4), 15, 240);
+
+    return sampleTrajectory({
+      exp: result.exp,
+      boloDoseMg: result.boloDoseMg,
+      rateMgMin: result.rateMgMin,
+      ke0: ke0Info.ke0,
+      tMaxMin,
+    });
+  }, [result, ke0Info]);
 
   const clearAll = () => {
     setBoloText("");
@@ -856,6 +1003,65 @@ export default function ConcentracionPlasmaticaClient() {
         </div>
       )}
 
+      {/* ==================== GRÁFICA Cp / Ce ==================== */}
+      {trajectory ? (
+        <div className="panel fade-up" style={{ marginBottom: "1rem" }}>
+          <div className="panel-header">
+            <span className="dot" /> TRAYECTORIA Cp{trajectory.hasCe ? " / Ce" : ""} vs TIEMPO
+          </div>
+          <div className="panel-body">
+            <CpCeChart
+              samples={trajectory.samples}
+              showCe={trajectory.hasCe}
+              cpUnitScale={cpUnitScale(trajectory.samples)}
+            />
+            {trajectory.hasCe ? (
+              <div
+                className="mono"
+                style={{
+                  color: "var(--text-3)",
+                  fontSize: "0.55rem",
+                  lineHeight: 1.6,
+                  marginTop: "0.5rem",
+                }}
+              >
+                {"// Ce (sitio efecto) vía dCe/dt = ke0·(Cp − Ce)"}
+                {ke0Info && ke0Info.ke0 > 0 ? (
+                  <>
+                    {" · ke0 "}
+                    <span style={{ color: "var(--cyan)" }}>{ke0Info.ke0.toFixed(3)} min⁻¹</span>
+                    {" — "}
+                    {ke0Info.source}
+                  </>
+                ) : null}
+                {ke0Info?.note ? (
+                  <>
+                    <br />
+                    <span style={{ color: "var(--amber)" }}>⚠ {ke0Info.note}</span>
+                  </>
+                ) : null}
+              </div>
+            ) : (
+              <div
+                className="mono"
+                style={{
+                  color: "var(--text-3)",
+                  fontSize: "0.55rem",
+                  lineHeight: 1.6,
+                  marginTop: "0.5rem",
+                }}
+              >
+                <span style={{ color: "var(--amber)" }}>
+                  Este modelo no tiene ke0 confirmado para su set PK → solo se traza Cp (plasma).
+                </span>
+                <br />
+                {"// no inventamos ke0: el sitio efecto (Ce) requiere un ke0 publicado y validado"}
+              </div>
+            )}
+          </div>
+        </div>
+      ) : null}
+
       {/* ==================== PARÁMETROS PK ==================== */}
       {result ? (
         <div className="panel" style={{ marginBottom: "1rem" }}>
@@ -1118,5 +1324,216 @@ function PkRow({ label, value }: { label: string; value: string }) {
         {value}
       </span>
     </div>
+  );
+}
+
+// ------------------------------------------------------------
+// Elige la unidad legible del eje de concentración según el máximo de la
+// trayectoria (µg/mL para hipnóticos; ng/mL para opioides/dexmedetomidina).
+// Devuelve el factor por el que multiplicar los valores en µg/mL.
+// ------------------------------------------------------------
+interface CpUnitScale {
+  factor: number; // multiplicar valores en µg/mL por esto
+  unit: string; // etiqueta de unidad
+}
+function cpUnitScale(samples: TrajSample[]): CpUnitScale {
+  let peak = 0;
+  for (const s of samples) {
+    if (s.cp > peak) peak = s.cp;
+    if (s.ce > peak) peak = s.ce;
+  }
+  // < 0.5 µg/mL → mostrar en ng/mL (×1000)
+  if (peak > 0 && peak < 0.5) return { factor: 1000, unit: "ng/mL" };
+  return { factor: 1, unit: "µg/mL" };
+}
+
+// ------------------------------------------------------------
+// CpCeChart — gráfica SVG inline (sin librerías; CSP-safe) de Cp y —si el
+// modelo tiene ke0— Ce frente al tiempo. Ejes con marcas, leyenda, colores
+// del tema (Cp var(--accent), Ce var(--cyan)). Patrón adaptado de TciChart
+// (src/app/tci/TciClient.tsx); duplicado a propósito para no acoplar esta
+// calculadora al módulo TCI.
+// ------------------------------------------------------------
+function CpCeChart({
+  samples,
+  showCe,
+  cpUnitScale: scale,
+}: {
+  samples: TrajSample[];
+  showCe: boolean;
+  cpUnitScale: CpUnitScale;
+}) {
+  const W = 680;
+  const H = 300;
+  const padL = 52;
+  const padR = 16;
+  const padT = 14;
+  const padB = 34;
+  const plotW = W - padL - padR;
+  const plotH = H - padT - padB;
+
+  if (samples.length < 2) return null;
+
+  const f = scale.factor;
+  const tMax = samples[samples.length - 1]!.tMin || 1;
+  let cMax = 0;
+  for (const s of samples) {
+    const cp = s.cp * f;
+    if (cp > cMax) cMax = cp;
+    if (showCe) {
+      const ce = s.ce * f;
+      if (ce > cMax) cMax = ce;
+    }
+  }
+  cMax = cMax > 0 ? cMax * 1.08 : 1; // margen superior
+
+  const x = (t: number) => padL + (t / tMax) * plotW;
+  const yC = (c: number) => padT + plotH - (c / cMax) * plotH;
+
+  const path = (pts: [number, number][]) =>
+    pts.map((p, i) => `${i === 0 ? "M" : "L"}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ");
+
+  const cpPts = samples.map((s) => [x(s.tMin), yC(s.cp * f)] as [number, number]);
+  const cePts = showCe
+    ? samples.map((s) => [x(s.tMin), yC(s.ce * f)] as [number, number])
+    : [];
+
+  const xTicks = 5;
+  const yTicks = 4;
+  const xTickVals = Array.from({ length: xTicks + 1 }, (_, i) => (tMax * i) / xTicks);
+  const yTickVals = Array.from({ length: yTicks + 1 }, (_, i) => (cMax * i) / yTicks);
+  const yDecimals = cMax < 1 ? 3 : cMax < 5 ? 2 : cMax < 20 ? 1 : 0;
+
+  return (
+    <div style={{ minWidth: 420, overflowX: "auto" }}>
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        width="100%"
+        role="img"
+        aria-label="Gráfica de concentración plasmática (Cp) y de sitio efecto (Ce) frente al tiempo"
+        style={{ display: "block", maxWidth: "100%" }}
+      >
+        {/* Rejilla + marcas Y (concentración) */}
+        {yTickVals.map((v, i) => (
+          <g key={`y${i}`}>
+            <line
+              x1={padL}
+              y1={yC(v)}
+              x2={padL + plotW}
+              y2={yC(v)}
+              stroke="var(--border)"
+              strokeWidth={0.5}
+              opacity={0.6}
+            />
+            <text
+              x={padL - 6}
+              y={yC(v) + 3}
+              textAnchor="end"
+              fontSize={9}
+              fill="var(--text-3)"
+              fontFamily="var(--font-mono, monospace)"
+            >
+              {v.toFixed(yDecimals)}
+            </text>
+          </g>
+        ))}
+        {/* Etiqueta del eje Y (unidad) */}
+        <text
+          x={padL - 6}
+          y={padT - 3}
+          textAnchor="end"
+          fontSize={8}
+          fill="var(--text-3)"
+          fontFamily="var(--font-mono, monospace)"
+          opacity={0.8}
+        >
+          {scale.unit}
+        </text>
+
+        {/* Marcas X (tiempo) */}
+        {xTickVals.map((v, i) => (
+          <g key={`x${i}`}>
+            <line
+              x1={x(v)}
+              y1={padT + plotH}
+              x2={x(v)}
+              y2={padT + plotH + 4}
+              stroke="var(--text-3)"
+              strokeWidth={0.5}
+            />
+            <text
+              x={x(v)}
+              y={padT + plotH + 15}
+              textAnchor="middle"
+              fontSize={9}
+              fill="var(--text-3)"
+              fontFamily="var(--font-mono, monospace)"
+            >
+              {v.toFixed(0)}
+            </text>
+          </g>
+        ))}
+
+        {/* Curva Cp */}
+        <path d={path(cpPts)} fill="none" stroke="var(--accent)" strokeWidth={1.75} />
+        {/* Curva Ce */}
+        {showCe ? (
+          <path d={path(cePts)} fill="none" stroke="var(--cyan)" strokeWidth={1.75} />
+        ) : null}
+
+        {/* Ejes */}
+        <line
+          x1={padL}
+          y1={padT}
+          x2={padL}
+          y2={padT + plotH}
+          stroke="var(--text-3)"
+          strokeWidth={0.75}
+        />
+        <line
+          x1={padL}
+          y1={padT + plotH}
+          x2={padL + plotW}
+          y2={padT + plotH}
+          stroke="var(--text-3)"
+          strokeWidth={0.75}
+        />
+      </svg>
+
+      {/* Leyenda */}
+      <div
+        className="mono"
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "0.9rem",
+          marginTop: "0.4rem",
+          fontSize: "0.56rem",
+          color: "var(--text-3)",
+        }}
+      >
+        <Legend color="var(--accent)" label={`Cp (plasma, ${scale.unit})`} />
+        {showCe ? (
+          <Legend color="var(--cyan)" label={`Ce (sitio efecto, ${scale.unit})`} />
+        ) : null}
+        <span style={{ marginLeft: "auto", opacity: 0.7 }}>t (min) →</span>
+      </div>
+    </div>
+  );
+}
+
+function Legend({ color, label }: { color: string; label: string }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem" }}>
+      <span
+        style={{
+          display: "inline-block",
+          width: 16,
+          height: 0,
+          borderTop: `2px solid ${color}`,
+        }}
+      />
+      <span>{label}</span>
+    </span>
   );
 }

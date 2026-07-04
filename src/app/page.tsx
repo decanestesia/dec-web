@@ -1,14 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { HeroSearch } from "@/components/HeroSearch";
 
 export default function Home() {
   return (
     <div className="wrap">
       {/* Hero */}
-      <section style={{ padding: "4rem 0 3rem" }}>
-        <div style={{ maxWidth: 600 }}>
-          <div className="prompt mono" style={{ marginBottom: "1.5rem" }}>
+      <section style={{ padding: "3.5rem 0 2.5rem" }}>
+        <div style={{ maxWidth: 620 }}>
+          <div className="prompt mono" style={{ marginBottom: "1.25rem" }}>
             <b>$</b> whoami --verbose
           </div>
 
@@ -23,8 +24,7 @@ export default function Home() {
           >
             <span
               style={{
-                background:
-                  "linear-gradient(135deg, var(--accent), var(--cyan))",
+                background: "linear-gradient(135deg, var(--accent), var(--cyan))",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
               }}
@@ -33,77 +33,72 @@ export default function Home() {
             </span>
           </h1>
 
-          <p
-            style={{
-              color: "var(--text-1)",
-              fontSize: "1.1rem",
-              fontWeight: 300,
-              marginBottom: "0.35rem",
-            }}
-          >
+          <p style={{ color: "var(--text-1)", fontSize: "1.1rem", fontWeight: 300, marginBottom: "0.35rem" }}>
             Diluciones, Dosis & Cálculos Anestésicos
           </p>
-
-          <p
-            className="mono"
-            style={{
-              color: "var(--text-3)",
-              fontSize: "0.7rem",
-              marginBottom: "0.25rem",
-            }}
-          >
-            Enciclopedia clínica para el anestesiólogo que prefiere calcular
-            antes que adivinar.
+          <p className="mono" style={{ color: "var(--text-2)", fontSize: "0.72rem", marginBottom: "0.2rem" }}>
+            Enciclopedia clínica para el anestesiólogo que prefiere calcular antes que adivinar.
           </p>
-          <p
-            className="mono"
-            style={{
-              color: "var(--text-3)",
-              fontSize: "0.65rem",
-              opacity: 0.4,
-            }}
-          >
-            {'// porque "más o menos 2 cc" no es una dosis'}
+          <p className="mono" style={{ color: "var(--text-3)", fontSize: "0.66rem", opacity: 0.55 }}>
+            {'// "más o menos 2 cc" no es una dosis, y nadie firma la hoja por ti'}
           </p>
 
-          <div
-            style={{
-              display: "flex",
-              gap: "0.5rem",
-              marginTop: "2rem",
-              flexWrap: "wrap",
-            }}
-          >
-            <Link href="/farmacos" className="btn btn-fill">
-              Explorar fármacos →
-            </Link>
-            <Link href="/calculadora" className="btn btn-outline">
-              Calculadora ⌘
-            </Link>
+          <HeroSearch />
+
+          <div style={{ display: "flex", gap: "0.5rem", marginTop: "1.5rem", flexWrap: "wrap" }}>
+            <Link href="/farmacos" className="btn btn-fill">Explorar fármacos →</Link>
+            <Link href="/calculadoras" className="btn btn-outline">Calculadoras ⌘</Link>
           </div>
         </div>
       </section>
 
-      {/* Stats */}
-      <section style={{ marginBottom: "2rem" }}>
+      {/* Stats reales */}
+      <section style={{ marginBottom: "2.25rem" }}>
         <div className="stat-grid">
-          <Stat n="490+" label="fármacos" />
-          <Stat n="56" label="categorías" />
-          <Stat n="125" label="calculadoras" />
-          <Stat n="∞" label="dosis verificadas*" />
+          <Stat n="893" label="fármacos" />
+          <Stat n="58" label="herramientas clínicas" />
+          <Stat n="57" label="categorías" />
+          <Stat n="246" label="con calc. de infusión" />
         </div>
         <p
           className="mono"
-          style={{
-            color: "var(--text-3)",
-            fontSize: "0.55rem",
-            textAlign: "right",
-            marginTop: "0.35rem",
-            opacity: 0.35,
-          }}
+          style={{ color: "var(--text-3)", fontSize: "0.55rem", textAlign: "right", marginTop: "0.35rem", opacity: 0.4 }}
         >
-          * verificadas hasta que demuestren lo contrario
+          * verificadas contra literatura reciente — la firma en la hoja de anestesia sigue siendo tuya
         </p>
+      </section>
+
+      {/* Nuevo esta semana */}
+      <section style={{ marginBottom: "2.5rem" }}>
+        <div className="prompt mono" style={{ marginBottom: "0.75rem" }}>
+          <b>$</b> git log --since=&quot;1 week&quot;
+        </div>
+        <div className="panel">
+          <div className="panel-header">
+            <span className="dot" /> NUEVO ESTA SEMANA
+          </div>
+          <div className="panel-body" style={{ display: "grid", gap: "0.55rem" }}>
+            <NewItem href="/algoritmos/perls" tag="ALGO" text="PeRLS — Resucitación perioperatoria (ASA 2025): brady/taqui/arresto + Hs y Ts" />
+            <NewItem href="/eeg" tag="EEG" text="Firmas EEG en el DSA por anestésico (propofol, ketamina, dexmed, sevo…) con espectrograma" />
+            <NewItem href="/calculadoras" tag="CALC" text="Barra de paciente global + interconexión: el peso pasa de una calculadora a otra" />
+            <NewItem href="/farmacos" tag="DB" text="+297 fármacos (596 → 893): antibióticos, biológicos, antivenenos, antimigrañosos CGRP…" />
+          </div>
+        </div>
+      </section>
+
+      {/* Accesos destacados */}
+      <section style={{ marginBottom: "2.5rem" }}>
+        <div className="prompt mono" style={{ marginBottom: "0.75rem" }}>
+          <b>$</b> ls /herramientas
+        </div>
+        <div className="feat-grid">
+          <Access href="/calculadoras" icon="🧮" title="Calculadoras" desc="MAC, riesgo cardíaco, MABL, fluidoterapia, QTc, reversión NM… 19 en total." />
+          <Access href="/algoritmos" icon="🌀" title="Algoritmos de crisis" desc="Vía aérea (RSI, DSI, Vortex, CICO) + PeRLS. Ayudas cognitivas para el código azul." />
+          <Access href="/guias" icon="📋" title="Guías clínicas" desc="Anafilaxia, HPP, hipertermia maligna, sepsis, tormenta tiroidea… 27 protocolos." />
+          <Access href="/eeg" icon="🧠" title="Firmas EEG (DSA)" desc="Reconoce el patrón del espectrograma por anestésico y ajusta la profundidad." />
+          <Access href="/interacciones" icon="⚠️" title="Interacciones" desc="Verificador multi-fármaco. Antes de mezclar, pregunta." />
+          <Access href="/farmacos" icon="💊" title="Catálogo" desc="893 fármacos con dosis, farmacología, presentaciones y calc. de infusión." />
+        </div>
       </section>
 
       {/* Features */}
@@ -112,36 +107,12 @@ export default function Home() {
           <b>$</b> cat /etc/features
         </div>
         <div className="feat-grid">
-          <Feat
-            tag="DB"
-            title="490+ Fármacos"
-            desc="Anestésicos, vasoactivos, cardioactivos, antibióticos, antifúngicos, antivirales, oncológicos, biológicos. Todo lo que necesitas a las 3 AM."
-          />
-          <Feat
-            tag="PK"
-            title="Farmacología completa"
-            desc="Mecanismo, T½, biodisponibilidad, metabolismo, eliminación. 1,648 propiedades farmacocinéticas con ajustes por IRC e IH."
-          />
-          <Feat
-            tag="ADV"
-            title="Advertencias FDA"
-            desc="3,373 efectos adversos por severidad y sistema. 929 advertencias incluyendo black box. Categoría FDA de embarazo y datos de lactancia."
-          />
-          <Feat
-            tag="CALC"
-            title="Calculadoras de infusión"
-            desc="125 fármacos con calculadora bidireccional integrada. Bombas de infusión, dilución estándar, conversión de unidades."
-          />
-          <Feat
-            tag="ICU"
-            title="Quirófano y UCI"
-            desc="Diseñado por un anestesiólogo para uso real. No por un programador que cree que la norepinefrina es un Pokémon."
-          />
-          <Feat
-            tag="SYNC"
-            title="Siempre actualizada"
-            desc="Backend Supabase con revalidación automática. Actualizaciones sin pasar por App Store."
-          />
+          <Feat tag="DB" title="893 Fármacos" desc="Anestésicos, vasoactivos, antibióticos, antivirales, oncológicos, biológicos, antídotos. Todo lo que buscas a las 3 AM sin tener que despertar al staff." />
+          <Feat tag="PK" title="Farmacología completa" desc="Mecanismo, T½, Vd, aclaramiento, metabolismo, ajustes por IRC e IH. Para dosificar con la cabeza, no con el pulso." />
+          <Feat tag="ADV" title="Advertencias FDA" desc="Efectos adversos por severidad y sistema, black box, categoría de embarazo y lactancia. Lo que el prospecto esconde en letra 4." />
+          <Feat tag="CALC" title="Calculadoras de infusión" desc="246 fármacos con calculadora bidireccional: dosis ⇄ mL/h, dilución estándar y la concentración resultante a la vista." />
+          <Feat tag="ICU" title="Quirófano y UCI" desc="Diseñado por un anestesiólogo para uso real. No por alguien que cree que la norepinefrina es un Pokémon." />
+          <Feat tag="SYNC" title="Web · iOS · iPadOS · watch" desc="Mismo dato en todas partes, revalidación automática. Sin esperar la revisión de la App Store para un cambio de dosis." />
         </div>
       </section>
 
@@ -149,30 +120,11 @@ export default function Home() {
       <section style={{ marginBottom: "3rem" }}>
         <div className="panel">
           <div className="panel-header">
-            <span
-              className="dot"
-              style={{
-                background: "var(--amber)",
-                boxShadow: "0 0 6px var(--amber)",
-              }}
-            />{" "}
-            AVISO CLÍNICO
+            <span className="dot" style={{ background: "var(--amber)", boxShadow: "0 0 6px var(--amber)" }} /> AVISO CLÍNICO
           </div>
           <div className="panel-body">
-            <p
-              className="mono"
-              style={{
-                color: "var(--text-2)",
-                fontSize: "0.7rem",
-                lineHeight: 1.8,
-              }}
-            >
-              DEC es una herramienta de apoyo a la decisión clínica. No
-              sustituye el juicio profesional, la lectura del inserto, ni la
-              supervisión de un staff que ya pasó por esto 10,000 veces.
-              Verifique siempre dosis, dilución y vías de administración antes
-              de cualquier intervención. Si algo sale mal, la culpa no es del
-              app.
+            <p className="mono" style={{ color: "var(--text-2)", fontSize: "0.72rem", lineHeight: 1.8 }}>
+              DEC es una herramienta de apoyo a la decisión clínica. No sustituye el juicio profesional, la lectura del inserto, ni la supervisión de un staff que ya pasó por esto 10,000 veces. La app calcula; el médico decide y responde. Verifica siempre dosis, dilución y vía antes de tocar al paciente — porque el que firma la hoja de anestesia eres tú, no el servidor.
             </p>
           </div>
         </div>
@@ -184,69 +136,41 @@ export default function Home() {
 function Stat({ n, label }: { n: string; label: string }) {
   return (
     <div>
-      <div
-        className="mono"
-        style={{
-          color: "var(--accent)",
-          fontSize: "1.6rem",
-          fontWeight: 700,
-        }}
-      >
-        {n}
-      </div>
-      <div
-        className="mono"
-        style={{
-          color: "var(--text-3)",
-          fontSize: "0.65rem",
-          marginTop: "0.15rem",
-        }}
-      >
-        {label}
-      </div>
+      <div className="mono" style={{ color: "var(--accent)", fontSize: "1.6rem", fontWeight: 700 }}>{n}</div>
+      <div className="mono" style={{ color: "var(--text-3)", fontSize: "0.62rem", marginTop: "0.15rem" }}>{label}</div>
     </div>
   );
 }
 
-function Feat({
-  tag,
-  title,
-  desc,
-}: {
-  tag: string;
-  title: string;
-  desc: string;
-}) {
+function NewItem({ href, tag, text }: { href: string; tag: string; text: string }) {
+  return (
+    <Link href={href} style={{ display: "flex", alignItems: "baseline", gap: "0.5rem", textDecoration: "none" }} className="card-interactive-inline">
+      <span className="tag tag-accent mono">{tag}</span>
+      <span style={{ color: "var(--text-1)", fontSize: "0.75rem", lineHeight: 1.5 }}>{text}</span>
+    </Link>
+  );
+}
+
+function Access({ href, icon, title, desc }: { href: string; icon: string; title: string; desc: string }) {
+  return (
+    <Link href={href} className="card-interactive" style={{ textDecoration: "none", color: "inherit", display: "block", background: "var(--bg-2)", border: "1px solid var(--border)", padding: "1rem" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.4rem" }}>
+        <span style={{ fontSize: "1.3rem" }}>{icon}</span>
+        <span style={{ color: "var(--text-0)", fontSize: "0.9rem", fontWeight: 700 }}>{title}</span>
+      </div>
+      <p className="mono" style={{ color: "var(--text-3)", fontSize: "0.66rem", lineHeight: 1.6 }}>{desc}</p>
+    </Link>
+  );
+}
+
+function Feat({ tag, title, desc }: { tag: string; title: string; desc: string }) {
   return (
     <div style={{ padding: "1rem" }}>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "0.5rem",
-          marginBottom: "0.4rem",
-        }}
-      >
+      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.4rem" }}>
         <span className="tag tag-accent mono">{tag}</span>
-        <span
-          style={{
-            color: "var(--text-0)",
-            fontSize: "0.85rem",
-            fontWeight: 600,
-          }}
-        >
-          {title}
-        </span>
+        <span style={{ color: "var(--text-0)", fontSize: "0.85rem", fontWeight: 600 }}>{title}</span>
       </div>
-      <p
-        style={{
-          color: "var(--text-2)",
-          fontSize: "0.75rem",
-          lineHeight: 1.6,
-        }}
-      >
-        {desc}
-      </p>
+      <p style={{ color: "var(--text-2)", fontSize: "0.75rem", lineHeight: 1.6 }}>{desc}</p>
     </div>
   );
 }

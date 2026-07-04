@@ -41,7 +41,7 @@ const existing = await sb("GET", "drugs?select=name&limit=2000");
 const existingNames = new Set(existing.map((d) => d.name.toLowerCase().trim()));
 
 // 3) leer los lotes
-const files = readdirSync(DIR).filter((f) => /^gen2?-batch-\d+\.json$/.test(f)).sort();
+const files = readdirSync(DIR).filter((f) => /^gen3-batch-\d+\.json$/.test(f)).sort();
 const drugs = [];
 for (const f of files) {
   try {

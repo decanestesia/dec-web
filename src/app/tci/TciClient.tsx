@@ -22,6 +22,7 @@ import {
   TCI_MODELS,
   WEIGHT_DOSE_MODELS,
   tciModelsByDrug,
+  predictBis,
   type TciModel,
   type Cov,
 } from "@/lib/tci/models";
@@ -40,6 +41,9 @@ import {
 const DEFAULT_CONC: Record<string, number> = {
   Propofol: 10, // 1% = 10 mg/mL (también existe 2% = 20)
   Remifentanilo: 0.05, // 50 µg/mL diluido (2 mg en 40 mL) → 0.05 mg/mL
+  Fentanilo: 0.05, // 50 µg/mL (ampolla estándar) → 0.05 mg/mL
+  Sufentanilo: 0.005, // 5 µg/mL (diluido, 250 µg en 50 mL) → 0.005 mg/mL
+  Alfentanilo: 0.5, // 500 µg/mL (0.5 mg/mL, ampolla estándar)
   Dexmedetomidina: 0.004, // 4 µg/mL (200 µg en 50 mL) → 0.004 mg/mL
   Ketamina: 10, // 10 mg/mL diluida (varía)
 };
@@ -116,11 +120,14 @@ export default function TciClient() {
 
   // ¿Tenemos las covariables que el modelo necesita?
   // Todos necesitan peso. Schnider/Minto/Eleveld necesitan edad+talla+sexo.
+  // Maitre (alfentanilo) necesita edad+sexo (NO talla).
   const needsFull = ["propofol-schnider", "remifentanil-minto", "propofol-eleveld", "remifentanil-eleveld", "propofol-paedfusor", "propofol-kataria"].includes(model.id);
+  const needsAgeSex = needsFull || model.id === "alfentanil-maitre";
   const covOk =
     weightKg != null &&
     weightKg > 0 &&
-    (!needsFull || (ageYears != null && ageYears > 0 && heightCm != null && heightCm > 0));
+    (!needsAgeSex || (ageYears != null && ageYears > 0)) &&
+    (!needsFull || (heightCm != null && heightCm > 0));
 
   const result = useMemo(() => {
     if (!covOk || target == null || !(target > 0)) return null;
@@ -175,6 +182,20 @@ export default function TciClient() {
         Math.abs(b.tMin - t) < Math.abs(a.tMin - t) ? b : a,
       );
 
+    // BIS predicho (solo propofol · Eleveld). Para la Ce actual (última muestra)
+    // y como serie a lo largo del tiempo (para la curva).
+    let bisNow: number | null = null;
+    let bisSeries: { tMin: number; bis: number }[] | null = null;
+    if (model.bisPd) {
+      const ceForBis = (s: { cp: number; ce: number }) =>
+        (model.effectSite ? s.ce : s.cp) / model.targetToPerL; // → concUnit
+      bisNow = predictBis(model.bisPd, cov, ceForBis(lastSample));
+      bisSeries = sim.samples.map((s) => ({
+        tMin: s.tMin,
+        bis: predictBis(model.bisPd!, cov, ceForBis(s)),
+      }));
+    }
+
     return {
       invalid: false as const,
       micro,
@@ -186,6 +207,8 @@ export default function TciClient() {
       at5: pick(5),
       at10: pick(10),
       targetPerL,
+      bisNow,
+      bisSeries,
     };
   }, [covOk, target, weightKg, ageYears, heightCm, sex, model, effectiveMode, durationMin]);
 
@@ -374,6 +397,24 @@ export default function TciClient() {
                 {"// este modelo no incluye ke0 verificado → solo modo plasma"}
               </div>
             ) : null}
+            {/* Aviso de ke0 no validado / debatido / pump-dependiente */}
+            {model.effectSite && model.ke0Warning && effectiveMode === "effect" ? (
+              <div
+                className="mono"
+                style={{
+                  color: "var(--amber)",
+                  fontSize: "0.56rem",
+                  lineHeight: 1.5,
+                  marginTop: "0.4rem",
+                  background: "var(--bg-1)",
+                  border: "1px solid var(--border)",
+                  borderLeft: "2px solid var(--amber)",
+                  padding: "0.4rem 0.5rem",
+                }}
+              >
+                ⚠ nota sobre el ke0 (effect-site) — {model.ke0Warning}
+              </div>
+            ) : null}
           </div>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
@@ -436,6 +477,70 @@ export default function TciClient() {
                 sub={`al detener infusión, ${model.effectSite ? "Ce" : "Cp"} < ${model.wakeThreshold} ${model.concUnit} (umbral orientativo)`}
               />
             ) : null}
+          </div>
+        </div>
+      ) : null}
+
+      {/* GRÁFICA Cp / Ce */}
+      {result && !result.invalid ? (
+        <div className="panel" style={{ marginBottom: "1rem" }}>
+          <div className="panel-header">
+            <span className="dot" /> GRÁFICA · CONCENTRACIÓN vs TIEMPO
+          </div>
+          <div className="panel-body" style={{ overflowX: "auto" }}>
+            <TciChart
+              samples={result.sim.samples}
+              target={result.targetPerL}
+              concUnit={model.concUnit}
+              showCe={model.effectSite}
+              bisSeries={result.bisSeries}
+            />
+          </div>
+        </div>
+      ) : null}
+
+      {/* BIS PREDICHO (solo propofol · Eleveld) */}
+      {result && !result.invalid && model.bisPd && result.bisNow != null ? (
+        <div className="panel" style={{ marginBottom: "1rem" }}>
+          <div className="panel-header">
+            <span className="dot" /> BIS PREDICHO (poblacional)
+          </div>
+          <div className="panel-body" style={{ display: "grid", gap: "0.6rem" }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: "0.5rem" }}>
+              <span className="mono" style={{ color: "var(--text-1)", fontSize: "0.8rem" }}>
+                BIS a {Math.round(result.lastSample.tMin)} min (Ce {result.lastSample.ce.toFixed(2)} {model.concUnit})
+              </span>
+              <span style={{ flex: 1 }} />
+              <span
+                className="mono"
+                style={{
+                  color: "var(--magenta, var(--accent))",
+                  fontWeight: 700,
+                  fontSize: "1.15rem",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {Math.round(result.bisNow)}
+              </span>
+            </div>
+            <div className="mono" style={{ color: "var(--text-3)", fontSize: "0.55rem", lineHeight: 1.5 }}>
+              {"// Eleveld 2018: BIS = 93·(1 − Ce^γ/(Ce50^γ+Ce^γ)); γ asimétrico 1.89/1.47; Ce50 baja con la edad."}
+              {" "}Anestesia ~BIS 40-60; sedación ~70-85.
+            </div>
+            <div
+              className="mono"
+              style={{
+                color: "var(--amber)",
+                fontSize: "0.58rem",
+                lineHeight: 1.5,
+                background: "var(--bg-1)",
+                border: "1px solid var(--border)",
+                borderLeft: "2px solid var(--amber)",
+                padding: "0.4rem 0.5rem",
+              }}
+            >
+              ⚠ BIS predicho poblacional — no sustituye la monitorización real de BIS/entropía.
+            </div>
           </div>
         </div>
       ) : null}
@@ -588,10 +693,15 @@ export default function TciClient() {
               sobrepasarlo, y luego mantiene.
             </li>
             <li style={{ marginBottom: "0.45rem" }}>
-              Effect-site solo disponible en modelos con <strong>ke0 verificado</strong>{" "}
-              (aquí: Schnider, Minto, Marsh modificado). Los demás son plasma-target
-              porque no incluimos un ke0 que no hayamos podido confirmar — preferimos
-              omitir a inventar.
+              Effect-site disponible en los modelos con <strong>ke0 publicado</strong>{" "}
+              (propofol Schnider/Marsh/Eleveld; opioides Minto, Eleveld remi, Shafer
+              fentanilo, Gepts sufentanilo, Maitre alfentanilo; dexmedetomidina y
+              ketamina). Donde el ke0 es <strong>debatido, preliminar o
+              pump-dependiente</strong> (dex → MOAA/S; ketamina → ANI analgésico;
+              sufentanilo → según bomba; remi → ke0 de referencia sin ajuste de edad)
+              se implementa igual pero con <strong>aviso visible</strong>. Los sets sin
+              ningún ke0 confirmado (Eleveld/Paedfusor/Kataria peds, ketamina Kamp,
+              dex Morse) siguen en plasma-target — no inventamos ke0.
             </li>
             <li style={{ marginBottom: "0.45rem" }}>
               El &quot;tiempo a despertar&quot; es orientativo: al parar la infusión,
@@ -622,6 +732,14 @@ export default function TciClient() {
           <div>8. Kamp J, et al. Ketamine PK: systematic review, meta-analysis, population analysis. Anesthesiology. 2020;133(6):1192-1213.</div>
           <div>9. Shafer SL, Gregg KM. Algorithms to rapidly achieve and maintain stable drug effect with a computer-controlled infusion pump. J Pharmacokinet Biopharm. 1992;20(2):147-69.</div>
           <div>10. Absalom AR, et al. Pharmacokinetic models for propofol — defining and illuminating the devil in the detail. Br J Anaesth. 2009;103(1):26-37.</div>
+          <div>11. Shafer SL, et al. Pharmacokinetics of fentanyl administered by computer-controlled infusion pump. Anesthesiology. 1990;73(6):1091-1102.</div>
+          <div>12. Scott JC, Stanski DR. Decreased fentanyl and alfentanil dose requirements with age. J Pharmacol Exp Ther. 1987;240(1):159-66. (ke0 fentanilo/alfentanilo)</div>
+          <div>13. Gepts E, et al. Linearity of pharmacokinetics and model estimation of sufentanil. Anesthesiology. 1995;83(6):1194-1204.</div>
+          <div>14. Maitre PO, et al. Population pharmacokinetics of alfentanil. Anesthesiology. 1987;66(1):3-12.</div>
+          <div>15. Colin PJ, et al. Dexmedetomidine pharmacokinetic–pharmacodynamic modelling (ke0 MOAA/S). Br J Anaesth. 2017;119(2):200-10.</div>
+          <div>16. Sigtermans M, et al. Predictive performance of the Domino, Hijazi and Clements models during low-dose TCI ketamine. Br J Anaesth. 2007;98(5):615-23. (set Domino)</div>
+          <div>17. Navarrete V, et al. Temporal profile of the antinociceptive effect of IV ketamine using the ANI. J Clin Monit Comput. 2025. (ke0 ketamina, preliminar)</div>
+          <div>18. Morse JD, Cortínez LI, Anderson BJ. A universal pharmacokinetic model for dexmedetomidine in children and adults. J Clin Med. 2020;9(11):3480.</div>
         </div>
       </div>
 
@@ -659,5 +777,215 @@ function PkRow({ label, value }: { label: string; value: string }) {
       <span className="mono" style={{ color: "var(--text-2)", fontSize: "0.7rem" }}>{label}</span>
       <span className="mono" style={{ color: "var(--cyan)", fontSize: "0.72rem", fontWeight: 600 }}>{value}</span>
     </div>
+  );
+}
+
+// ------------------------------------------------------------
+// TciChart — gráfica SVG inline (sin librerías; CSP-safe) de Cp y Ce vs
+// tiempo, con la línea del objetivo, ejes con marcas y leyenda. Colores del
+// tema (variables CSS). Opcionalmente traza el BIS predicho en un eje derecho
+// (solo propofol · Eleveld) con su propia escala 0-100.
+// ------------------------------------------------------------
+interface ChartSample {
+  tMin: number;
+  cp: number;
+  ce: number;
+}
+function TciChart({
+  samples,
+  target,
+  concUnit,
+  showCe,
+  bisSeries,
+}: {
+  samples: ChartSample[];
+  target: number;
+  concUnit: string;
+  showCe: boolean;
+  bisSeries: { tMin: number; bis: number }[] | null | undefined;
+}) {
+  // Lienzo (viewBox fijo; escala con el contenedor).
+  const W = 680;
+  const H = 300;
+  const padL = 46;
+  const padR = bisSeries ? 44 : 16;
+  const padT = 14;
+  const padB = 34;
+  const plotW = W - padL - padR;
+  const plotH = H - padT - padB;
+
+  if (samples.length < 2) return null;
+
+  const tMax = samples[samples.length - 1]!.tMin || 1;
+  // Máximo de concentración (Cp, Ce y objetivo) para la escala izquierda.
+  let cMax = target;
+  for (const s of samples) {
+    if (s.cp > cMax) cMax = s.cp;
+    if (showCe && s.ce > cMax) cMax = s.ce;
+  }
+  cMax = cMax > 0 ? cMax * 1.08 : 1; // margen superior
+
+  const x = (t: number) => padL + (t / tMax) * plotW;
+  const yC = (c: number) => padT + plotH - (c / cMax) * plotH;
+  const yBis = (b: number) => padT + plotH - (b / 100) * plotH; // BIS 0-100
+
+  const path = (pts: [number, number][]) =>
+    pts.map((p, i) => `${i === 0 ? "M" : "L"}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ");
+
+  const cpPts = samples.map((s) => [x(s.tMin), yC(s.cp)] as [number, number]);
+  const cePts = showCe ? samples.map((s) => [x(s.tMin), yC(s.ce)] as [number, number]) : [];
+  const bisPts = bisSeries ? bisSeries.map((s) => [x(s.tMin), yBis(s.bis)] as [number, number]) : [];
+
+  // Marcas de ejes.
+  const xTicks = 5;
+  const yTicks = 4;
+  const xTickVals = Array.from({ length: xTicks + 1 }, (_, i) => (tMax * i) / xTicks);
+  const yTickVals = Array.from({ length: yTicks + 1 }, (_, i) => (cMax * i) / yTicks);
+
+  return (
+    <div style={{ minWidth: 420 }}>
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        width="100%"
+        role="img"
+        aria-label="Gráfica de concentración plasmática y de sitio efecto frente al tiempo"
+        style={{ display: "block", maxWidth: "100%" }}
+      >
+        {/* Rejilla + marcas Y (concentración) */}
+        {yTickVals.map((v, i) => (
+          <g key={`y${i}`}>
+            <line
+              x1={padL}
+              y1={yC(v)}
+              x2={padL + plotW}
+              y2={yC(v)}
+              stroke="var(--border)"
+              strokeWidth={0.5}
+              opacity={0.6}
+            />
+            <text
+              x={padL - 6}
+              y={yC(v) + 3}
+              textAnchor="end"
+              fontSize={9}
+              fill="var(--text-3)"
+              fontFamily="var(--font-mono, monospace)"
+            >
+              {v.toFixed(cMax < 5 ? 1 : 0)}
+            </text>
+          </g>
+        ))}
+        {/* Marcas X (tiempo) */}
+        {xTickVals.map((v, i) => (
+          <g key={`x${i}`}>
+            <line
+              x1={x(v)}
+              y1={padT + plotH}
+              x2={x(v)}
+              y2={padT + plotH + 4}
+              stroke="var(--text-3)"
+              strokeWidth={0.5}
+            />
+            <text
+              x={x(v)}
+              y={padT + plotH + 15}
+              textAnchor="middle"
+              fontSize={9}
+              fill="var(--text-3)"
+              fontFamily="var(--font-mono, monospace)"
+            >
+              {v.toFixed(0)}
+            </text>
+          </g>
+        ))}
+
+        {/* Línea del objetivo */}
+        <line
+          x1={padL}
+          y1={yC(target)}
+          x2={padL + plotW}
+          y2={yC(target)}
+          stroke="var(--amber)"
+          strokeWidth={1}
+          strokeDasharray="4 3"
+          opacity={0.9}
+        />
+        <text
+          x={padL + plotW}
+          y={yC(target) - 3}
+          textAnchor="end"
+          fontSize={9}
+          fill="var(--amber)"
+          fontFamily="var(--font-mono, monospace)"
+        >
+          objetivo {target.toFixed(cMax < 5 ? 2 : 1)}
+        </text>
+
+        {/* Eje BIS derecho (solo propofol) */}
+        {bisSeries ? (
+          <>
+            {[0, 25, 50, 75, 100].map((b) => (
+              <text
+                key={`bis${b}`}
+                x={padL + plotW + 6}
+                y={yBis(b) + 3}
+                textAnchor="start"
+                fontSize={8}
+                fill="var(--magenta, var(--accent))"
+                fontFamily="var(--font-mono, monospace)"
+                opacity={0.8}
+              >
+                {b}
+              </text>
+            ))}
+            <path d={path(bisPts)} fill="none" stroke="var(--magenta, var(--accent))" strokeWidth={1.25} strokeDasharray="1 2" opacity={0.9} />
+          </>
+        ) : null}
+
+        {/* Curva Cp */}
+        <path d={path(cpPts)} fill="none" stroke="var(--accent)" strokeWidth={1.75} />
+        {/* Curva Ce */}
+        {showCe ? <path d={path(cePts)} fill="none" stroke="var(--cyan)" strokeWidth={1.75} /> : null}
+
+        {/* Ejes */}
+        <line x1={padL} y1={padT} x2={padL} y2={padT + plotH} stroke="var(--text-3)" strokeWidth={0.75} />
+        <line x1={padL} y1={padT + plotH} x2={padL + plotW} y2={padT + plotH} stroke="var(--text-3)" strokeWidth={0.75} />
+      </svg>
+
+      {/* Leyenda */}
+      <div
+        className="mono"
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "0.9rem",
+          marginTop: "0.4rem",
+          fontSize: "0.56rem",
+          color: "var(--text-3)",
+        }}
+      >
+        <Legend color="var(--accent)" label={`Cp (plasma, ${concUnit})`} />
+        {showCe ? <Legend color="var(--cyan)" label={`Ce (sitio efecto, ${concUnit})`} /> : null}
+        <Legend color="var(--amber)" label="objetivo" dashed />
+        {bisSeries ? <Legend color="var(--magenta, var(--accent))" label="BIS predicho (0-100, eje der.)" dashed /> : null}
+        <span style={{ marginLeft: "auto", opacity: 0.7 }}>t (min) →</span>
+      </div>
+    </div>
+  );
+}
+
+function Legend({ color, label, dashed }: { color: string; label: string; dashed?: boolean }) {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem" }}>
+      <span
+        style={{
+          display: "inline-block",
+          width: 16,
+          height: 0,
+          borderTop: `2px ${dashed ? "dashed" : "solid"} ${color}`,
+        }}
+      />
+      <span>{label}</span>
+    </span>
   );
 }

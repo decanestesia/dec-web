@@ -52,6 +52,21 @@ export interface TciModel {
   wakeThreshold?: number; // umbral de "despertar" en unidad/L interna (orientativo)
   peds?: boolean;
   covariateWarning?: string; // caveat de covariables (p.ej. James LBM en obeso)
+  // Etiqueta VISIBLE en UI cuando el ke0 es debatido/preliminar/no validado.
+  // Si está presente y effectSite:true, la UI muestra un aviso en el modo Ce.
+  ke0Warning?: string;
+  // Params PD para BIS predicho (SOLO propofol · Eleveld 2018). La UI dibuja
+  // el BIS previsto para el Ce actual. undefined ⇒ sin predicción de BIS.
+  bisPd?: BisPd;
+}
+
+// Modelo PD sigmoide para BIS (Eleveld 2018, propofol). El BIS baja de un
+// baseline hacia 0 según un sigmoide asimétrico (dos gammas) sobre Ce.
+export interface BisPd {
+  ce50: (c: Cov) => number; // Ce50 en unidad de concentración del modelo (µg/mL)
+  baseline: number; // BIS basal (E0)
+  gammaLow: number; // exponente de Hill si Ce < Ce50
+  gammaHigh: number; // exponente de Hill si Ce ≥ Ce50
 }
 
 // ------------------------------------------------------------
@@ -192,29 +207,34 @@ export const PROPOFOL_SCHNIDER: TciModel = {
 // PROPOFOL — Eleveld (2018)  [set arterial, coadministración de opioides]
 // Eleveld DJ, et al. Br J Anaesth 2018;120:942-959. Modelo alométrico de
 // aplicación amplia (adultos, ancianos, obesos, peds). FFM Al-Sallami.
-// ke0 del modelo Eleveld PD: depende de covariables; el paper da un ke0
-// tiempo-al-pico-fijo. Aquí usamos el ke0 poblacional de referencia
-// (~0.146 min⁻¹) NO — ver nota: el ke0 de Eleveld es dependiente de Cl/V y
-// se computa por tpeak; para no introducir un ke0 aproximado, exponemos
-// Eleveld en modo PLASMA-target (effectSite:false). Honestidad > features.
-// (El PK está verificado; el ke0 exacto por tpeak lo omitimos.)
+// ke0 (muestra ARTERIAL) = 0.146 · (peso/70)^(−0.25) min⁻¹ (Tabla 3, Q2;
+// escalado alométrico exponente −0.25). Verificado verbatim del paper.
+// PD-BIS (Tabla 3): baseline 93; Ce50 = 3.08·exp(−0.00635·(edad−35)) µg/mL;
+// gamma asimétrico 1.89 (Ce<Ce50) / 1.47 (Ce≥Ce50); Emax fraccional (BIS→0).
 // ============================================================
 export const PROPOFOL_ELEVELD: TciModel = {
   id: "propofol-eleveld",
   drug: "Propofol",
   variant: "Eleveld",
-  note: "hipnótico IV · amplio (obeso/anciano/peds) · plasma",
+  note: "hipnótico IV · amplio (obeso/anciano/peds) · effect-site + BIS",
   unit: "mg",
   concUnit: "µg/mL",
   targetToPerL: 1,
   citation:
-    "Eleveld DJ, et al. Br J Anaesth 2018;120:942-959 (alométrico, FFM Al-Sallami). Aquí en modo plasma-target (ke0 por tpeak no incluido).",
+    "Eleveld DJ, et al. Br J Anaesth 2018;120:942-959 (alométrico, FFM Al-Sallami). ke0 arterial 0.146·(peso/70)^−0.25 min⁻¹; PD-BIS Tabla 3.",
   refTarget: "inducción 3-6 µg/mL · mantenimiento 2-4 · despertar ~1-1.5",
-  effectSite: false, // ke0 exacto de Eleveld (por tpeak) omitido a propósito
+  effectSite: true, // ke0 arterial 0.146·(peso/70)^−0.25 (Eleveld 2018, Tabla 3)
   wakeThreshold: 1.2,
   peds: true,
   covariateWarning:
     "Asume coadministración de opioides (perioperatorio). Requiere edad, talla y sexo válidos.",
+  // PD-BIS del propio Eleveld 2018 (Tabla 3). Ce50 baja con la edad.
+  bisPd: {
+    ce50: (c: Cov) => 3.08 * Math.exp(-0.00635 * (c.ageYears - 35)),
+    baseline: 93.0,
+    gammaLow: 1.89, // Ce < Ce50
+    gammaHigh: 1.47, // Ce ≥ Ce50
+  },
   micro: (c: Cov): MicroParams => {
     const WGT = c.weightKg;
     const AGE = c.ageYears;
@@ -270,7 +290,9 @@ export const PROPOFOL_ELEVELD: TciModel = {
     const V2ref = Q2t;
     const Q2 = Q5 * Math.pow(V2 / V2ref, 0.75) * (1 + Q16 * (1 - fQ3mat));
     const Q3 = Q6 * Math.pow(V3 / V3ref, 0.75) * (fQ3mat / fQ3matRef);
-    return { V1, V2, V3, CL, Q2, Q3, ke0: 0 };
+    // ke0 muestra ARTERIAL (Eleveld 2018, Tabla 3, Q2): 0.146 · (peso/70)^−0.25.
+    const ke0 = 0.146 * Math.pow(WGT / WGTref, -0.25);
+    return { V1, V2, V3, CL, Q2, Q3, ke0 };
   },
 };
 
@@ -354,25 +376,27 @@ export const PROPOFOL_KATARIA: TciModel = {
 // ============================================================
 // REMIFENTANILO — Eleveld (2017)  [PK verificado en el proyecto]
 // Eleveld DJ, et al. Anesthesiology 2017;126:1005-18. Alométrico, FFM.
-// ke0 de referencia del paper: 1.09 min⁻¹ (individuo tipo). El ke0 de
-// Eleveld remi es covariable (envejece); para no aproximar exponemos el
-// ke0 de referencia SOLO como effect-site en el sujeto tipo. Conservador:
-// lo dejamos en plasma-target (effectSite:false) salvo confirmación.
+// ke0 de referencia del paper: 1.09 min⁻¹ (individuo tipo 35 a/70 kg/♂;
+// endpoint SEF). CONFIRMADO. La ecuación de covariable de edad del ke0 NO
+// se pudo confirmar de fuente abierta → NO se aplica (usamos el ke0 de
+// referencia fijo). Se avisa en UI (ke0Warning).
 // ============================================================
 export const REMIFENTANIL_ELEVELD: TciModel = {
   id: "remifentanil-eleveld",
   drug: "Remifentanilo",
   variant: "Eleveld",
-  note: "opioide ultracorto · amplio · plasma",
+  note: "opioide ultracorto · amplio · effect-site",
   unit: "mcg",
   concUnit: "ng/mL",
   targetToPerL: 1, // ng/mL == µg/L (unit=mcg → µg)
   citation:
-    "Eleveld DJ, et al. Anesthesiology 2017;126:1005-18 (alométrico, FFM). Modo plasma-target (ke0 covariable no incluido).",
+    "Eleveld DJ, et al. Anesthesiology 2017;126:1005-18 (alométrico, FFM). ke0 referencia 1.09 min⁻¹ (SEF); ecuación de edad del ke0 no aplicada.",
   refTarget: "analgesia/anestesia balanceada 2-8 ng/mL",
-  effectSite: false,
+  effectSite: true,
   wakeThreshold: 1.0,
   covariateWarning: "Requiere edad, talla y sexo válidos.",
+  ke0Warning:
+    "ke0 fijado al valor de referencia 1.09 min⁻¹ (35 a/70 kg/♂). La covariable de edad del ke0 no se pudo confirmar → no se ajusta con la edad; endpoint SEF (no BIS).",
   micro: (c: Cov): MicroParams => {
     const AGE = c.ageYears;
     const TBW = c.weightKg;
@@ -423,28 +447,34 @@ export const REMIFENTANIL_ELEVELD: TciModel = {
     const CL = CLref * Math.pow(SIZE, 0.75) * (KMAT / KMATref) * KSEX * faging(th3);
     const Q2 = Q2ref * Math.pow(V2 / V2ref, 0.75) * faging(th2) * KSEX;
     const Q3 = Q3ref * Math.pow(V3 / V3ref, 0.75) * faging(th2);
-    return { V1, V2, V3, CL, Q2, Q3, ke0: 0 };
+    // ke0 = 1.09 min⁻¹ (referencia Eleveld 2017; covariable de edad no confirmada).
+    return { V1, V2, V3, CL, Q2, Q3, ke0: 1.09 };
   },
 };
 
 // ============================================================
 // DEXMEDETOMIDINA — Hannivoort (2015)  [PK verificado en el proyecto]
 // Hannivoort LN, et al. Anesthesiology 2015;123:357-67. Alométrico ref 70 kg.
-// Sin ke0 unívoco de este set (el efecto-sitio de dex está menos establecido)
-// → plasma-target only. Honestidad.
+// ke0 = 0.0428 min⁻¹ (Colin PJ, et al. Br J Anaesth 2017;119:200-10; endpoint
+// MOAA/S, estimado SOBRE el PK de Hannivoort). t½ke0 ≈ 16.2 min. Es el par
+// PKPD cableado en bombas reales (Asan pump). Etiquetado no-validado por ser
+// endpoint de sedación observada, no EEG/BIS.
 // ============================================================
 export const DEX_HANNIVOORT: TciModel = {
   id: "dex-hannivoort",
   drug: "Dexmedetomidina",
   variant: "Hannivoort",
-  note: "α2-agonista · sedación · plasma",
+  note: "α2-agonista · sedación · effect-site (MOAA/S)",
   unit: "mcg",
   concUnit: "ng/mL",
   targetToPerL: 1,
-  citation: "Hannivoort LN, et al. Anesthesiology 2015;123:357-67 (alométrico, ref 70 kg). Plasma-target.",
+  citation:
+    "Hannivoort LN, et al. Anesthesiology 2015;123:357-67 (PK, alométrico ref 70 kg). ke0 0.0428 min⁻¹ (Colin, Br J Anaesth 2017;119:200-10; MOAA/S).",
   refTarget: "sedación 0.5-1.5 ng/mL (rango estudiado 0.5-8)",
-  effectSite: false,
-  covariateWarning: "Sin ke0 establecido para este set → solo plasma. Bradicardia/hipotensión con bolo rápido.",
+  effectSite: true,
+  ke0Warning:
+    "endpoint MOAA/S (sedación observada, Colin 2017), no EEG/BIS. Ce experimental. Bradicardia/hipotensión con bolo rápido.",
+  covariateWarning: "Bradicardia/hipotensión con bolo rápido. Modelo alométrico ref 70 kg.",
   micro: ({ weightKg: wt }): MicroParams => {
     const wr = wt / 70;
     const sizeV = wr;
@@ -456,7 +486,7 @@ export const DEX_HANNIVOORT: TciModel = {
       CL: 0.686 * sizeCL,
       Q2: 2.98 * sizeCL,
       Q3: 0.602 * sizeCL,
-      ke0: 0,
+      ke0: 0.0428, // Colin 2017 MOAA/S (experimental, ver ke0Warning)
     };
   },
 };
@@ -538,9 +568,230 @@ export const REMIFENTANIL_MINTO: TciModel = {
   },
 };
 
-// Los siguientes se añaden SOLO tras confirmación de sus agentes:
-// Gepts sufentanilo, Maitre alfentanilo, Shafer fentanilo, Schüttler
-// remimazolam. Ver bloque de inserción condicional al final.
+// ------------------------------------------------------------
+// FENTANILO — Shafer/Scott (Anesthesiology 1990;73:1091-1102)
+// Set escalado a peso del paquete stanpumpR de Steven L. Shafer
+// (R/drugs_fentanyl.R), verificado verbatim. Volúmenes escalan lineal (^1)
+// y clearances alométrico (^0.75) sobre WSTD = 70 kg.
+// ke0 = 0.147 min⁻¹ (Scott & Stanski, J Pharmacol Exp Ther 1987;240:159-166).
+// ⚠️ Exactitud fuera de 40-90 kg desconocida; en obeso usar peso PK (Shafer
+// 2004), no peso total.
+// ------------------------------------------------------------
+export const FENTANYL_SHAFER: TciModel = {
+  id: "fentanyl-shafer",
+  drug: "Fentanilo",
+  variant: "Shafer/Scott",
+  note: "opioide · effect-site · 40-90 kg",
+  unit: "mcg",
+  concUnit: "ng/mL",
+  targetToPerL: 1, // ng/mL == µg/L (unit=mcg → µg)
+  citation:
+    "Shafer SL, et al. Anesthesiology 1990;73:1091-1102 (stanpumpR, escalado a peso). ke0 0.147 min⁻¹ (Scott & Stanski 1987).",
+  refTarget: "analgesia 1-2 ng/mL · anestesia 3-10 ng/mL (según estímulo)",
+  effectSite: true,
+  wakeThreshold: 1.0,
+  covariateWarning:
+    "Exactitud fuera de 40-90 kg desconocida. En obesidad usar peso farmacocinético (Shafer 2004), NO peso total.",
+  micro: ({ weightKg: w }): MicroParams => {
+    const wr = w / 70;
+    const sizeV = wr; // volúmenes ^1
+    const sizeCL = Math.pow(wr, 0.75); // clearances ^0.75
+    return {
+      V1: 12.1 * sizeV, // L
+      V2: 35.7 * sizeV, // L
+      V3: 224 * sizeV, // L
+      CL: 0.632 * sizeCL, // L/min
+      Q2: 2.8 * sizeCL, // L/min
+      Q3: 1.55 * sizeCL, // L/min
+      ke0: 0.147, // min⁻¹ (Scott & Stanski 1987)
+    };
+  },
+};
+
+// ------------------------------------------------------------
+// SUFENTANILO — Gepts (Anesthesiology 1995;83:1194-1204)
+// Compartimento central FIJO para 70 kg — NO escala por peso (verbatim del
+// código de Shafer, R/drugs_sufentanil.R). Unidades V en L, CL en L/min.
+// ke0 = 0.112 min⁻¹ (perfil Fresenius, t½ke0 ≈ 6.2 min; TivaTrainer/Engbers,
+// datos EEG-opioide no-paramétricos). PUMP-DEPENDIENTE: Alaris/CareFusion usan
+// 0.17559 → ~50% de diferencia en dosis effect-site. Se usa 0.112 (conservador)
+// y se avisa en UI.
+// ------------------------------------------------------------
+export const SUFENTANIL_GEPTS: TciModel = {
+  id: "sufentanil-gepts",
+  drug: "Sufentanilo",
+  variant: "Gepts",
+  note: "opioide · effect-site · fijo 70 kg",
+  unit: "mcg",
+  concUnit: "ng/mL",
+  targetToPerL: 1,
+  citation:
+    "Gepts E, et al. Anesthesiology 1995;83:1194-1204 (fijo 70 kg). ke0 0.112 min⁻¹ (perfil Fresenius; Alaris 0.17559 — pump-dependiente).",
+  refTarget: "analgesia 0.1-0.4 ng/mL · anestesia 0.3-1 ng/mL",
+  effectSite: true,
+  wakeThreshold: 0.15,
+  ke0Warning:
+    "ke0 PUMP-DEPENDIENTE. Se usa 0.112 min⁻¹ (Fresenius, conservador); Alaris/CareFusion/Mindray usan 0.17559 min⁻¹ → ~50% más dosis effect-site. El PK plasma de Gepts es sólido; el Ce depende de la bomba.",
+  covariateWarning:
+    "Parámetros FIJOS a 70 kg (no escala por peso). Derivado en no-obesos; precaución fuera de peso normal.",
+  micro: (): MicroParams => {
+    // Gepts fijo 70 kg (verbatim stanpumpR):
+    return {
+      V1: 14.3, // L
+      V2: 63.38694, // L
+      V3: 251.9, // L
+      CL: 0.92235, // L/min
+      Q2: 1.55298, // L/min
+      Q3: 0.32747, // L/min
+      ke0: 0.112, // min⁻¹ (Fresenius; pump-dependiente, ver ke0Warning)
+    };
+  },
+};
+
+// ------------------------------------------------------------
+// ALFENTANILO — Maitre (Anesthesiology 1987;66:3-12)
+// V1 = 0.111·peso (♀ ×1.15). CL y k31 dependen de la edad (umbral ≤40 a).
+// k12/k13/k21 fijos. ke0 = 0.77 min⁻¹ (= ln2/0.9; t½ke0 0.90 min; Scott &
+// Stanski 1987, estándar de facto STANPUMP/SimTIVA para este set).
+// Peso = TBW; sobrepredice en obesidad mórbida (limitación del modelo).
+// ------------------------------------------------------------
+export const ALFENTANIL_MAITRE: TciModel = {
+  id: "alfentanil-maitre",
+  drug: "Alfentanilo",
+  variant: "Maitre",
+  note: "opioide · edad/sexo · effect-site",
+  unit: "mcg",
+  concUnit: "ng/mL",
+  targetToPerL: 1,
+  citation:
+    "Maitre PO, et al. Anesthesiology 1987;66:3-12. V1 0.111·peso (♀ ×1.15); CL/k31 edad-dependientes. ke0 0.77 min⁻¹ (ln2/0.9; Scott & Stanski 1987).",
+  refTarget: "analgesia/anestesia balanceada 50-200 ng/mL",
+  effectSite: true,
+  wakeThreshold: 40,
+  covariateWarning:
+    "Peso total (TBW): sobrepredice en obesidad mórbida (derivado en no-obesos). Requiere edad y sexo.",
+  micro: ({ weightKg: mass, ageYears: age, sex }): MicroParams => {
+    // V1: ♀ +15%.
+    const V1 = sex === "male" ? 0.111 * mass : 0.111 * 1.15 * mass; // L
+    // CL y k31 edad-dependientes (umbral ≤40 a).
+    let Cl1: number; // L/min
+    let k31: number; // min⁻¹
+    if (age <= 40) {
+      Cl1 = 0.356;
+      k31 = 0.0126;
+    } else {
+      Cl1 = 0.356 - 0.00269 * (age - 40);
+      k31 = 0.0126 - 0.000113 * (age - 40);
+    }
+    // Tasas fijas (min⁻¹).
+    const k12 = 0.104;
+    const k13 = 0.017;
+    const k21 = 0.0673;
+    // Volúmenes y clearances intercompartimentales derivados.
+    const V2 = V1 * (k12 / k21);
+    const V3 = V1 * (k13 / k31);
+    const Q2 = k12 * V1;
+    const Q3 = k13 * V1;
+    return {
+      V1,
+      V2,
+      V3,
+      CL: Cl1,
+      Q2,
+      Q3,
+      ke0: 0.77, // min⁻¹ (= ln2/0.9; Scott & Stanski 1987)
+    };
+  },
+};
+
+// ------------------------------------------------------------
+// KETAMINA (racémica) — set Domino + ke0 Navarrete/Cortínez (effect-site)
+// PK Domino: Sigtermans M, et al. Br J Anaesth 2007;98:615-623 (Tabla 1).
+// V1 = 63 mL/kg; micro-constantes fijas. ke0 = 0.238 min⁻¹ (Navarrete V, et
+// al. J Clin Monit Comput 2025, PMID 39546215; endpoint ANI/analgesia,
+// preliminar n=20). SOLO válido acoplado al PK Domino.
+// ⚠️ EXPERIMENTAL: ke0 calibrado contra ANALGESIA (ANI), NO hipnosis/BIS.
+// ------------------------------------------------------------
+export const KETAMINE_DOMINO: TciModel = {
+  id: "ketamine-domino",
+  drug: "Ketamina",
+  variant: "Domino + ke0 ANI",
+  note: "disociativo · effect-site analgésico (experimental)",
+  unit: "mcg",
+  concUnit: "ng/mL",
+  targetToPerL: 1,
+  citation:
+    "PK: Domino (Sigtermans M, et al. Br J Anaesth 2007;98:615-623). ke0 0.238 min⁻¹ (Navarrete/Cortínez, J Clin Monit Comput 2025; ANI, n=20).",
+  refTarget: "analgesia ~100-200 ng/mL (Ce analgésico, no hipnótico)",
+  effectSite: true,
+  ke0Warning:
+    "ke0 EXPERIMENTAL (0.238 min⁻¹): calibrado contra ANALGESIA (índice ANI, Navarrete 2025, preliminar n=20), NO hipnosis/EEG/BIS. El Ce predice sitio-efecto ANALGÉSICO, no profundidad anestésica. Solo válido con el set PK Domino.",
+  covariateWarning:
+    "Set Domino escalado por peso (V1 63 mL/kg). ke0 no validado para mantenimiento anestésico.",
+  micro: ({ weightKg: w }): MicroParams => {
+    // Domino: V1 en mL/kg → L; micro-constantes (min⁻¹).
+    const V1 = 0.063 * w; // L (= 63 mL/kg)
+    const k10 = 0.4381;
+    const k12 = 0.5921;
+    const k21 = 0.247;
+    const k13 = 0.59;
+    const k31 = 0.0146;
+    const CL = k10 * V1;
+    const V2 = V1 * (k12 / k21);
+    const Q2 = k12 * V1;
+    const V3 = V1 * (k13 / k31);
+    const Q3 = k13 * V1;
+    return {
+      V1,
+      V2,
+      V3,
+      CL,
+      Q2,
+      Q3,
+      ke0: 0.238, // min⁻¹ (Navarrete/Cortínez 2025, ANI — experimental)
+    };
+  },
+};
+
+// ------------------------------------------------------------
+// DEXMEDETOMIDINA — Morse (J Clin Med 2020;9:3480) [universal ped+adulto]
+// Morse JD, Cortínez LI, Anderson BJ. Modelo universal (pediátrico+adulto),
+// alométrico + maduración. Referencia 70 kg. PLASMA-ONLY (sin ke0 publicado).
+// ⚠️ SEGURIDAD: V1 (25.2 L) es ~14× el de Hannivoort → cargas iniciales muy
+// superiores a la ficha técnica; vigilar la dosis de carga en TCI.
+// (Simplificado a adulto: NFM/FFM ≈ peso total y maduración madura → escalado
+// alométrico estándar. Para pediatría exacta usar el modelo completo.)
+// ------------------------------------------------------------
+export const DEX_MORSE: TciModel = {
+  id: "dex-morse",
+  drug: "Dexmedetomidina",
+  variant: "Morse (universal)",
+  note: "α2-agonista · ped+adulto · plasma",
+  unit: "mcg",
+  concUnit: "ng/mL",
+  targetToPerL: 1,
+  citation:
+    "Morse JD, Cortínez LI, Anderson BJ. J Clin Med 2020;9(11):3480 (universal ped+adulto, alométrico). Plasma-only (sin ke0).",
+  refTarget: "sedación 0.5-1.5 ng/mL",
+  effectSite: false, // sin ke0 publicado (plasma-only por diseño)
+  peds: true,
+  covariateWarning:
+    "⚠️ V1 grande (25.2 L/70 kg): en TCI produce cargas iniciales muy superiores a la ficha técnica (vigilar tasa máx. 6 µg/kg/h). Sin ke0 → solo plasma.",
+  micro: ({ weightKg: wt }): MicroParams => {
+    const wr = wt / 70;
+    const sizeV = wr; // volúmenes ^1
+    const sizeCL = Math.pow(wr, 0.75); // clearances ^0.75
+    return {
+      V1: 25.2 * sizeV, // L
+      V2: 34.4 * sizeV, // L
+      V3: 65.4 * sizeV, // L
+      CL: 0.897 * sizeCL, // L/min
+      Q2: 1.68 * sizeCL, // L/min
+      Q3: 0.62 * sizeCL, // L/min
+      ke0: 0, // plasma-only
+    };
+  },
+};
 
 // ------------------------------------------------------------
 // Registro de modelos TCI activos. El orden define el orden del selector.
@@ -555,8 +806,13 @@ const TCI_BASE: TciModel[] = [
   PROPOFOL_KATARIA,
   REMIFENTANIL_MINTO,
   REMIFENTANIL_ELEVELD,
+  FENTANYL_SHAFER,
+  SUFENTANIL_GEPTS,
+  ALFENTANIL_MAITRE,
   DEX_HANNIVOORT,
+  DEX_MORSE,
   KETAMINE_KAMP,
+  KETAMINE_DOMINO,
 ];
 
 // ============================================================
@@ -676,6 +932,21 @@ export const WEIGHT_DOSE_MODELS: WeightDoseModel[] = [
 // Concatenación final (los verificados externamente se añaden en el bloque
 // de abajo mutando esta lista mediante push controlado).
 export const TCI_MODELS: TciModel[] = [...TCI_BASE];
+
+// ============================================================
+// BIS predicho (SOLO propofol · Eleveld 2018). Sigmoide inhibitorio con
+// gamma asimétrico y Emax fraccional (BIS baja hasta 0):
+//   drugEffect = Ce^γ / (Ce50^γ + Ce^γ)   ;   BIS = baseline·(1 − drugEffect)
+// γ = gammaLow si Ce < Ce50, gammaHigh si Ce ≥ Ce50.
+// ⚠️ Poblacional: no sustituye la monitorización real de BIS.
+// ============================================================
+export function predictBis(pd: BisPd, cov: Cov, ce: number): number {
+  const ce50 = pd.ce50(cov);
+  if (!(ce50 > 0) || ce <= 0) return pd.baseline;
+  const gamma = ce < ce50 ? pd.gammaLow : pd.gammaHigh;
+  const effect = Math.pow(ce, gamma) / (Math.pow(ce50, gamma) + Math.pow(ce, gamma));
+  return pd.baseline * (1 - effect);
+}
 
 // Utilidad: agrupar modelos TCI por fármaco (para el selector de UI).
 export function tciModelsByDrug(): { drug: string; models: TciModel[] }[] {

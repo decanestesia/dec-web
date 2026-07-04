@@ -12,7 +12,8 @@ export type Block =
   | { type: "callout"; variant: "info" | "warn" | "danger"; text: string }
   | { type: "code"; text: string }
   | { type: "table"; headers: string[]; rows: string[][] }
-  | { type: "quote"; text: string };
+  | { type: "quote"; text: string }
+  | { type: "image"; src: string; alt: string; caption?: string };
 
 export interface Post {
   slug: string;
@@ -26,6 +27,33 @@ export interface Post {
 }
 
 export const POSTS: Post[] = [
+  {
+    slug: "el-del-banco-con-telaranas",
+    title: "El del banco con telarañas: quién está detrás de DEC",
+    excerpt:
+      "Un anestesiólogo dominicano, unas cuantas guardias de más y la certeza de que «más o menos 2 cc» no es una dosis. Presentaciones — con retrato fiel incluido.",
+    date: "2026-07-04",
+    tags: ["Meta", "Sobre DEC"],
+    readTime: "4 min",
+    author: "Dr. Jophiel Espaillat",
+    body: [
+      { type: "p", text: "Toda herramienta clínica tiene a alguien detrás. Detrás de esta hay un anestesiólogo dominicano que ha pasado suficientes madrugadas calculando diluciones en el reverso de una hoja de anestesia como para concluir que eso merecía, cuando menos, una app. Este es él. El parecido es exacto." },
+      {
+        type: "image",
+        src: "/blog/jophiel.png",
+        alt: "Caricatura del Dr. Jophiel Espaillat sentado en un banco cubierto de telarañas, con las manos convertidas en huesos, bajo un cielo gris.",
+        caption: "Dr. Jophiel Espaillat, esperando a que el cirujano diga «ya casi terminamos». Las telarañas son de la última vez que lo dijo. Las manos son un detalle del artista; también podrían ser un pronóstico.",
+      },
+      { type: "h2", text: "Quién" },
+      { type: "p", text: "Jophiel Espaillat, anestesiólogo (República Dominicana). Miembro de la especialidad que mantiene vivo al paciente mientras el bisturí se lleva los aplausos y la foto. El anestesiólogo es el único médico al que le pagan por que no pase nada: cuando el caso sale perfecto, nadie recuerda su nombre; cuando sale mal, todos lo recuerdan a la perfección." },
+      { type: "p", text: "Es un trabajo raro. Consiste en llevar a una persona hasta el borde exacto entre el sueño y la muerte, sostenerla ahí durante horas con la mano firme, y traerla de vuelta como si nada — para que se despierte quejándose de la sed. Se hace en penumbra, mirando curvas, con una precisión que el resto del quirófano da por sentada hasta el segundo en que deja de estar." },
+      { type: "h2", text: "Por qué DEC" },
+      { type: "p", text: "Porque «más o menos 2 cc» no es una dosis, es una plegaria. Porque a las 3 a. m., con una bomba de infusión, un paciente de 6 kg y un vasoactivo que no perdona, la memoria es un mal sitio para guardar un factor de dilución. DEC nació de la terquedad de querer calcular antes que adivinar: diluciones, dosis y cálculos con la fuente citada, para que el cerebro se dedique a decidir en lugar de a multiplicar." },
+      { type: "callout", variant: "info", text: "Aquí termina el humor y empieza la letra pequeña que sí importa: DEC calcula; el médico decide, verifica y firma. Cada dosis, dilución y vía se confirman contra la fuente y contra el paciente antes de tocarlo. La app es una calculadora con buena memoria, no un anestesiólogo — ese eres tú, y la responsabilidad también." },
+      { type: "quote", text: "«El cirujano opera al paciente. El anestesiólogo opera al tiempo, a la presión, al dolor y a la muerte — todo a la vez, y en silencio.»" },
+      { type: "p", text: "Si DEC te ahorra un cálculo a las 3 a. m., cumplió su propósito. Si además te saca una media sonrisa mientras esperas en tu propio banco con telarañas, mejor. Nos vemos en el próximo caso." },
+    ],
+  },
   {
     slug: "firmas-eeg-dsa",
     title: "Leer el DSA: las firmas EEG de los anestésicos",

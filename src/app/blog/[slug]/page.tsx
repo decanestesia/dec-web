@@ -93,6 +93,29 @@ function BlockView({ block }: { block: Block }) {
           {block.text}
         </blockquote>
       );
+    case "image":
+      return (
+        <figure style={{ margin: "1.5rem 0" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={block.src}
+            alt={block.alt}
+            loading="lazy"
+            style={{
+              display: "block", width: "100%", maxWidth: 420, margin: "0 auto",
+              border: "1px solid var(--border)", background: "var(--bg-2)",
+            }}
+          />
+          {block.caption && (
+            <figcaption
+              className="mono"
+              style={{ color: "var(--text-3)", fontSize: "0.66rem", lineHeight: 1.55, textAlign: "center", marginTop: "0.6rem", opacity: 0.85 }}
+            >
+              {block.caption}
+            </figcaption>
+          )}
+        </figure>
+      );
     case "table":
       return (
         <div style={{ overflowX: "auto", margin: "0 0 1.25rem", border: "1px solid var(--border)" }}>

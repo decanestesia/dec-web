@@ -7,6 +7,7 @@
 // se tradujo literalmente del Swift. NO redondear distinto, NO inventar casos.
 
 import { useMemo, useState } from "react";
+import { usePatient } from "@/lib/patient/PatientContext";
 
 // MARK: - Severidad
 // port de ElectrolytesView.swift:131-169
@@ -911,8 +912,8 @@ function osmolarityFinding(inp: Inputs): Finding | null {
 // MARK: - Cálculos derivados
 // port de ElectrolytesView.swift:60-119
 function buildInputs(v: {
-  weightText: string;
-  sex: string;
+  weight: number | null;
+  isMale: boolean;
   naText: string;
   kText: string;
   clText: string;
@@ -929,11 +930,10 @@ function buildInputs(v: {
   po2Text: string;
   fio2Text: string;
 }): Inputs {
-  // No hay patientStore en web → weight = parseDouble(weightText) únicamente.
-  // port de ElectrolytesView.swift:60-61
-  const weight = parseDouble(v.weightText);
-  const TBW =
-    weight != null ? weight * (v.sex === "Masculino" ? 0.6 : 0.5) : null;
+  // El peso viene del PACIENTE ACTIVO (barra superior compartida), no de un
+  // input local. port de ElectrolytesView.swift:60-61 (allí venía de patientStore).
+  const weight = v.weight;
+  const TBW = weight != null ? weight * (v.isMale ? 0.6 : 0.5) : null;
 
   const na = parseDouble(v.naText);
   const k = parseDouble(v.kText);
@@ -1274,8 +1274,6 @@ function FindingCard({ f }: { f: Finding }) {
 // MARK: - Página
 
 const EMPTY = {
-  weightText: "",
-  sex: "Masculino",
   naText: "",
   kText: "",
   clText: "",
@@ -1315,13 +1313,21 @@ const FIELD_TO_STATE: Record<FieldDef["key"], keyof State> = {
 };
 
 export default function ElectrolitosPage() {
+  const { active, setActive } = usePatient();
   const [s, setS] = useState<State>(EMPTY);
+
+  // Peso y sexo salen del PACIENTE ACTIVO (barra superior) — reactivos y
+  // bidireccionales. Editar aquí o en la barra se refleja en vivo en ambos.
+  const isMale = active.sex === "male";
 
   const setField = (key: FieldDef["key"], value: string) => {
     setS((prev) => ({ ...prev, [FIELD_TO_STATE[key]]: value }));
   };
 
-  const inp = useMemo(() => buildInputs(s), [s]);
+  const inp = useMemo(
+    () => buildInputs({ ...s, weight: active.weightKg, isMale }),
+    [s, active.weightKg, isMale]
+  );
 
   const findings = useMemo(() => collectFindings(inp), [inp]);
   // port de ElectrolytesView.swift:769-770
@@ -1396,9 +1402,9 @@ export default function ElectrolitosPage() {
               inputMode="decimal"
               className="calc-input mono"
               placeholder="70"
-              value={s.weightText}
+              value={active.weightKg != null ? String(active.weightKg) : ""}
               onChange={(e) =>
-                setS((prev) => ({ ...prev, weightText: e.target.value }))
+                setActive({ weightKg: parseDouble(e.target.value) })
               }
               style={{ maxWidth: 130, textAlign: "right" }}
             />
@@ -1421,25 +1427,25 @@ export default function ElectrolitosPage() {
             <div style={{ display: "flex", gap: "0.25rem" }}>
               {(
                 [
-                  ["Masculino", "M"],
-                  ["Femenino", "F"],
+                  ["male", "M"],
+                  ["female", "F"],
                 ] as const
-              ).map(([tag, short]) => {
-                const active = s.sex === tag;
+              ).map(([sexValue, short]) => {
+                const isActive = active.sex === sexValue;
                 return (
                   <button
-                    key={tag}
+                    key={sexValue}
                     type="button"
-                    onClick={() => setS((prev) => ({ ...prev, sex: tag }))}
+                    onClick={() => setActive({ sex: sexValue })}
                     className="mono"
                     style={{
                       padding: "0.35rem 0.9rem",
                       fontSize: "0.7rem",
                       fontWeight: 600,
-                      background: active ? "var(--accent)" : "var(--bg-1)",
-                      color: active ? "#000" : "var(--text-2)",
+                      background: isActive ? "var(--accent)" : "var(--bg-1)",
+                      color: isActive ? "#000" : "var(--text-2)",
                       border: "1px solid",
-                      borderColor: active ? "var(--accent)" : "var(--border)",
+                      borderColor: isActive ? "var(--accent)" : "var(--border)",
                       cursor: "pointer",
                       transition: "all 0.15s",
                     }}
@@ -1456,6 +1462,8 @@ export default function ElectrolitosPage() {
           >
             {/* TBW = peso × (0.6 M / 0.5 F) */}
             {"// TBW estimado: peso × 0.6 (M) / 0.5 (F)"}
+            <br />
+            {"// usa el paciente activo (barra superior) — editar aquí lo actualiza"}
           </p>
         </div>
       </div>

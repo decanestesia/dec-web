@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import type { DrugInfusionEntry } from "@/lib/drugs";
+import { usePatient } from "@/lib/patient/PatientContext";
 
 interface Props {
   drugName: string;
@@ -9,8 +10,11 @@ interface Props {
 }
 
 export function InfusionCalculator({ drugName, entries }: Props) {
+  // Peso ligado al PACIENTE ACTIVO (barra superior): bidireccional y reactivo.
+  const { active, setActive } = usePatient();
+  const weight = active.weightKg != null ? String(active.weightKg) : "";
+
   const [activeIdx, setActiveIdx] = useState(0);
-  const [weight, setWeight] = useState("70");
   const [dose, setDose] = useState("");
 
   const entry = entries[activeIdx];
@@ -206,10 +210,25 @@ export function InfusionCalculator({ drugName, entries }: Props) {
             className="calc-input mono"
             placeholder="70"
             value={weight}
-            onChange={(e) => setWeight(e.target.value)}
+            onChange={(e) => {
+              const v = e.target.value;
+              const n = parseFloat(v);
+              setActive({ weightKg: v === "" || Number.isNaN(n) ? null : n });
+            }}
             min={0}
             step="0.5"
           />
+          <p
+            className="mono"
+            style={{
+              color: "var(--text-3)",
+              fontSize: "0.55rem",
+              opacity: 0.7,
+              marginTop: "0.25rem",
+            }}
+          >
+            // usa el paciente activo (barra superior)
+          </p>
         </div>
 
         {/* Dose */}

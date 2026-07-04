@@ -8,6 +8,7 @@
 // ============================================================
 
 import { useMemo, useState } from "react";
+import { usePatient } from "@/lib/patient/PatientContext";
 
 // ------------------------------------------------------------
 // Tipos / enums — port de CalculatorEngine.swift:8-27
@@ -225,41 +226,42 @@ const COHORT_RANGE: number[] = Array.from({ length: 40 - 10 + 1 }, (_, i) => 10 
 // Página
 // ------------------------------------------------------------
 export default function AntropometriaPage() {
+  // Peso/talla/edad/sexo viven en el PACIENTE ACTIVO (barra superior).
+  // Antropometría es el punto de ENTRADA: lee y escribe bidireccional +
+  // reactivo, para que poblar aquí actualice la barra y toda calculadora.
+  const { active, setActive } = usePatient();
+
+  // Solo lo específico de esta calculadora es estado local.
   // port de ContentView.swift:18-28 (defaults: BMI objetivo "22", cohorte 30)
-  const [heightText, setHeightText] = useState("");
-  const [weightText, setWeightText] = useState("");
-  const [ageText, setAgeText] = useState("");
   const [hctText, setHctText] = useState("");
   const [targetBmiText, setTargetBmiText] = useState("22");
   const [cohortHct, setCohortHct] = useState(30);
-  const [sex, setSex] = useState<Sex>("male");
   const [race, setRace] = useState<Race>("white");
   const [tbvMethod, setTbvMethod] = useState<TBVMethod>("age");
 
   // port de ContentView.swift:41-53
   const inputs: CalcInputs = useMemo(
     () => ({
-      heightCm: parseDouble(heightText),
-      weightKg: parseDouble(weightText),
-      ageYears: parseDouble(ageText),
-      sex,
+      heightCm: active.heightCm,
+      weightKg: active.weightKg,
+      ageYears: active.ageYears,
+      sex: active.sex,
       hctPercent: parseDouble(hctText),
       race,
       targetBMI: parseDouble(targetBmiText) ?? 22,
       tbvMethod,
       cohortHctPercent: cohortHct,
     }),
-    [heightText, weightText, ageText, hctText, targetBmiText, sex, race, tbvMethod, cohortHct]
+    [active.heightCm, active.weightKg, active.ageYears, active.sex, hctText, targetBmiText, race, tbvMethod, cohortHct]
   );
 
   // port de ContentView.swift:55
   const outputs = useMemo(() => compute(inputs), [inputs]);
 
   // port de ContentView.swift:85-89
+  // Limpia el paciente activo (talla/peso/edad) + campos locales.
   const clearAll = () => {
-    setHeightText("");
-    setWeightText("");
-    setAgeText("");
+    setActive({ heightCm: null, weightKg: null, ageYears: null });
     setHctText("");
     setTargetBmiText("22");
   };
@@ -308,6 +310,12 @@ export default function AntropometriaPage() {
           <span className="dot" /> DATOS DEL PACIENTE
         </div>
         <div className="panel-body" style={{ display: "grid", gap: "0.75rem" }}>
+          <p
+            className="mono"
+            style={{ color: "var(--text-3)", fontSize: "0.55rem", opacity: 0.7 }}
+          >
+            {"// usa el paciente activo (barra superior) — editar aquí actualiza la barra y todas las calculadoras"}
+          </p>
           <div
             style={{
               display: "grid",
@@ -325,8 +333,8 @@ export default function AntropometriaPage() {
                 inputMode="decimal"
                 className="calc-input mono"
                 placeholder="170"
-                value={heightText}
-                onChange={(e) => setHeightText(e.target.value)}
+                value={active.heightCm ?? ""}
+                onChange={(e) => setActive({ heightCm: parseDouble(e.target.value) })}
                 min={0}
                 step="any"
               />
@@ -342,8 +350,8 @@ export default function AntropometriaPage() {
                 inputMode="decimal"
                 className="calc-input mono"
                 placeholder="72.5"
-                value={weightText}
-                onChange={(e) => setWeightText(e.target.value)}
+                value={active.weightKg ?? ""}
+                onChange={(e) => setActive({ weightKg: parseDouble(e.target.value) })}
                 min={0}
                 step="any"
               />
@@ -359,8 +367,8 @@ export default function AntropometriaPage() {
                 inputMode="decimal"
                 className="calc-input mono"
                 placeholder="45"
-                value={ageText}
-                onChange={(e) => setAgeText(e.target.value)}
+                value={active.ageYears ?? ""}
+                onChange={(e) => setActive({ ageYears: parseDouble(e.target.value) })}
                 min={0}
                 step="any"
               />
@@ -421,15 +429,15 @@ export default function AntropometriaPage() {
                   <button
                     key={s}
                     type="button"
-                    onClick={() => setSex(s)}
+                    onClick={() => setActive({ sex: s })}
                     className="mono"
                     style={{
                       padding: "0.5rem 0.25rem",
                       fontSize: "0.65rem",
                       cursor: "pointer",
                       border: "none",
-                      background: s === sex ? "var(--accent)" : "var(--bg-1)",
-                      color: s === sex ? "#000" : "var(--text-2)",
+                      background: s === active.sex ? "var(--accent)" : "var(--bg-1)",
+                      color: s === active.sex ? "#000" : "var(--text-2)",
                       transition: "all 0.15s",
                     }}
                   >

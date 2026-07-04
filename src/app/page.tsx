@@ -56,7 +56,7 @@ export default function Home() {
       <section style={{ marginBottom: "2.25rem" }}>
         <div className="stat-grid">
           <Stat n="893" label="fármacos" />
-          <Stat n="62" label="herramientas clínicas" />
+          <Stat n="63" label="herramientas clínicas" />
           <Stat n="57" label="categorías" />
           <Stat n="246" label="con calc. de infusión" />
         </div>
@@ -82,6 +82,7 @@ export default function Home() {
             <NewItem href="/situacion" tag="BUSCAR" text="Búsqueda por situación: '¿qué hago si…?' → pasos + fármaco + dosis + guía enlazada" />
             <NewItem href="/checklist" tag="SEGUR" text="Checklist quirúrgico OMS (3 fases) + timers de re-dosificación de antibiótico" />
             <NewItem href="/valoracion" tag="VALOR" text="Valoración preanestésica con escalas de riesgo (RCRI, ARISCAT, Caprini, Gupta, SORT) + PDF" />
+            <NewItem href="/tci" tag="TCI" text="Calculadora TCI/TIVA: propofol y remifentanilo con modelos PK poblacionales citados (Schnider, Minto…)" />
             <NewItem href="/eeg" tag="EEG" text="Firmas EEG en el DSA por anestésico (propofol, ketamina, dexmed, sevo…) con espectrograma" />
           </div>
         </div>
@@ -96,6 +97,7 @@ export default function Home() {
           <CodeAccess />
           <Access href="/situacion" icon="🔎" title="Búsqueda por situación" desc="¿Qué hago si…? — hipotensión, laringoespasmo, LAST, anafilaxia. Pasos + dosis + guía en un toque." />
           <Access href="/checklist" icon="✅" title="Checklist OMS + timers" desc="Verificación quirúrgica en 3 fases + timers de re-dosis de antibiótico por vida media." />
+          <Access href="/tci" icon="💉" title="TCI / TIVA" desc="Infusión objetivo-controlada: propofol (Schnider/Marsh/Eleveld) + remifentanilo (Minto/Eleveld). Modelos PK citados." />
           <Access href="/calculadoras" icon="🧮" title="Calculadoras" desc="MAC, riesgo cardíaco, MABL, fluidoterapia, QTc, reversión NM… 19 en total." />
           <Access href="/algoritmos" icon="🌀" title="Algoritmos de crisis" desc="Vía aérea (RSI, DSI, Vortex, CICO) + PeRLS. Ayudas cognitivas para el código azul." />
           <Access href="/guias" icon="📋" title="Guías clínicas" desc="Anafilaxia, HPP, hipertermia maligna, sepsis, tormenta tiroidea… 27 protocolos." />

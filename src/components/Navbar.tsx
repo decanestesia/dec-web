@@ -20,6 +20,7 @@ export function Navbar({ userSlot }: { userSlot?: ReactNode }) {
     { href: "/farmacos", label: "db/farmacos" },
     { href: "/interacciones", label: "interactions" },
     { href: "/calculadoras", label: "calc" },
+    { href: "/tci", label: "tci" },
     { href: "/guias", label: "guías" },
     { href: "/algoritmos", label: "algoritmos" },
     { href: "/checklist", label: "checklist" },

@@ -17,7 +17,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE}/app-ios`, lastModified: today, changeFrequency: "monthly", priority: 0.6 },
     { url: `${BASE}/legal/privacidad`, lastModified: today, changeFrequency: "yearly", priority: 0.3 },
     { url: `${BASE}/legal/terminos`, lastModified: today, changeFrequency: "yearly", priority: 0.3 },
-    { url: `${BASE}/legal/disclaimer`, lastModified: today, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${BASE}/legal/aviso-medico`, lastModified: today, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${BASE}/legal/cookies`, lastModified: today, changeFrequency: "yearly", priority: 0.3 },
   ];
 
   const drugPages: MetadataRoute.Sitemap = catalog.drugs.map((d) => ({

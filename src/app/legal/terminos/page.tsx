@@ -150,6 +150,18 @@ export default function TerminosPage() {
         <ul>
           <li>Catálogo consultable de fármacos con farmacología clínica.</li>
           <li>Calculadoras clínicas (infusión, dilución, dosis pediátrica, etc.).</li>
+          <li>
+            Calculadora de infusión TCI/TIVA con simulación farmacocinética
+            poblacional y BIS predicho.
+          </li>
+          <li>
+            Hoja de valoración preanestésica con escalas de riesgo y generación
+            de PDF (procesamiento local en tu dispositivo).
+          </li>
+          <li>
+            Modo quirófano con dosis de crisis por peso, protocolos y cronómetro.
+          </li>
+          <li>Algoritmos y guías de manejo de situaciones críticas.</li>
           <li>Verificador de interacciones farmacológicas.</li>
           <li>Información de marcas comerciales en diferentes mercados.</li>
           <li>Sincronización opcional entre dispositivos vía cuenta.</li>
@@ -169,6 +181,12 @@ export default function TerminosPage() {
           Puedes utilizar DEC para fines profesionales y educativos en tu
           práctica clínica, dentro de los límites de tu licencia profesional
           y la legislación aplicable.
+        </p>
+        <p>
+          Al introducir datos de pacientes en DEC, te obligas a cumplir tu deber
+          de secreto profesional y la normativa de protección de datos aplicable,
+          y reconoces que eres el responsable del tratamiento de dichos datos
+          (ver <a href="/legal/privacidad">Política de Privacidad</a>, §2).
         </p>
 
         <h3>5.2. Conductas prohibidas</h3>
@@ -420,9 +438,10 @@ export default function TerminosPage() {
         </p>
 
         <h3>9.3. Contenido de terceros</h3>
+        {/* [REVISIÓN DE ABOGADO] alcance de reutilización de datos compilados de obras comerciales — validar con abogado de PI */}
         <p>
           DEC referencia y cita fuentes médicas de terceros (UpToDate, Stoelting,
-          Miller, Trissel's Handbook, etiquetas FDA, ficha técnica de la EMA, etc.).
+          Miller, Trissel's Handbook, Lexicomp, etiquetas FDA, ficha técnica de la EMA, etc.).
           Tales referencias son meramente educativas y no implican afiliación,
           patrocinio ni respaldo. Los derechos sobre dichas obras pertenecen
           a sus respectivos titulares. Los nombres comerciales de medicamentos
@@ -485,6 +504,7 @@ export default function TerminosPage() {
             infraestructura (Supabase, Vercel) o terceros referenciados.
           </li>
         </ul>
+        {/* [REVISIÓN DE ABOGADO] validez del cap de responsabilidad frente a normas imperativas sanitarias por jurisdicción */}
         <p>
           La responsabilidad total acumulada de DEC frente al usuario, por
           cualquier reclamación, está limitada a la cantidad efectivamente

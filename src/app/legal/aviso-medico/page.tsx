@@ -19,10 +19,13 @@ const toc = [
   { id: "no-consejo", label: "2. No es consejo médico" },
   { id: "criterio", label: "3. Criterio clínico del usuario" },
   { id: "limitaciones", label: "4. Limitaciones de las dosis" },
-  { id: "marcas", label: "5. Marcas y presentaciones locales" },
-  { id: "emergencias", label: "6. Emergencias médicas" },
-  { id: "reportar", label: "7. Reportar errores" },
-  { id: "responsabilidad", label: "8. Responsabilidad final" },
+  { id: "tci", label: "5. Infusión, TCI/TIVA y predicción de BIS" },
+  { id: "quirofano", label: "6. Modo quirófano / código azul" },
+  { id: "embarazo", label: "7. Embarazo, lactancia y poblaciones especiales" },
+  { id: "marcas", label: "8. Marcas y presentaciones locales" },
+  { id: "emergencias", label: "9. Emergencias médicas" },
+  { id: "reportar", label: "10. Reportar errores" },
+  { id: "responsabilidad", label: "11. Responsabilidad final" },
 ];
 
 export default function AvisoMedicoPage() {
@@ -59,12 +62,22 @@ export default function AvisoMedicoPage() {
           <li>Fichas farmacológicas (dosis, mecanismo, farmacocinética, advertencias).</li>
           <li>Datos de administración, dilución y compatibilidad.</li>
           <li>Calculadoras (infusión, dosis pediátrica, electrolitos, hemoterapia, etc.).</li>
+          <li>Calculadora de infusión TCI/TIVA con simulación farmacocinética poblacional y predicción de BIS.</li>
+          <li>Hoja de valoración preanestésica con escalas de riesgo (procesamiento local).</li>
+          <li>Modo quirófano de crisis con dosis de emergencia por peso, protocolos y cronómetro.</li>
+          <li>Algoritmos y guías de manejo de situaciones críticas.</li>
           <li>Verificador de interacciones farmacológicas.</li>
           <li>Referencias a marcas comerciales en los mercados mexicano, español, estadounidense y dominicano.</li>
         </ul>
         <p>
           DEC <strong>no realiza diagnósticos, no prescribe, no monitoriza pacientes</strong>{" "}
           ni reemplaza ninguna función clínica reservada al profesional habilitado.
+        </p>
+        <p>
+          DEC <strong>no es un dispositivo médico aprobado por la FDA, EMA,
+          COFEPRIS o MHRA, ni tiene marcado CE</strong> como producto sanitario.
+          No es un sistema de soporte de diagnóstico clínico (CDSS) certificado
+          ni una bomba de infusión o monitor certificados.
         </p>
       </LegalSection>
 
@@ -154,10 +167,107 @@ export default function AvisoMedicoPage() {
             heterogénea; el profesional debe seleccionar el valor apropiado
             según contexto.
           </li>
+          <li>
+            Las <strong>escalas de riesgo</strong> (ASA, RCRI, STOP-BANG, Apfel,
+            ARISCAT, Caprini, Gupta MICA, SORT) devuelven probabilidades
+            poblacionales estimadas, no un diagnóstico ni un pronóstico
+            individual. Algunas se calculan parcialmente cuando faltan ítems
+            (p. ej. STOP-BANG): en ese caso el resultado es un límite inferior
+            orientativo y debe reestratificarse con la escala completa.
+          </li>
         </ul>
       </LegalSection>
 
-      <LegalSection id="marcas" number="5" title="Marcas y presentaciones locales">
+      <LegalSection id="tci" number="5" title="Cálculos de infusión, TCI/TIVA y predicción de BIS">
+        <Callout variant="warning" label="El número no es el paciente">
+          Los modelos TCI y la cifra de BIS predicha son{" "}
+          <strong>estimaciones de modelos poblacionales</strong>, no mediciones
+          del paciente que tienes delante. La titulación real se guía por la
+          respuesta clínica y la monitorización, nunca por la cifra.
+        </Callout>
+        <p>
+          La calculadora de infusión TCI/TIVA de DEC simula concentraciones
+          plasmáticas y en sitio efector mediante modelos farmacocinéticos
+          poblacionales. Debes tener presente que:
+        </p>
+        <ul>
+          <li>
+            Los modelos TCI son <strong>poblacionales y de lazo abierto</strong>:
+            describen a un paciente "promedio" con una variabilidad
+            interindividual amplia. Tu paciente puede desviarse
+            significativamente de la predicción.
+          </li>
+          <li>
+            DEC <strong>no es una bomba TCI certificada</strong> ni un producto
+            sanitario regulado. No programa ni controla ninguna bomba de
+            infusión.
+          </li>
+          <li>
+            La titulación real se guía por la <strong>respuesta clínica y la
+            monitorización</strong> (BIS/entropía, hemodinámica, capnografía),
+            no por la cifra mostrada.
+          </li>
+          <li>
+            Los modelos asumen función hepática, renal y cardíaca normales.{" "}
+            <strong>No son válidos</strong> en shock, hepatopatía o nefropatía
+            graves, ni en obesidad fuera del rango de validación del modelo.
+          </li>
+          <li>
+            El BIS mostrado es un <strong>valor estimado por modelo
+            poblacional, NO una medición</strong>, y no sustituye la
+            monitorización real de profundidad anestésica.
+          </li>
+          <li>
+            El profesional programa, titula y es el{" "}
+            <strong>único responsable de cada velocidad de infusión</strong>.
+          </li>
+        </ul>
+      </LegalSection>
+
+      <LegalSection id="quirofano" number="6" title="Modo quirófano / código azul">
+        <Callout variant="medical" label="Ayuda cognitiva, no protocolo">
+          El modo quirófano calcula dosis de emergencia escaladas por peso como{" "}
+          <strong>apoyo cognitivo</strong>. No sustituye ACLS/ATLS/PALS, la
+          monitorización, el juicio clínico ni el protocolo institucional.
+        </Callout>
+        <p>
+          El modo quirófano / código azul de DEC calcula dosis de emergencia
+          escaladas por el peso que introduces. Es una ayuda cognitiva de apoyo,
+          con las siguientes limitaciones críticas:
+        </p>
+        <ul>
+          <li>
+            No sustituye los algoritmos de reanimación (ACLS, ATLS, PALS), la
+            monitorización, el juicio clínico ni el protocolo de tu institución.
+          </li>
+          <li>
+            <strong>Un peso o una unidad mal introducidos producen una dosis
+            matemáticamente correcta y clínicamente peligrosa.</strong> Verifica
+            dosis, dilución y vía antes de administrar cualquier fármaco.
+          </li>
+        </ul>
+      </LegalSection>
+
+      <LegalSection id="embarazo" number="7" title="Embarazo, lactancia y poblaciones especiales">
+        <p>
+          La información sobre uso en embarazo (categorías FDA antiguas) y
+          lactancia es orientativa y simplificada. Para decisiones reales en
+          pacientes embarazadas o lactantes, consulta:
+        </p>
+        <ul>
+          <li>LactMed (NIH) — consulta gratuita.</li>
+          <li>Reprotox / Teratogen Information Service.</li>
+          <li>Briggs&apos; Drugs in Pregnancy and Lactation.</li>
+          <li>e-Lactancia.org (gratuito, en español).</li>
+        </ul>
+        <p>
+          Las categorías FDA antiguas (A/B/C/D/X) están descontinuadas desde
+          2015 y reemplazadas por la regla narrativa PLLR. Las usamos por
+          familiaridad clínica, con la advertencia de que son una simplificación.
+        </p>
+      </LegalSection>
+
+      <LegalSection id="marcas" number="8" title="Marcas y presentaciones locales">
         <p>
           DEC documenta marcas comerciales de medicamentos en distintos mercados
           (principalmente México, España, Estados Unidos y República Dominicana).
@@ -184,7 +294,7 @@ export default function AvisoMedicoPage() {
         </p>
       </LegalSection>
 
-      <LegalSection id="emergencias" number="6" title="Emergencias médicas">
+      <LegalSection id="emergencias" number="9" title="Emergencias médicas">
         <Callout variant="medical" label="No es app de emergencias">
           DEC <strong>NO está diseñado para uso en emergencias médicas que
           requieran asistencia inmediata</strong>. En emergencias:
@@ -205,7 +315,7 @@ export default function AvisoMedicoPage() {
         </p>
       </LegalSection>
 
-      <LegalSection id="reportar" number="7" title="Reportar errores">
+      <LegalSection id="reportar" number="10" title="Reportar errores">
         <p>
           Si detectas información incorrecta, imprecisa o desactualizada en DEC,
           repórtala a{" "}
@@ -226,7 +336,7 @@ export default function AvisoMedicoPage() {
         </p>
       </LegalSection>
 
-      <LegalSection id="responsabilidad" number="8" title="Responsabilidad final">
+      <LegalSection id="responsabilidad" number="11" title="Responsabilidad final">
         <p>
           Al usar DEC, reconoces y aceptas que:
         </p>

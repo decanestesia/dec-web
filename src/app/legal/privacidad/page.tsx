@@ -121,6 +121,11 @@ export default function PrivacidadPage() {
               <td>Contenido de correos enviados a nuestros buzones</td>
               <td>Cuando nos contactas</td>
             </tr>
+            <tr>
+              <td>Datos de paciente (local)</td>
+              <td>Etiqueta/nombre, expediente, edad, peso, alergias, medicación, comorbilidades</td>
+              <td>Al usar Valoración/calculadoras — no sale del dispositivo</td>
+            </tr>
           </tbody>
         </table>
 
@@ -166,9 +171,15 @@ export default function PrivacidadPage() {
         <p>DEC <strong>no recolecta</strong>:</p>
         <ul>
           <li>
-            <strong>Datos de pacientes</strong>. Si introduces datos de pacientes
-            en una calculadora (peso, edad, dosis calculadas), estos se procesan{" "}
-            <strong>localmente en tu dispositivo</strong> y no se envían a nuestros servidores.
+            <strong>Datos de pacientes que introduces en las herramientas
+            clínicas</strong> (incluida la Valoración preanestésica, las
+            calculadoras y el modo quirófano): etiqueta o nombre, número de
+            expediente, edad, peso, talla, sexo, alergias, medicación,
+            comorbilidades, diagnósticos y resultados de escalas de riesgo.{" "}
+            <strong>DEC no recibe, transmite ni almacena estos datos en sus
+            servidores.</strong> Se guardan únicamente en el almacenamiento
+            local (localStorage) del navegador de tu dispositivo y permanecen
+            bajo tu control exclusivo.
           </li>
           <li>Tu ubicación GPS precisa.</li>
           <li>Tu agenda, contactos o historial de navegación.</li>
@@ -177,13 +188,32 @@ export default function PrivacidadPage() {
           <li>Tu IDFA (Apple Identifier for Advertisers) salvo que actives publicidad personalizada y otorgues consentimiento ATT (no aplica hoy; aplicará si en el futuro incorporamos publicidad).</li>
         </ul>
 
-        <Callout variant="medical" label="Datos clínicos">
-          DEC <strong>no es un sistema de gestión de historias clínicas</strong>.
-          No guardamos información identificable de pacientes en nuestros servidores.
-          Si almacenas casos clínicos personales en futuras funcionalidades de DEC,
-          dicha información se conservará localmente en tu dispositivo por defecto,
-          y cualquier sincronización opcional se documentará y consultará explícitamente.
+        {/* [REVISIÓN DE ABOGADO] rol data-controller/processor bajo GDPR Art.4/28, Ley 172-13, LFPDPPP — validar con abogado de protección de datos */}
+        <Callout variant="medical" label="Datos de pacientes: tú eres el responsable del tratamiento">
+          DEC no es un sistema de historia clínica ni un encargado del
+          tratamiento de los datos de tus pacientes. Cuando introduces datos
+          identificables de un paciente en DEC (por ejemplo, en la Valoración
+          preanestésica), actúas como responsable del tratamiento de esos datos
+          frente a tu paciente y frente a las autoridades sanitarias y de
+          protección de datos de tu jurisdicción. A ti te corresponde: (a)
+          contar con base legal o consentimiento para tratarlos, (b) cumplir tu
+          deber de secreto profesional y la normativa sanitaria y de protección
+          de datos aplicable, y (c) custodiar el dispositivo. DEC no puede
+          acceder a estos datos, no los ve, no los respalda ni puede recuperarlos
+          si los pierdes.
         </Callout>
+
+        <h3>2.4. Exportación de datos de paciente</h3>
+        <p>
+          Las funciones de exportar (JSON), importar y generar PDF de la hoja de
+          valoración mueven los datos del paciente fuera del almacenamiento local
+          del navegador hacia el archivo o impresión que tú elijas. A partir de
+          ese momento, la custodia, cifrado, transmisión y borrado de ese archivo
+          son de tu exclusiva responsabilidad. Recomendamos no enviar hojas de
+          valoración con datos identificables por canales no cifrados y
+          anonimizar (usar la etiqueta en lugar del nombre) siempre que sea
+          posible.
+        </p>
       </LegalSection>
 
       <LegalSection id="finalidades" number="3" title="Finalidades del tratamiento">

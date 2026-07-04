@@ -110,32 +110,33 @@ export default function CookiesPage() {
           <tbody>
             <tr>
               <td>
-                <code>sb-access-token</code>
+                <code>sb-smaazlgvonzcajjvbefk-auth-token</code>
               </td>
-              <td>Token de acceso de sesión (JWT)</td>
-              <td>1 hora</td>
-              <td>HttpOnly, Secure, SameSite=Lax</td>
+              <td>
+                Token de sesión consolidado (acceso + refresco, JWT). Emitido
+                por <code>@supabase/ssr</code>
+              </td>
+              <td>Hasta la expiración del refresh token</td>
+              <td>Secure, SameSite=Lax</td>
             </tr>
             <tr>
               <td>
-                <code>sb-refresh-token</code>
+                <code>sb-smaazlgvonzcajjvbefk-auth-token.0</code>,{" "}
+                <code>.1</code>, …
               </td>
-              <td>Token de refresco de sesión</td>
-              <td>7 días</td>
-              <td>HttpOnly, Secure, SameSite=Lax</td>
-            </tr>
-            <tr>
               <td>
-                <code>sb-auth-token</code>
+                Fragmentos (chunks) de la cookie anterior cuando el token supera
+                el tamaño máximo por cookie
               </td>
-              <td>Estado consolidado de auth</td>
-              <td>Sesión</td>
+              <td>Hasta la expiración del refresh token</td>
               <td>Secure, SameSite=Lax</td>
             </tr>
           </tbody>
         </table>
         <p>
-          Estas cookies se establecen por Supabase Auth y son indispensables
+          Estas cookies se establecen por Supabase Auth (a través de la librería{" "}
+          <code>@supabase/ssr</code>, que emite cookies con el patrón{" "}
+          <code>sb-&lt;project-ref&gt;-auth-token</code>) y son indispensables
           para que puedas iniciar sesión, navegar autenticado y mantener tu
           suscripción reconocida. Sin ellas no puedes usar funcionalidades que
           requieran cuenta.
@@ -167,6 +168,20 @@ export default function CookiesPage() {
               </td>
               <td>Idioma de la interfaz (cuando se habilite)</td>
               <td>1 año</td>
+              <td>localStorage</td>
+            </tr>
+            <tr>
+              <td>
+                <code>dec.patient.active</code>, <code>dec.patient.saved</code>,{" "}
+                <code>dec.patient.weightType</code>
+              </td>
+              <td>
+                Datos del paciente activo y guardados para las herramientas
+                clínicas (peso, escalas, valoración). Se guardan solo en tu
+                navegador; no se envían a DEC (ver{" "}
+                <a href="/legal/privacidad">Política de Privacidad</a>)
+              </td>
+              <td>Hasta que los borres</td>
               <td>localStorage</td>
             </tr>
           </tbody>

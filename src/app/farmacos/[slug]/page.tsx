@@ -593,7 +593,7 @@ export default async function DrugDetailPage({ params }: Props) {
             vía antes de administrar. No sustituye el juicio profesional ni la
             ficha técnica oficial.{" "}
             <Link
-              href="/legal/disclaimer"
+              href="/legal/aviso-medico"
               style={{
                 color: "var(--accent)",
                 textDecoration: "underline",

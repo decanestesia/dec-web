@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Calculadoras clínicas — DEC",
   description:
-    "Antropometría, infusión de fármacos, salino hipertónico, electrolitos y gases, ROTEM/TEG. Las mismas calculadoras de la app iOS, en la web.",
+    "Calculadoras clínicas perioperatorias: antropometría, infusión de fármacos, electrolitos y gases, ROTEM/TEG, MAC, LAST, RCRI, QTc, fluidoterapia y más. Las mismas calculadoras de la app iOS, en la web.",
 };
 
 interface CalcCard {

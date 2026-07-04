@@ -64,7 +64,7 @@ export default function AboutPage() {
             <br />¿Tienes una idea para mejorar DEC?
           </p>
           <p className="mono" style={{ color: "var(--accent)", fontSize: "0.75rem", marginTop: "0.5rem" }}>
-            → contacto@decanestesia.com
+            → hola@decanestesia.com
           </p>
         </div>
       </div>

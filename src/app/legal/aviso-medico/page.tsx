@@ -60,7 +60,7 @@ export default function AvisoMedicoPage() {
           <li>Datos de administración, dilución y compatibilidad.</li>
           <li>Calculadoras (infusión, dosis pediátrica, electrolitos, hemoterapia, etc.).</li>
           <li>Verificador de interacciones farmacológicas.</li>
-          <li>Referencias a marcas comerciales en mercados latinoamericanos, mexicano, español, estadounidense y dominicano.</li>
+          <li>Referencias a marcas comerciales en los mercados mexicano, español, estadounidense y dominicano.</li>
         </ul>
         <p>
           DEC <strong>no realiza diagnósticos, no prescribe, no monitoriza pacientes</strong>{" "}

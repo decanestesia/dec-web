@@ -186,8 +186,8 @@ export default function DisclaimerPage() {
 
       <LegalSection number="05" title="Interacciones farmacológicas">
         <P>
-          La base de interacciones de DEC contiene aproximadamente{" "}
-          <strong>150 interacciones críticas curadas para anestesia</strong>
+          La base de interacciones de DEC contiene{" "}
+          <strong>más de 200 interacciones críticas curadas para anestesia</strong>
           (síndrome serotoninérgico, prolongación QT, sangrado, depresión
           respiratoria, etc.). Es <strong>no exhaustiva por diseño</strong>:
           priorizamos interacciones de alto impacto perioperatorio sobre

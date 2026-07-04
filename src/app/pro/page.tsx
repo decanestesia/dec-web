@@ -47,7 +47,7 @@ const TIERS = [
 
 // ── Matriz Free vs Pro (Blueprint §3) ───────────────────────────────────────
 const MATRIX: { cap: string; free: string; pro: string }[] = [
-  { cap: "Catálogo 494 fármacos (offline)", free: "Completo", pro: "Completo" },
+  { cap: "Catálogo 893 fármacos (offline)", free: "Completo", pro: "Completo" },
   { cap: "Dosis, presentaciones, administración", free: "✓", pro: "✓" },
   { cap: "Calculadoras básicas (infusión, antropometría, dilución)", free: "✓", pro: "✓" },
   { cap: "Verificador de interacciones", free: "3 / día", pro: "Ilimitado" },

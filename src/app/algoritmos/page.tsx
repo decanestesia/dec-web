@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Algoritmos de vía aérea e intubación — DEC",
   description:
-    "Secuencias y algoritmos de manejo de la vía aérea: RSI, DSI, KOBI, intubación despierto, Vortex, DAS 2015, CICO/eFONA, oxigenación apneica, RSA, vía aérea difícil pediátrica y algoritmo ASA 2022.",
+    "Secuencias y algoritmos de manejo de la vía aérea y crisis perioperatorias: RSI, DSI, KOBI, intubación despierto, Vortex, DAS 2015, CICO/eFONA, oxigenación apneica, RSA, vía aérea difícil pediátrica, algoritmo ASA 2022, PeRLS (ASA 2025) e hipotensión intraoperatoria.",
 };
 
 interface AlgoCard {
@@ -38,9 +38,9 @@ export default function AlgoritmosPage() {
         <b>$</b> ls /algoritmos
       </div>
       <header style={{ marginBottom: "1.75rem" }}>
-        <h1 style={{ fontSize: "1.8rem", fontWeight: 700, marginBottom: "0.5rem" }}>Algoritmos de vía aérea</h1>
+        <h1 style={{ fontSize: "1.8rem", fontWeight: 700, marginBottom: "0.5rem" }}>Algoritmos de crisis y vía aérea</h1>
         <p style={{ color: "var(--text-2)", fontSize: "0.85rem" }}>
-          Secuencias de intubación y ayudas cognitivas de crisis de vía aérea, con dosis y pasos citados de literatura aceptada.
+          Secuencias de intubación, ayudas cognitivas de crisis de vía aérea y resucitación perioperatoria, con dosis y pasos citados de literatura aceptada.
         </p>
         <p className="mono" style={{ color: "var(--text-3)", fontSize: "0.62rem", marginTop: "0.35rem", opacity: 0.6 }}>
           {"// el plan de vía aérea se decide antes de dormir al paciente"}

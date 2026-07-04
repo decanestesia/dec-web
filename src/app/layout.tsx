@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     template: "%s | DEC Anestesia",
   },
   description:
-    "Enciclopedia clínica de fármacos anestésicos, vasoactivos y de cuidados críticos. 490+ fármacos con farmacología, dosis, calculadoras de infusión, advertencias FDA, embarazo y marcas comerciales.",
+    "Enciclopedia clínica de fármacos anestésicos, vasoactivos y de cuidados críticos. 893 fármacos con farmacología, dosis, calculadoras de infusión, advertencias FDA, embarazo y marcas comerciales.",
   keywords: [
     "anestesiología",
     "fármacos",
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "DEC — Diluciones, Dosis & Cálculos Anestésicos",
     description:
-      "Enciclopedia clínica de 490+ fármacos anestésicos y de cuidados críticos: farmacología, dosis, calculadoras de infusión y análisis clínico.",
+      "Enciclopedia clínica de 893 fármacos anestésicos y de cuidados críticos: farmacología, dosis, calculadoras de infusión y análisis clínico.",
     type: "website",
     locale: "es_LA",
     siteName: "DEC Anestesia",
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "DEC Anestesia",
     description:
-      "490+ fármacos anestésicos con calculadoras de infusión y datos clínicos.",
+      "893 fármacos anestésicos con calculadoras de infusión y datos clínicos.",
   },
   manifest: "/manifest.json",
   robots: { index: true, follow: true },

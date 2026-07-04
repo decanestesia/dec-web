@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Guías clínicas — DEC",
   description:
-    "Guías de referencia perioperatoria: extubación y pruebas de retirada del ventilador, transfusión y hemoderivados.",
+    "34 guías de referencia perioperatoria y de cuidados críticos: crisis (hipertermia maligna, anafilaxia, HPP, LAST, paro perioperatorio), manejo por paciente y protocolos, con umbrales y dosis citados de literatura aceptada.",
 };
 
 interface GuideCard {

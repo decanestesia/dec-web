@@ -33,6 +33,16 @@ const GUIDES: GuideCard[] = [
   { href: "/guias/delirium-emergencia", icon: "😵", title: "Delirium y agitación al despertar", subtitle: "CAM-ICU, PAED, prevención, dexmedetomidina", tag: "DELIRIUM" },
   { href: "/guias/paro-perioperatorio", icon: "⚡", title: "Paro perioperatorio (ACLS)", subtitle: "Causas reversibles, LAST, dosis, cesárea perimortem", tag: "ACLS" },
   { href: "/guias/sepsis-perioperatoria", icon: "🦠", title: "Sepsis y shock séptico", subtitle: "Paquete 1ª hora, fluidos, noradrenalina, foco", tag: "SEPSIS" },
+  { href: "/guias/espinal-alta-total", icon: "🧊", title: "Bloqueo espinal alto / total", subtitle: "Reconocer, soporte ventilatorio, vasopresores", tag: "ESPINAL" },
+  { href: "/guias/embolia-gaseosa-venosa", icon: "🫧", title: "Embolia gaseosa venosa (VAE)", subtitle: "Detección, Durant, aspirar CVC, soporte", tag: "VAE" },
+  { href: "/guias/disreflexia-autonomica", icon: "⚡", title: "Disreflexia autonómica", subtitle: "Lesión ≥T6, HTA paroxística, retirar estímulo", tag: "DA" },
+  { href: "/guias/reaccion-protamina", icon: "🐟", title: "Reacción a la protamina", subtitle: "Tipos I-III, HTP catastrófica, soporte VD", tag: "PROTAMINA" },
+  { href: "/guias/crisis-hipertension-pulmonar", icon: "🫁", title: "Crisis de hipertensión pulmonar", subtitle: "iNO, prostaciclina, soporte VD, noradrenalina", tag: "HTP" },
+  { href: "/guias/status-epilepticus", icon: "🧠", title: "Status epilepticus perioperatorio", subtitle: "Benzo → levetiracetam/fosfenitoína → infusión", tag: "STATUS" },
+  { href: "/guias/metahemoglobinemia", icon: "🔵", title: "Metahemoglobinemia", subtitle: "Cianosis refractaria, azul de metileno, G6PD", tag: "MetHb" },
+  { href: "/guias/crisis-celulas-falciformes", icon: "🩸", title: "Crisis de células falciformes", subtitle: "Evitar hipoxia/frío/acidosis, transfusión, STA", tag: "SICKLE" },
+  { href: "/guias/bloqueos-regionales", icon: "🎯", title: "Bloqueos regionales — referencia", subtitle: "TAP, ESP, PECS, nervios · volúmenes y dosis máx", tag: "REGIONAL" },
+  { href: "/guias/sindrome-reperfusion-aortico", icon: "⏱️", title: "Reperfusión por desclampaje aórtico", subtitle: "Desclampaje gradual, precarga, vasopresores", tag: "AORTA" },
 ];
 
 export default function GuiasPage() {

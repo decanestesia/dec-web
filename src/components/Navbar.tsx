@@ -16,11 +16,13 @@ export function Navbar({ userSlot }: { userSlot?: ReactNode }) {
   const links = [
     { href: "/", label: "sys", exact: true },
     { href: "/codigo", label: "● código", urgent: true },
+    { href: "/situacion", label: "situación" },
     { href: "/farmacos", label: "db/farmacos" },
     { href: "/interacciones", label: "interactions" },
     { href: "/calculadoras", label: "calc" },
     { href: "/guias", label: "guías" },
     { href: "/algoritmos", label: "algoritmos" },
+    { href: "/checklist", label: "checklist" },
     { href: "/eeg", label: "eeg" },
     { href: "/pro", label: "pro" },
     { href: "/blog", label: "blog" },

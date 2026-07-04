@@ -56,7 +56,7 @@ export default function Home() {
       <section style={{ marginBottom: "2.25rem" }}>
         <div className="stat-grid">
           <Stat n="893" label="fármacos" />
-          <Stat n="58" label="herramientas clínicas" />
+          <Stat n="62" label="herramientas clínicas" />
           <Stat n="57" label="categorías" />
           <Stat n="246" label="con calc. de infusión" />
         </div>
@@ -78,10 +78,11 @@ export default function Home() {
             <span className="dot" /> NUEVO ESTA SEMANA
           </div>
           <div className="panel-body" style={{ display: "grid", gap: "0.55rem" }}>
-            <NewItem href="/algoritmos/perls" tag="ALGO" text="PeRLS — Resucitación perioperatoria (ASA 2025): brady/taqui/arresto + Hs y Ts" />
+            <NewItem href="/codigo" tag="CRISIS" text="Modo quirófano / código azul: dosis de crisis por peso, protocolos en pasos y timer de código" />
+            <NewItem href="/situacion" tag="BUSCAR" text="Búsqueda por situación: '¿qué hago si…?' → pasos + fármaco + dosis + guía enlazada" />
+            <NewItem href="/checklist" tag="SEGUR" text="Checklist quirúrgico OMS (3 fases) + timers de re-dosificación de antibiótico" />
+            <NewItem href="/valoracion" tag="VALOR" text="Valoración preanestésica con escalas de riesgo (RCRI, ARISCAT, Caprini, Gupta, SORT) + PDF" />
             <NewItem href="/eeg" tag="EEG" text="Firmas EEG en el DSA por anestésico (propofol, ketamina, dexmed, sevo…) con espectrograma" />
-            <NewItem href="/calculadoras" tag="CALC" text="Barra de paciente global + interconexión: el peso pasa de una calculadora a otra" />
-            <NewItem href="/farmacos" tag="DB" text="+297 fármacos (596 → 893): antibióticos, biológicos, antivenenos, antimigrañosos CGRP…" />
           </div>
         </div>
       </section>
@@ -93,6 +94,8 @@ export default function Home() {
         </div>
         <div className="feat-grid">
           <CodeAccess />
+          <Access href="/situacion" icon="🔎" title="Búsqueda por situación" desc="¿Qué hago si…? — hipotensión, laringoespasmo, LAST, anafilaxia. Pasos + dosis + guía en un toque." />
+          <Access href="/checklist" icon="✅" title="Checklist OMS + timers" desc="Verificación quirúrgica en 3 fases + timers de re-dosis de antibiótico por vida media." />
           <Access href="/calculadoras" icon="🧮" title="Calculadoras" desc="MAC, riesgo cardíaco, MABL, fluidoterapia, QTc, reversión NM… 19 en total." />
           <Access href="/algoritmos" icon="🌀" title="Algoritmos de crisis" desc="Vía aérea (RSI, DSI, Vortex, CICO) + PeRLS. Ayudas cognitivas para el código azul." />
           <Access href="/guias" icon="📋" title="Guías clínicas" desc="Anafilaxia, HPP, hipertermia maligna, sepsis, tormenta tiroidea… 27 protocolos." />

@@ -27,6 +27,23 @@ export type Mallampati = 1 | 2 | 3 | 4;
 // vascular suprainguinal (Lee et al. 1999).
 export type SurgeryRisk = "low" | "intermediate" | "high";
 
+// ---- Tipos de procedimiento (dependientes de procedimiento) ----
+// ARISCAT — sitio de la incisión quirúrgica (Canet 2010).
+export type SurgicalSite = "peripheral" | "upperAbdominal" | "intrathoracic";
+// Estado funcional (Gupta MICA 2011 · usable también en fragilidad).
+export type FunctionalStatus = "independent" | "partial" | "total";
+// Magnitud/severidad quirúrgica (SORT — Protopapa 2014).
+export type SurgeryMagnitude = "minor" | "intermediate" | "major" | "complex";
+// Urgencia quirúrgica (SORT — Protopapa 2014).
+export type SurgeryUrgency = "elective" | "expedited" | "urgent" | "immediate";
+// Categoría de procedimiento del modelo Gupta MICA (21 grupos, Gupta 2011).
+export type GuptaSurgeryType =
+  | "anorectal" | "aortic" | "bariatric" | "brain" | "breast" | "cardiac"
+  | "ent" | "foregutHpb" | "gallbladderAppendixAdrenalSpleen" | "hernia"
+  | "intestinal" | "neck" | "obgyn" | "orthopedic" | "otherAbdominal"
+  | "peripheralVascular" | "skin" | "spine" | "thoracicNonEsophageal"
+  | "vein" | "urology";
+
 // Comorbilidades relevantes para la valoración preanestésica y los scores.
 // Todas opcionales/boolean; ausente = no marcada (no interrogada ≈ negativa).
 export interface Comorbidities {
@@ -35,7 +52,7 @@ export interface Comorbidities {
   chf?: boolean; // insuficiencia cardíaca congestiva (RCRI)
   cerebrovascular?: boolean; // ACV / AIT (RCRI)
   insulinDm?: boolean; // diabetes en tratamiento con insulina (RCRI)
-  copd?: boolean; // EPOC
+  copd?: boolean; // EPOC (ARISCAT indirecto · Caprini enf. pulmonar)
   osa?: boolean; // apnea obstructiva del sueño / ronquido (STOP-BANG)
   smoker?: boolean; // fumador activo (Apfel: fumador ↓ NVPO)
 }
@@ -64,6 +81,45 @@ export interface Patient {
   postopOpioids?: boolean; // uso previsto de opioides postop (Apfel)
   allergies?: string; // alergias (texto libre)
   medications?: string; // medicación habitual (texto libre)
+
+  // ---- Dependientes de procedimiento y escalas ampliadas -----------------
+  // (todos opcionales · backward-compatible)
+  // -- Respiratorio / ARISCAT (Canet 2010) --
+  spo2Preop?: number; // SpO₂ preoperatoria basal aire ambiente (%)
+  hemoglobin?: number; // hemoglobina preop (g/dL) — ARISCAT (anemia ≤10)
+  respInfectionRecent?: boolean; // infección respiratoria en el último mes
+  // -- Procedimiento (compartido por ARISCAT/SORT/Gupta) --
+  surgicalSite?: SurgicalSite; // sitio de la incisión (ARISCAT)
+  surgeryDurationHours?: number; // duración prevista de cirugía (h) — ARISCAT
+  emergencySurgery?: boolean; // cirugía de emergencia (ARISCAT +8; fallback: asaEmergency)
+  functionalStatus?: FunctionalStatus; // estado funcional (Gupta MICA · fragilidad)
+  surgeryMagnitude?: SurgeryMagnitude; // severidad quirúrgica (SORT)
+  surgeryUrgency?: SurgeryUrgency; // urgencia (SORT)
+  surgerySpecialtyHighRisk?: boolean; // especialidad de alto riesgo GI/torácica/vascular (SORT)
+  cancer?: boolean; // neoplasia activa (SORT · Caprini malignidad)
+  guptaSurgeryType?: GuptaSurgeryType; // categoría de procedimiento (Gupta MICA)
+  // -- Factores de TEV / Caprini 2005 no derivables de lo existente --
+  priorVTE?: boolean; // TEV previo (3)
+  familyVTE?: boolean; // historia familiar de TEV (3)
+  thrombophilia?: boolean; // trombofilia congénita/adquirida (3) — engloba F.V Leiden, etc.
+  bedRest?: boolean; // paciente médico en cama / reposo (1)
+  confinedBed72h?: boolean; // confinado en cama >72 h (2)
+  centralLine?: boolean; // acceso venoso central (2)
+  varicoseVeins?: boolean; // venas varicosas (1)
+  ocpHrt?: boolean; // ACO / THR (1)
+  pregnancyPostpartum?: boolean; // embarazo o postparto <1 mes (1)
+  strokeRecent?: boolean; // ACV <1 mes (5)
+  spinalCordInjury?: boolean; // lesión medular aguda <1 mes (5)
+  majorLowerJointArthroplasty?: boolean; // artroplastia electiva mayor de MI (5)
+  hipPelvisLegFracture?: boolean; // fractura de cadera/pelvis/pierna (5)
+  multipleTrauma?: boolean; // politraumatismo <1 mes (5)
+  ibd?: boolean; // enfermedad inflamatoria intestinal (1)
+  castImmobilization?: boolean; // yeso inmovilizador (2)
+  arthroscopic?: boolean; // cirugía artroscópica (2)
+  legEdema?: boolean; // piernas edematizadas (1)
+  recurrentMiscarriage?: boolean; // aborto espontáneo recurrente (1)
+  sepsisRecent?: boolean; // sepsis <1 mes (1)
+  acuteMi?: boolean; // IAM agudo (1)
 }
 
 export interface DerivedWeights {
@@ -242,6 +298,237 @@ export function mabl(p: Patient, hctMin = 21): number | null {
   const ebvPerKg = p.sex === "female" ? 65 : 70;
   const ebv = w * ebvPerKg;
   return (ebv * (hct - hctMin)) / hct;
+}
+
+// ---- ARISCAT (complicaciones pulmonares postoperatorias) ------------
+// Canet J, et al. Anesthesiology. 2010;113(6):1338-1350.
+// 7 predictores con puntos ponderados. Riesgo por total:
+//   <26 bajo (~1.6%) · 26-44 intermedio (~13.3%) · ≥45 alto (~42.1%).
+// Anemia preop = Hb ≤10 g/dL (si solo hay Hct, deriva Hb ≈ Hct/3).
+// Emergencia: usa emergencySurgery, con fallback a asaEmergency.
+// Devuelve null si faltan los datos imprescindibles (edad, SpO₂, sitio).
+export type AriscatRisk = "low" | "intermediate" | "high";
+export interface AriscatResult {
+  points: number;
+  risk: AriscatRisk;
+  riskPct: number; // % complicación pulmonar (banda)
+}
+
+/** Hemoglobina efectiva (g/dL): usa hemoglobin; si falta, deriva de Hct/3. */
+function effectiveHb(p: Patient): number | null {
+  if (p.hemoglobin != null) return p.hemoglobin;
+  if (p.hematocrit != null) return p.hematocrit / 3;
+  return null;
+}
+
+export function ariscat(p: Patient): AriscatResult | null {
+  // Datos imprescindibles del score dependiente de procedimiento.
+  if (p.ageYears == null || p.spo2Preop == null || p.surgicalSite == null) return null;
+
+  const age = p.ageYears;
+  const agePts = age <= 50 ? 0 : age <= 80 ? 3 : 16; // ≤50 · 51-80 · >80
+
+  const spo2 = p.spo2Preop;
+  const spo2Pts = spo2 >= 96 ? 0 : spo2 >= 91 ? 8 : 24; // ≥96 · 91-95 · ≤90
+
+  const infPts = p.respInfectionRecent ? 17 : 0; // infección respiratoria <1 mes
+
+  const hb = effectiveHb(p);
+  const anemiaPts = hb != null && hb <= 10 ? 11 : 0; // anemia preop Hb ≤10
+
+  const sitePts =
+    p.surgicalSite === "intrathoracic" ? 24
+    : p.surgicalSite === "upperAbdominal" ? 15
+    : 0; // periférica
+
+  // Duración: ≤2 h → 0 · >2-3 h → 16 · >3 h → 23.
+  const dur = p.surgeryDurationHours;
+  const durPts = dur == null ? 0 : dur <= 2 ? 0 : dur <= 3 ? 16 : 23;
+
+  const emerg = p.emergencySurgery ?? p.asaEmergency ?? false;
+  const emergPts = emerg ? 8 : 0;
+
+  const points = agePts + spo2Pts + infPts + anemiaPts + sitePts + durPts + emergPts;
+  const risk: AriscatRisk = points < 26 ? "low" : points <= 44 ? "intermediate" : "high";
+  const riskPct = points < 26 ? 1.6 : points <= 44 ? 13.3 : 42.1;
+  return { points, risk, riskPct };
+}
+
+// ---- Caprini 2005 (riesgo de TEV) -----------------------------------
+// Caprini JA. Dis Mon. 2005;51(2-3):70-78.
+// Puntos ponderados (1/2/3/5). Categorías por total:
+//   0 mínimo · 1-2 bajo · 3-4 moderado · ≥5 alto.
+// Reutiliza edad, IMC (deriveWeights), comorbilidades (copd/chf/osa),
+// cancer, y los factores dedicados priorVTE/thrombophilia/etc.
+// NO devuelve null: es una suma de factores (ausente = negativo/no interrogado),
+// pero la edad se pondera solo si está disponible.
+export type CapriniCategory = "minimal" | "low" | "moderate" | "high";
+export interface CapriniResult {
+  points: number;
+  category: CapriniCategory;
+}
+
+export function caprini(p: Patient): CapriniResult {
+  const c = p.comorbidities ?? {};
+  const d = deriveWeights(p);
+  let pts = 0;
+
+  // Edad (1: 41-60 · 2: 61-74 · 3: ≥75).
+  if (p.ageYears != null) {
+    const a = p.ageYears;
+    if (a >= 75) pts += 3;
+    else if (a >= 61) pts += 2;
+    else if (a >= 41) pts += 1;
+  }
+
+  // ---- 1 punto c/u ----
+  if (d.bmi != null && d.bmi > 25) pts += 1; // IMC >25
+  if (p.legEdema) pts += 1; // piernas edematizadas
+  if (p.varicoseVeins) pts += 1; // venas varicosas
+  if (p.pregnancyPostpartum) pts += 1; // embarazo / postparto
+  if (p.recurrentMiscarriage) pts += 1; // aborto espontáneo recurrente
+  if (p.ocpHrt) pts += 1; // ACO / THR
+  if (p.sepsisRecent) pts += 1; // sepsis <1 mes
+  if (c.copd) pts += 1; // EPOC / función pulmonar anormal (o neumonía grave)
+  if (p.acuteMi) pts += 1; // IAM agudo
+  if (c.chf) pts += 1; // ICC <1 mes
+  if (p.ibd) pts += 1; // enfermedad inflamatoria intestinal
+  if (p.bedRest) pts += 1; // paciente médico en cama
+  // (cirugía menor +1: cuando la magnitud SORT es "minor")
+  if (p.surgeryMagnitude === "minor") pts += 1;
+
+  // ---- 2 puntos c/u ----
+  if (p.arthroscopic) pts += 2; // cirugía artroscópica
+  // cirugía abierta/laparoscópica mayor >45 min ≈ magnitud major/complex
+  if (p.surgeryMagnitude === "major" || p.surgeryMagnitude === "complex") pts += 2;
+  if (p.cancer) pts += 2; // malignidad
+  if (p.confinedBed72h) pts += 2; // confinado en cama >72 h
+  if (p.castImmobilization) pts += 2; // yeso inmovilizador
+  if (p.centralLine) pts += 2; // acceso venoso central
+
+  // ---- 3 puntos c/u ----
+  if (p.priorVTE) pts += 3; // TEV previo
+  if (p.familyVTE) pts += 3; // historia familiar de TEV
+  if (p.thrombophilia) pts += 3; // trombofilia congénita/adquirida (F.V Leiden, ACL, etc.)
+
+  // ---- 5 puntos c/u ----
+  if (p.strokeRecent) pts += 5; // ACV <1 mes
+  if (p.majorLowerJointArthroplasty) pts += 5; // artroplastia electiva mayor MI
+  if (p.hipPelvisLegFracture) pts += 5; // fractura cadera/pelvis/pierna
+  if (p.spinalCordInjury) pts += 5; // lesión medular aguda <1 mes
+  if (p.multipleTrauma) pts += 5; // politraumatismo <1 mes
+
+  const category: CapriniCategory =
+    pts === 0 ? "minimal" : pts <= 2 ? "low" : pts <= 4 ? "moderate" : "high";
+  return { points: pts, category };
+}
+
+// ---- Gupta MICA (IAM / paro cardíaco perioperatorio) ----------------
+// Gupta PK, et al. Circulation. 2011;124(4):381-387.
+// Modelo logístico: riesgo(%) = e^x/(1+e^x)×100, con
+//   x = −5.25 + 0.02·edad + f(estado funcional) + f(ASA) + f(creatinina)
+//       + f(tipo de cirugía).
+// Coeficientes PUBLICADOS de Gupta 2011 (verificados en 2 fuentes
+// independientes: omnicalculator.com/health/mica y mdapp.co). NO inventados.
+export interface GuptaResult {
+  riskPct: number; // % (IAM o paro a 30 días)
+}
+
+// ASA: coeficientes del modelo (Gupta 2011). ASA V = referencia (0).
+const GUPTA_ASA: Record<AsaClass, number> = {
+  1: -5.17, 2: -3.29, 3: -1.92, 4: -0.95, 5: 0, 6: 0,
+};
+// Estado funcional (independiente = referencia).
+const GUPTA_FUNCTIONAL: Record<FunctionalStatus, number> = {
+  independent: 0, partial: 0.65, total: 1.03,
+};
+// Tipo de procedimiento (21 grupos, Gupta 2011). Hernia = referencia (0).
+const GUPTA_SURGERY: Record<GuptaSurgeryType, number> = {
+  anorectal: -0.16,
+  aortic: 1.6,
+  bariatric: -0.25,
+  brain: 1.4,
+  breast: -1.61,
+  cardiac: 1.01,
+  ent: 0.71, // ORL (excepto tiroides/paratiroides)
+  foregutHpb: 1.39, // foregut / hepatopancreatobiliar
+  gallbladderAppendixAdrenalSpleen: 0.59,
+  hernia: 0,
+  intestinal: 1.14,
+  neck: 0.18, // cuello (tiroides/paratiroides)
+  obgyn: 0.76,
+  orthopedic: 0.8, // ortopédica / extremidad no vascular
+  otherAbdominal: 1.13,
+  peripheralVascular: 0.86,
+  skin: 0.54,
+  spine: 0.21,
+  thoracicNonEsophageal: 0.4,
+  vein: -1.09,
+  urology: -0.26,
+};
+
+export function guptaMica(p: Patient): GuptaResult | null {
+  // Imprescindibles: edad, ASA, estado funcional, tipo de cirugía.
+  if (p.ageYears == null || p.asaClass == null) return null;
+  if (p.functionalStatus == null || p.guptaSurgeryType == null) return null;
+
+  // Creatinina: normal 0 · >1.5 mg/dL +0.61 · desconocida +0.46 (Gupta 2011).
+  const crTerm =
+    p.creatinine == null ? 0.46 : p.creatinine > 1.5 ? 0.61 : 0;
+
+  const x =
+    -5.25 +
+    0.02 * p.ageYears +
+    GUPTA_FUNCTIONAL[p.functionalStatus] +
+    GUPTA_ASA[p.asaClass] +
+    crTerm +
+    GUPTA_SURGERY[p.guptaSurgeryType];
+
+  const risk = (Math.exp(x) / (1 + Math.exp(x))) * 100;
+  return { riskPct: risk };
+}
+
+// ---- SORT (mortalidad a 30 días) ------------------------------------
+// Protopapa KL, et al. Br J Surg. 2014;101(13):1774-1783.
+// Modelo logístico: riesgo(%) = e^x/(1+e^x)×100, con constante −7.366.
+// Coeficientes PUBLICADOS (Tabla 4, Protopapa 2014 · full text PMC4240514):
+//   ASA III +1.411 · IV +2.388 · V +4.081 (I-II = ref)
+//   urgencia expedita +1.236 · urgente +1.657 · inmediata +2.452 (electiva = ref)
+//   especialidad alto riesgo (GI/torácica/vascular) +0.712
+//   severidad Xmayor/compleja +0.381 (menor-intermedia-mayor = ref)
+//   cáncer +0.667 · edad 65-79 +0.777 · ≥80 +1.591 (<65 = ref)
+export interface SortResult {
+  riskPct: number; // % mortalidad a 30 días
+}
+
+const SORT_ASA: Record<AsaClass, number> = {
+  1: 0, 2: 0, 3: 1.411, 4: 2.388, 5: 4.081, 6: 4.081,
+};
+const SORT_URGENCY: Record<SurgeryUrgency, number> = {
+  elective: 0, expedited: 1.236, urgent: 1.657, immediate: 2.452,
+};
+
+export function sort(p: Patient): SortResult | null {
+  // Imprescindibles: ASA, urgencia, magnitud, edad.
+  if (p.asaClass == null || p.surgeryUrgency == null) return null;
+  if (p.surgeryMagnitude == null || p.ageYears == null) return null;
+
+  const ageTerm = p.ageYears >= 80 ? 1.591 : p.ageYears >= 65 ? 0.777 : 0;
+  const severityTerm = p.surgeryMagnitude === "complex" ? 0.381 : 0; // Xmayor/compleja
+  const specialtyTerm = p.surgerySpecialtyHighRisk ? 0.712 : 0;
+  const cancerTerm = p.cancer ? 0.667 : 0;
+
+  const x =
+    -7.366 +
+    SORT_ASA[p.asaClass] +
+    SORT_URGENCY[p.surgeryUrgency] +
+    specialtyTerm +
+    severityTerm +
+    cancerTerm +
+    ageTerm;
+
+  const risk = (Math.exp(x) / (1 + Math.exp(x))) * 100;
+  return { riskPct: risk };
 }
 
 // ---- Estadio KDIGO por CrCl (para el reporte) -----------------------

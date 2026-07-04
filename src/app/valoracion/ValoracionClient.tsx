@@ -18,6 +18,10 @@
 //   Apfel — Apfel CC, et al. Anesthesiology. 1999;91(3):693-700.
 //   Cockcroft-Gault — Cockcroft DW, Gault MH. Nephron. 1976;16(1):31-41.
 //   MABL — Gross JB. Anesthesiology. 1983;58(3):277-280.
+//   ARISCAT — Canet J, et al. Anesthesiology. 2010;113(6):1338-1350.
+//   Caprini — Caprini JA. Dis Mon. 2005;51(2-3):70-78.
+//   Gupta MICA — Gupta PK, et al. Circulation. 2011;124(4):381-387.
+//   SORT — Protopapa KL, et al. Br J Surg. 2014;101(13):1774-1783.
 // ============================================================
 
 import { useMemo } from "react";
@@ -30,11 +34,21 @@ import {
   cockcroftGault,
   mabl,
   kdigoStage,
+  ariscat,
+  caprini,
+  guptaMica,
+  sort,
   type Sex,
   type AsaClass,
   type Mallampati,
   type SurgeryRisk,
   type Comorbidities,
+  type SurgicalSite,
+  type FunctionalStatus,
+  type SurgeryMagnitude,
+  type SurgeryUrgency,
+  type GuptaSurgeryType,
+  type Patient,
 } from "@/lib/patient/PatientContext";
 import { openPatientReport } from "@/lib/patient/patientReport";
 
@@ -85,6 +99,100 @@ const SURGERY_RISK_OPTIONS: { value: SurgeryRisk; label: string }[] = [
   { value: "high", label: "alto" },
 ];
 
+const SURGICAL_SITE_OPTIONS: { value: SurgicalSite; label: string }[] = [
+  { value: "peripheral", label: "periférica (0)" },
+  { value: "upperAbdominal", label: "abdominal alta (15)" },
+  { value: "intrathoracic", label: "intratorácica (24)" },
+];
+
+const FUNCTIONAL_OPTIONS: { value: FunctionalStatus; label: string }[] = [
+  { value: "independent", label: "independiente" },
+  { value: "partial", label: "parcialmente dependiente" },
+  { value: "total", label: "totalmente dependiente" },
+];
+
+const MAGNITUDE_OPTIONS: { value: SurgeryMagnitude; label: string }[] = [
+  { value: "minor", label: "menor" },
+  { value: "intermediate", label: "intermedia" },
+  { value: "major", label: "mayor" },
+  { value: "complex", label: "Xmayor / compleja" },
+];
+
+const URGENCY_OPTIONS: { value: SurgeryUrgency; label: string }[] = [
+  { value: "elective", label: "electiva" },
+  { value: "expedited", label: "expedita" },
+  { value: "urgent", label: "urgente" },
+  { value: "immediate", label: "inmediata" },
+];
+
+// Gupta MICA — 21 grupos de procedimiento (Gupta 2011). Etiqueta = coeficiente.
+const GUPTA_SURGERY_OPTIONS: { value: GuptaSurgeryType; label: string }[] = [
+  { value: "anorectal", label: "anorrectal" },
+  { value: "aortic", label: "aórtica" },
+  { value: "bariatric", label: "bariátrica" },
+  { value: "brain", label: "cerebral" },
+  { value: "breast", label: "mama" },
+  { value: "cardiac", label: "cardíaca" },
+  { value: "ent", label: "ORL (no tiroides)" },
+  { value: "foregutHpb", label: "foregut / HPB" },
+  { value: "gallbladderAppendixAdrenalSpleen", label: "vesícula/apéndice/suprarrenal/bazo" },
+  { value: "hernia", label: "hernia (ref)" },
+  { value: "intestinal", label: "intestinal" },
+  { value: "neck", label: "cuello (tiroides/paratiroides)" },
+  { value: "obgyn", label: "obstétrica / ginecológica" },
+  { value: "orthopedic", label: "ortopédica / extremidad" },
+  { value: "otherAbdominal", label: "otra abdominal" },
+  { value: "peripheralVascular", label: "vascular periférica" },
+  { value: "skin", label: "piel" },
+  { value: "spine", label: "columna" },
+  { value: "thoracicNonEsophageal", label: "torácica no esofágica" },
+  { value: "vein", label: "venosa" },
+  { value: "urology", label: "urología" },
+];
+
+// Factores de TEV (Caprini) recogidos como checkboxes booleanos del paciente.
+// key: campo booleano de Patient · label · hint (puntos Caprini).
+type BoolPatientKey = {
+  [K in keyof Patient]-?: NonNullable<Patient[K]> extends boolean ? K : never;
+}[keyof Patient];
+
+const CAPRINI_FIELDS: { key: BoolPatientKey; label: string; hint: string }[] = [
+  { key: "priorVTE", label: "TEV previo", hint: "Caprini +3" },
+  { key: "familyVTE", label: "Historia familiar de TEV", hint: "Caprini +3" },
+  { key: "thrombophilia", label: "Trombofilia (F.V Leiden, ACL, protrombina 20210A…)", hint: "Caprini +3" },
+  { key: "strokeRecent", label: "ACV (<1 mes)", hint: "Caprini +5" },
+  { key: "majorLowerJointArthroplasty", label: "Artroplastia electiva mayor de MI", hint: "Caprini +5" },
+  { key: "hipPelvisLegFracture", label: "Fractura cadera/pelvis/pierna", hint: "Caprini +5" },
+  { key: "spinalCordInjury", label: "Lesión medular aguda (<1 mes)", hint: "Caprini +5" },
+  { key: "multipleTrauma", label: "Politraumatismo (<1 mes)", hint: "Caprini +5" },
+  { key: "confinedBed72h", label: "Confinado en cama >72 h", hint: "Caprini +2" },
+  { key: "centralLine", label: "Acceso venoso central", hint: "Caprini +2" },
+  { key: "castImmobilization", label: "Yeso inmovilizador", hint: "Caprini +2" },
+  { key: "arthroscopic", label: "Cirugía artroscópica", hint: "Caprini +2" },
+  { key: "varicoseVeins", label: "Venas varicosas", hint: "Caprini +1" },
+  { key: "legEdema", label: "Piernas edematizadas", hint: "Caprini +1" },
+  { key: "ocpHrt", label: "ACO / terapia hormonal", hint: "Caprini +1" },
+  { key: "pregnancyPostpartum", label: "Embarazo / postparto (<1 mes)", hint: "Caprini +1" },
+  { key: "recurrentMiscarriage", label: "Aborto espontáneo recurrente", hint: "Caprini +1" },
+  { key: "sepsisRecent", label: "Sepsis (<1 mes)", hint: "Caprini +1" },
+  { key: "acuteMi", label: "IAM agudo", hint: "Caprini +1" },
+  { key: "ibd", label: "Enf. inflamatoria intestinal", hint: "Caprini +1" },
+  { key: "bedRest", label: "Paciente médico en cama", hint: "Caprini +1" },
+];
+
+const CAPRINI_CATEGORY_LABEL: Record<string, string> = {
+  minimal: "mínimo (0)",
+  low: "bajo (1-2)",
+  moderate: "moderado (3-4)",
+  high: "alto (≥5)",
+};
+
+const ARISCAT_RISK_LABEL: Record<string, string> = {
+  low: "bajo",
+  intermediate: "intermedio",
+  high: "alto",
+};
+
 // Color por banda de riesgo genérico.
 function bandColor(level: "low" | "mid" | "high"): string {
   return level === "low" ? "var(--accent)" : level === "mid" ? "var(--amber)" : "var(--red)";
@@ -99,14 +207,29 @@ export default function ValoracionClient() {
   const apf = useMemo(() => apfel(active), [active]);
   const crcl = useMemo(() => cockcroftGault(active), [active]);
   const maxBl = useMemo(() => mabl(active), [active]);
+  const ari = useMemo(() => ariscat(active), [active]);
+  const cap = useMemo(() => caprini(active), [active]);
+  const gup = useMemo(() => guptaMica(active), [active]);
+  const srt = useMemo(() => sort(active), [active]);
 
   // Helpers de escritura al paciente activo.
   const setC = (key: keyof Comorbidities, val: boolean) =>
     setActive({ comorbidities: { ...(active.comorbidities ?? {}), [key]: val } });
+  const setBool = (key: BoolPatientKey, val: boolean) =>
+    setActive({ [key]: val } as Partial<Patient>);
 
   const rcriLevel = rcri.points === 0 || rcri.points === 1 ? "low" : rcri.points === 2 ? "mid" : "high";
   const sbLevel = sb.risk === "low" ? "low" : sb.risk === "intermediate" ? "mid" : "high";
   const apfLevel = apf.score <= 1 ? "low" : apf.score === 2 ? "mid" : "high";
+  const ariLevel: "low" | "mid" | "high" =
+    ari == null ? "low" : ari.risk === "low" ? "low" : ari.risk === "intermediate" ? "mid" : "high";
+  const capLevel: "low" | "mid" | "high" =
+    cap.category === "minimal" || cap.category === "low" ? "low" : cap.category === "moderate" ? "mid" : "high";
+  // Bandas clínicas orientativas para modelos logísticos (% absoluto).
+  const gupLevel: "low" | "mid" | "high" =
+    gup == null ? "low" : gup.riskPct < 1 ? "low" : gup.riskPct < 5 ? "mid" : "high";
+  const srtLevel: "low" | "mid" | "high" =
+    srt == null ? "low" : srt.riskPct < 1 ? "low" : srt.riskPct < 5 ? "mid" : "high";
 
   return (
     <div
@@ -275,6 +398,100 @@ export default function ValoracionClient() {
         </div>
       </div>
 
+      {/* ==================== PROCEDIMIENTO (dependiente de procedimiento) ==================== */}
+      <div className="panel" style={{ marginBottom: "1rem" }}>
+        <div className="panel-header">
+          <span className="dot" /> PROCEDIMIENTO
+        </div>
+        <div className="panel-body" style={{ display: "grid", gap: "0.85rem" }}>
+          <div className="mono" style={{ color: "var(--text-3)", fontSize: "0.55rem", lineHeight: 1.5 }}>
+            {"// alimenta ARISCAT (sitio/duración/emergencia), SORT (magnitud/urgencia/especialidad/cáncer) y Gupta MICA (tipo/estado funcional)"}
+          </div>
+          <Field label="sitio quirúrgico (ARISCAT)">
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1px", background: "var(--border)", border: "1px solid var(--border)" }}>
+              <Segment active={active.surgicalSite == null} onClick={() => setActive({ surgicalSite: undefined })} label="—" />
+              {SURGICAL_SITE_OPTIONS.map((o) => (
+                <Segment key={o.value} active={active.surgicalSite === o.value} onClick={() => setActive({ surgicalSite: o.value })} label={o.label} />
+              ))}
+            </div>
+          </Field>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: "0.6rem" }}>
+            <FieldNum label="duración prevista (h)" value={numToText(active.surgeryDurationHours)} onChange={(t) => setActive({ surgeryDurationHours: parseNumber(t) ?? undefined })} placeholder="1.5" />
+            <Field label="urgencia (SORT)">
+              <select className="calc-select mono" value={active.surgeryUrgency ?? ""} onChange={(e) => setActive({ surgeryUrgency: e.target.value === "" ? undefined : (e.target.value as SurgeryUrgency) })}>
+                <option value="">— sin definir —</option>
+                {URGENCY_OPTIONS.map((o) => (<option key={o.value} value={o.value}>{o.label}</option>))}
+              </select>
+            </Field>
+            <Field label="magnitud quirúrgica (SORT)">
+              <select className="calc-select mono" value={active.surgeryMagnitude ?? ""} onChange={(e) => setActive({ surgeryMagnitude: e.target.value === "" ? undefined : (e.target.value as SurgeryMagnitude) })}>
+                <option value="">— sin definir —</option>
+                {MAGNITUDE_OPTIONS.map((o) => (<option key={o.value} value={o.value}>{o.label}</option>))}
+              </select>
+            </Field>
+            <Field label="estado funcional (Gupta)">
+              <select className="calc-select mono" value={active.functionalStatus ?? ""} onChange={(e) => setActive({ functionalStatus: e.target.value === "" ? undefined : (e.target.value as FunctionalStatus) })}>
+                <option value="">— sin definir —</option>
+                {FUNCTIONAL_OPTIONS.map((o) => (<option key={o.value} value={o.value}>{o.label}</option>))}
+              </select>
+            </Field>
+            <Field label="tipo de cirugía (Gupta MICA)">
+              <select className="calc-select mono" value={active.guptaSurgeryType ?? ""} onChange={(e) => setActive({ guptaSurgeryType: e.target.value === "" ? undefined : (e.target.value as GuptaSurgeryType) })}>
+                <option value="">— sin definir —</option>
+                {GUPTA_SURGERY_OPTIONS.map((o) => (<option key={o.value} value={o.value}>{o.label}</option>))}
+              </select>
+            </Field>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "0.5rem" }}>
+            <Check label="Cirugía de emergencia" hint="ARISCAT +8 · usa asaEmergency si no se marca" checked={active.emergencySurgery ?? false} onChange={(v) => setActive({ emergencySurgery: v })} />
+            <Check label="Especialidad alto riesgo (GI/torácica/vascular)" hint="SORT +0.712" checked={active.surgerySpecialtyHighRisk ?? false} onChange={(v) => setActive({ surgerySpecialtyHighRisk: v })} />
+            <Check label="Neoplasia activa (cáncer)" hint="SORT +0.667 · Caprini +2" checked={active.cancer ?? false} onChange={(v) => setActive({ cancer: v })} />
+          </div>
+        </div>
+      </div>
+
+      {/* ==================== RESPIRATORIO / ARISCAT ==================== */}
+      <div className="panel" style={{ marginBottom: "1rem" }}>
+        <div className="panel-header">
+          <span className="dot" /> RESPIRATORIO (ARISCAT)
+        </div>
+        <div className="panel-body" style={{ display: "grid", gap: "0.85rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "0.6rem" }}>
+            <FieldNum label="SpO₂ preop (%)" value={numToText(active.spo2Preop)} onChange={(t) => setActive({ spo2Preop: parseNumber(t) ?? undefined })} placeholder="98" />
+            <FieldNum label="hemoglobina (g/dL)" value={numToText(active.hemoglobin)} onChange={(t) => setActive({ hemoglobin: parseNumber(t) ?? undefined })} placeholder="14" />
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "0.5rem" }}>
+            <Check label="Infección respiratoria (<1 mes)" hint="ARISCAT +17" checked={active.respInfectionRecent ?? false} onChange={(v) => setActive({ respInfectionRecent: v })} />
+          </div>
+          <div className="mono" style={{ color: "var(--text-3)", fontSize: "0.55rem", lineHeight: 1.6 }}>
+            {"// SpO₂ ≥96→0 · 91-95→8 · ≤90→24 · anemia Hb≤10→+11 (si solo hay Hct, se deriva Hb≈Hct/3) · edad/sitio/duración/emergencia arriba"}
+          </div>
+        </div>
+      </div>
+
+      {/* ==================== TEV / CAPRINI ==================== */}
+      <div className="panel" style={{ marginBottom: "1rem" }}>
+        <div className="panel-header">
+          <span className="dot" /> TEV (Caprini 2005)
+        </div>
+        <div className="panel-body" style={{ display: "grid", gap: "0.6rem" }}>
+          <div className="mono" style={{ color: "var(--text-3)", fontSize: "0.55rem", lineHeight: 1.6 }}>
+            {"// edad, IMC>25, EPOC, ICC, cáncer y magnitud quirúrgica se toman de las secciones anteriores · aquí van los factores restantes"}
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "0.5rem" }}>
+            {CAPRINI_FIELDS.map((f) => (
+              <Check
+                key={f.key}
+                label={f.label}
+                hint={f.hint}
+                checked={(active[f.key] as boolean | undefined) ?? false}
+                onChange={(v) => setBool(f.key, v)}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* ==================== TEXTO LIBRE ==================== */}
       <div className="panel" style={{ marginBottom: "1rem" }}>
         <div className="panel-header">
@@ -335,6 +552,30 @@ export default function ValoracionClient() {
             sub={maxBl != null ? "mL · Hct mín 21%" : "falta peso/Hct"}
             color={maxBl == null ? "var(--text-3)" : "var(--accent)"}
           />
+          <ScoreCard
+            title="ARISCAT (CPP)"
+            value={ari != null ? `${ari.points}` : "—"}
+            sub={ari != null ? `${ARISCAT_RISK_LABEL[ari.risk]} · ~${ari.riskPct}%` : "falta edad/SpO₂/sitio"}
+            color={ari == null ? "var(--text-3)" : bandColor(ariLevel)}
+          />
+          <ScoreCard
+            title="Caprini (TEV)"
+            value={`${cap.points}`}
+            sub={CAPRINI_CATEGORY_LABEL[cap.category]}
+            color={bandColor(capLevel)}
+          />
+          <ScoreCard
+            title="Gupta MICA"
+            value={gup != null ? `${gup.riskPct.toFixed(2)}%` : "—"}
+            sub={gup != null ? "IAM/paro a 30 d" : "falta edad/ASA/func/tipo"}
+            color={gup == null ? "var(--text-3)" : bandColor(gupLevel)}
+          />
+          <ScoreCard
+            title="SORT"
+            value={srt != null ? `${srt.riskPct.toFixed(2)}%` : "—"}
+            sub={srt != null ? "mortalidad 30 d" : "falta ASA/urg/magnitud/edad"}
+            color={srt == null ? "var(--text-3)" : bandColor(srtLevel)}
+          />
         </div>
       </div>
 
@@ -360,6 +601,14 @@ export default function ValoracionClient() {
         Cockcroft DW, Gault MH. Nephron. 1976;16(1):31-41.
         <br />
         Gross JB. Anesthesiology. 1983;58(3):277-280 (MABL).
+        <br />
+        ARISCAT — Canet J, et al. Anesthesiology. 2010;113(6):1338-1350.
+        <br />
+        Caprini JA. Dis Mon. 2005;51(2-3):70-78 (TEV).
+        <br />
+        Gupta MICA — Gupta PK, et al. Circulation. 2011;124(4):381-387 (coef. publicados).
+        <br />
+        SORT — Protopapa KL, et al. Br J Surg. 2014;101(13):1774-1783 (coef. publicados).
       </div>
 
       {/* Disclaimer con humor negro */}

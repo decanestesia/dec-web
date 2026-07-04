@@ -18,6 +18,10 @@ import {
   cockcroftGault,
   mabl,
   kdigoStage,
+  ariscat,
+  caprini,
+  guptaMica,
+  sort,
 } from "./PatientContext";
 
 function esc(s: string): string {
@@ -55,6 +59,19 @@ const STOPBANG_LABEL: Record<string, string> = {
   high: "alto (5-8)",
 };
 
+const ARISCAT_LABEL: Record<string, string> = {
+  low: "bajo (<26)",
+  intermediate: "intermedio (26-44)",
+  high: "alto (≥45)",
+};
+
+const CAPRINI_LABEL: Record<string, string> = {
+  minimal: "mínimo (0)",
+  low: "bajo (1-2)",
+  moderate: "moderado (3-4)",
+  high: "alto (≥5)",
+};
+
 const COMORBIDITY_LABEL: Record<keyof Comorbidities, string> = {
   htn: "Hipertensión arterial",
   ischemicHeart: "Cardiopatía isquémica",
@@ -77,6 +94,10 @@ export function openPatientReport(p: Patient): void {
   const apf = apfel(p);
   const crcl = cockcroftGault(p);
   const maxBl = mabl(p);
+  const ari = ariscat(p);
+  const cpr = caprini(p);
+  const gup = guptaMica(p);
+  const srt = sort(p);
 
   const asaText = p.asaClass
     ? `${ASA_LABEL[p.asaClass] ?? "ASA " + p.asaClass}${p.asaEmergency ? " · E (emergencia)" : ""}`
@@ -178,9 +199,14 @@ export function openPatientReport(p: Patient): void {
     ${scoreRow("Apfel (NVPO ~24 h)", `${apf.score} pts · ~${apf.riskPct}%`)}
     ${scoreRow("Aclaramiento (Cockcroft-Gault)", crclText, crclTag)}
     ${scoreRow("MABL (Hct mín 21%)", maxBlText)}
+    ${scoreRow("ARISCAT (CPP)", ari != null ? `${ari.points} pts · ~${ari.riskPct}%` : "—", ari != null ? ARISCAT_LABEL[ari.risk] : undefined)}
+    ${scoreRow("Caprini (TEV)", `${cpr.points} pts`, CAPRINI_LABEL[cpr.category])}
+    ${scoreRow("Gupta MICA (IAM/paro 30 d)", gup != null ? `${gup.riskPct.toFixed(2)} %` : "—")}
+    ${scoreRow("SORT (mortalidad 30 d)", srt != null ? `${srt.riskPct.toFixed(2)} %` : "—")}
   </table>
   <div class="muted" style="margin-top:6px">
-    // RCRI: Lee 1999 · STOP-BANG: Chung 2008/2016 (parcial: sin cansancio ni cuello) · Apfel 1999 · CrCl: Cockcroft-Gault 1976 · MABL: Gross 1983
+    // RCRI: Lee 1999 · STOP-BANG: Chung 2008/2016 (parcial: sin cansancio ni cuello) · Apfel 1999 · CrCl: Cockcroft-Gault 1976 · MABL: Gross 1983<br>
+    // ARISCAT: Canet 2010 · Caprini 2005 · Gupta MICA: Gupta 2011 (coef. publicados) · SORT: Protopapa 2014 (coef. publicados)
   </div>
 </div>
 

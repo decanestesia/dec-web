@@ -20,6 +20,26 @@ import {
 export type Sex = "male" | "female";
 export type WeightType = "real" | "ideal" | "adjusted" | "lean";
 
+// Clase ASA (I–VI) + modificador de emergencia (sufijo "E").
+export type AsaClass = 1 | 2 | 3 | 4 | 5 | 6;
+export type Mallampati = 1 | 2 | 3 | 4;
+// Riesgo quirúrgico para RCRI: alto = intraperitoneal / intratorácica /
+// vascular suprainguinal (Lee et al. 1999).
+export type SurgeryRisk = "low" | "intermediate" | "high";
+
+// Comorbilidades relevantes para la valoración preanestésica y los scores.
+// Todas opcionales/boolean; ausente = no marcada (no interrogada ≈ negativa).
+export interface Comorbidities {
+  htn?: boolean; // hipertensión arterial (STOP-BANG · perfil cardiovascular)
+  ischemicHeart?: boolean; // cardiopatía isquémica (RCRI)
+  chf?: boolean; // insuficiencia cardíaca congestiva (RCRI)
+  cerebrovascular?: boolean; // ACV / AIT (RCRI)
+  insulinDm?: boolean; // diabetes en tratamiento con insulina (RCRI)
+  copd?: boolean; // EPOC
+  osa?: boolean; // apnea obstructiva del sueño / ronquido (STOP-BANG)
+  smoker?: boolean; // fumador activo (Apfel: fumador ↓ NVPO)
+}
+
 export interface Patient {
   id: string;
   label: string; // alias/etiqueta o nombre (uso exclusivo del médico, local)
@@ -30,6 +50,20 @@ export interface Patient {
   sex: Sex;
   notes?: string;
   updatedAt: number;
+
+  // ---- Valoración preanestésica (todos opcionales, backward-compatible) ----
+  asaClass?: AsaClass; // clasificación ASA I–VI
+  asaEmergency?: boolean; // modificador "E" (emergencia)
+  hematocrit?: number; // Hct inicial (%) — para MABL
+  creatinine?: number; // creatinina sérica (mg/dL) — RCRI · Cockcroft-Gault
+  fastingHours?: number; // horas de ayuno (NPO)
+  mallampati?: Mallampati; // vía aérea — clase de Mallampati I–IV
+  surgeryRisk?: SurgeryRisk; // riesgo quirúrgico (RCRI)
+  comorbidities?: Comorbidities; // antecedentes relevantes
+  ponvHistory?: boolean; // antecedente de NVPO / cinetosis (Apfel)
+  postopOpioids?: boolean; // uso previsto de opioides postop (Apfel)
+  allergies?: string; // alergias (texto libre)
+  medications?: string; // medicación habitual (texto libre)
 }
 
 export interface DerivedWeights {
@@ -92,6 +126,133 @@ export function weightOfType(p: Patient, type: WeightType): number | null {
     case "lean": return d.lean ?? d.real;
     default: return d.real;
   }
+}
+
+// ============================================================
+// Scores de riesgo perioperatorio — helpers puros
+// Fórmulas EXACTAS de las calculadoras dedicadas (mismos cortes y
+// porcentajes de literatura aceptada). Cada una con su cita breve.
+// Devuelven null cuando faltan datos imprescindibles.
+// ============================================================
+
+// ---- RCRI (Índice de Lee revisado) ----------------------------------
+// Lee TH, et al. Circulation. 1999;100(10):1043-1049.
+// 6 factores, 1 punto c/u: cirugía alto riesgo, cardiopatía isquémica,
+// ICC, enfermedad cerebrovascular, DM insulinodependiente, Cr > 2 mg/dL.
+// Riesgo de evento cardíaco mayor: 0→0.4% · 1→0.9% · 2→6.6% · ≥3→11%.
+export type RcriRiskClass = "Clase I" | "Clase II" | "Clase III" | "Clase IV";
+export interface RcriResult {
+  points: number; // 0–6
+  riskClass: RcriRiskClass;
+  riskPct: number; // % evento cardíaco mayor
+}
+
+export function rcriScore(p: Patient): RcriResult {
+  const c = p.comorbidities ?? {};
+  const points =
+    (p.surgeryRisk === "high" ? 1 : 0) +
+    (c.ischemicHeart ? 1 : 0) +
+    (c.chf ? 1 : 0) +
+    (c.cerebrovascular ? 1 : 0) +
+    (c.insulinDm ? 1 : 0) +
+    (p.creatinine != null && p.creatinine > 2 ? 1 : 0);
+
+  // ≥3 factores → clase IV (misma banda de mayor riesgo, Lee 1999).
+  const RISK: Record<0 | 1 | 2 | 3, { cls: RcriRiskClass; pct: number }> = {
+    0: { cls: "Clase I", pct: 0.4 },
+    1: { cls: "Clase II", pct: 0.9 },
+    2: { cls: "Clase III", pct: 6.6 },
+    3: { cls: "Clase IV", pct: 11 },
+  };
+  const key = (points >= 3 ? 3 : points) as 0 | 1 | 2 | 3;
+  return { points, riskClass: RISK[key].cls, riskPct: RISK[key].pct };
+}
+
+// ---- STOP-BANG (cribado de AOS) — PARCIAL ---------------------------
+// Chung F, et al. Anesthesiology 2008;108(5):812-821 · Chest 2016;149(3):631-638.
+// 8 ítems, 1 punto c/u. Desde el paciente activo solo son derivables:
+//   B (IMC>35), A (edad>50), G (sexo masculino), P (HTA), S/O (OSA/ronquido).
+// Los ítems T (cansancio) y N (cuello>40 cm) no se recogen aquí ⇒ el score es
+// un LÍMITE INFERIOR (parcial). "osa" cuenta S y O si está marcada.
+// Bandas: 0-2 bajo · 3-4 intermedio · 5-8 alto.
+export type StopBangRisk = "low" | "intermediate" | "high";
+export interface StopBangResult {
+  score: number; // 0–8 (parcial)
+  risk: StopBangRisk;
+  partial: true; // recordatorio: no incluye todos los ítems
+}
+
+export function stopBang(p: Patient): StopBangResult {
+  const c = p.comorbidities ?? {};
+  const d = deriveWeights(p);
+  let score = 0;
+  if (d.bmi != null && d.bmi > 35) score += 1; // B
+  if (p.ageYears != null && p.ageYears > 50) score += 1; // A
+  if (p.sex === "male") score += 1; // G
+  if (c.htn) score += 1; // P
+  if (c.osa) score += 2; // S + O (ronquido + apneas presenciadas)
+  const risk: StopBangRisk = score <= 2 ? "low" : score <= 4 ? "intermediate" : "high";
+  return { score, risk, partial: true };
+}
+
+// ---- Apfel (riesgo de NVPO) -----------------------------------------
+// Apfel CC, et al. Anesthesiology. 1999;91(3):693-700.
+// 4 factores: sexo femenino · no fumador · antecedente NVPO/cinetosis ·
+// opioides postop. Riesgo ~24 h: 0→10% · 1→21% · 2→39% · 3→61% · 4→79%.
+export interface ApfelResult {
+  score: number; // 0–4
+  riskPct: number;
+}
+
+export function apfel(p: Patient): ApfelResult {
+  const smoker = p.comorbidities?.smoker ?? false;
+  const score =
+    (p.sex === "female" ? 1 : 0) +
+    (!smoker ? 1 : 0) +
+    (p.ponvHistory ? 1 : 0) +
+    (p.postopOpioids ? 1 : 0);
+  const RISK: Record<0 | 1 | 2 | 3 | 4, number> = { 0: 10, 1: 21, 2: 39, 3: 61, 4: 79 };
+  return { score, riskPct: RISK[score as 0 | 1 | 2 | 3 | 4] };
+}
+
+// ---- Cockcroft-Gault (aclaramiento de creatinina) -------------------
+// Cockcroft DW, Gault MH. Nephron. 1976;16(1):31-41.
+// CrCl (mL/min) = (140 − edad) × peso × (0.85 si mujer) / (72 × Cr).
+// Usa el peso real del paciente activo (como la calculadora dedicada por defecto).
+export function cockcroftGault(p: Patient): number | null {
+  const age = p.ageYears;
+  const w = p.weightKg;
+  const cr = p.creatinine;
+  if (age == null || w == null || cr == null) return null;
+  if (age <= 0 || w <= 0 || cr <= 0) return null;
+  const sexFactor = p.sex === "female" ? 0.85 : 1;
+  const value = ((140 - age) * w * sexFactor) / (72 * cr);
+  return value > 0 ? value : 0;
+}
+
+// ---- MABL (pérdida sanguínea máxima permitida) ----------------------
+// Gross JB. Anesthesiology. 1983;58(3):277-280.
+// VSE = peso × EBV(mL/kg) [70 varón · 65 mujer] ·
+// MABL = VSE × (Hct − Hct_min) / Hct.  Hct_min por defecto 21%.
+export function mabl(p: Patient, hctMin = 21): number | null {
+  const w = p.weightKg;
+  const hct = p.hematocrit;
+  if (w == null || hct == null) return null;
+  if (w <= 0 || hct <= 0 || hct <= hctMin) return null;
+  const ebvPerKg = p.sex === "female" ? 65 : 70;
+  const ebv = w * ebvPerKg;
+  return (ebv * (hct - hctMin)) / hct;
+}
+
+// ---- Estadio KDIGO por CrCl (para el reporte) -----------------------
+// KDIGO 2012 — mismas bandas que la calculadora de aclaramiento.
+export function kdigoStage(crcl: number): string {
+  if (crcl >= 90) return "G1 (normal/alta)";
+  if (crcl >= 60) return "G2 (descenso leve)";
+  if (crcl >= 45) return "G3a (leve-moderado)";
+  if (crcl >= 30) return "G3b (moderado-grave)";
+  if (crcl >= 15) return "G4 (grave)";
+  return "G5 (fallo renal)";
 }
 
 // ---- Contexto ----

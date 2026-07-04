@@ -7,6 +7,7 @@
 // ============================================================
 
 import { useState } from "react";
+import Link from "next/link";
 import {
   usePatient,
   type Sex,
@@ -141,6 +142,10 @@ export function PatientBar() {
               )}
             </div>
             <ActionBtn onClick={p.newPatient}>nuevo</ActionBtn>
+            {/* Enlace a la valoración preanestésica (formulario + scores + PDF) */}
+            <Link href="/valoracion" className="mono" style={{ ...actionStyle, textDecoration: "none", color: "var(--accent)" }}>
+              valoración ▸
+            </Link>
             <ActionBtn onClick={() => openPatientReport(active)}>reporte PDF</ActionBtn>
             <ActionBtn onClick={() => downloadJSON(p.exportJSON())}>exportar</ActionBtn>
             <label style={{ ...actionStyle, cursor: "pointer" }}>

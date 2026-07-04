@@ -93,6 +93,21 @@ export function InfusionCalculator({ drugName, entries }: Props) {
 
   const needsWeight = entry.dose_unit.toLowerCase().includes("/kg");
 
+  // Concentración resultante de la dilución (independiente de la dosis).
+  const conc =
+    entry.ampule_amount && entry.standard_dilution_ml
+      ? entry.ampule_amount / entry.standard_dilution_ml
+      : null;
+  const fmtConc = (n: number) => n.toFixed(3).replace(/\.?0+$/, "");
+  const concLabel =
+    conc == null
+      ? null
+      : entry.ampule_unit === "mg"
+        ? `${fmtConc(conc)} mg/mL · ${fmtConc(conc * 1000)} µg/mL`
+        : entry.ampule_unit === "µg" || entry.ampule_unit === "mcg"
+          ? `${fmtConc(conc)} µg/mL`
+          : `${fmtConc(conc)} ${entry.ampule_unit}/mL`;
+
   return (
     <div className="panel scanline">
       <div className="panel-header">
@@ -137,20 +152,33 @@ export function InfusionCalculator({ drugName, entries }: Props) {
           </div>
         )}
 
-        {/* Presentación */}
+        {/* Presentación + concentración resultante (prominente) */}
         {entry.ampule_presentation && (
-          <div
-            className="mono"
-            style={{
-              color: "var(--text-3)",
-              fontSize: "0.6rem",
-            }}
-          >
-            <span style={{ color: "var(--text-2)" }}>
+          <div className="mono" style={{ fontSize: "0.7rem", lineHeight: 1.55 }}>
+            <div style={{ color: "var(--text-1)" }}>
               {entry.ampule_presentation}
-            </span>
-            {entry.standard_dilution_ml && (
-              <span> → diluir a {entry.standard_dilution_ml} mL</span>
+              {entry.standard_dilution_ml && (
+                <span style={{ color: "var(--text-2)" }}>
+                  {" "}
+                  → diluir a {entry.standard_dilution_ml} mL
+                </span>
+              )}
+            </div>
+            {concLabel && (
+              <div
+                style={{
+                  marginTop: "0.3rem",
+                  padding: "0.3rem 0.5rem",
+                  color: "var(--accent)",
+                  fontSize: "0.78rem",
+                  fontWeight: 600,
+                  background: "var(--bg-1)",
+                  border: "1px solid var(--accent-border)",
+                  display: "inline-block",
+                }}
+              >
+                = {concLabel}
+              </div>
             )}
           </div>
         )}
@@ -160,8 +188,8 @@ export function InfusionCalculator({ drugName, entries }: Props) {
           <label
             className="mono"
             style={{
-              color: "var(--text-3)",
-              fontSize: "0.6rem",
+              color: "var(--text-2)",
+              fontSize: "0.64rem",
               display: "block",
               marginBottom: "0.25rem",
             }}
@@ -189,8 +217,8 @@ export function InfusionCalculator({ drugName, entries }: Props) {
           <label
             className="mono"
             style={{
-              color: "var(--text-3)",
-              fontSize: "0.6rem",
+              color: "var(--text-2)",
+              fontSize: "0.64rem",
               display: "block",
               marginBottom: "0.25rem",
             }}
@@ -209,22 +237,6 @@ export function InfusionCalculator({ drugName, entries }: Props) {
             step="any"
           />
         </div>
-
-        {/* Concentration info */}
-        {entry.ampule_amount && entry.standard_dilution_ml && (
-          <div
-            className="mono"
-            style={{
-              color: "var(--text-3)",
-              fontSize: "0.6rem",
-              padding: "0.3rem 0",
-              borderTop: "1px solid var(--border)",
-            }}
-          >
-            CONCENTRACIÓN: {(entry.ampule_amount / entry.standard_dilution_ml).toFixed(3)}{" "}
-            {entry.ampule_unit}/mL
-          </div>
-        )}
 
         {/* Result */}
         {calculation ? (

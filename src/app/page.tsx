@@ -92,6 +92,7 @@ export default function Home() {
           <b>$</b> ls /herramientas
         </div>
         <div className="feat-grid">
+          <CodeAccess />
           <Access href="/calculadoras" icon="🧮" title="Calculadoras" desc="MAC, riesgo cardíaco, MABL, fluidoterapia, QTc, reversión NM… 19 en total." />
           <Access href="/algoritmos" icon="🌀" title="Algoritmos de crisis" desc="Vía aérea (RSI, DSI, Vortex, CICO) + PeRLS. Ayudas cognitivas para el código azul." />
           <Access href="/guias" icon="📋" title="Guías clínicas" desc="Anafilaxia, HPP, hipertermia maligna, sepsis, tormenta tiroidea… 27 protocolos." />
@@ -159,6 +160,35 @@ function Access({ href, icon, title, desc }: { href: string; icon: string; title
         <span style={{ color: "var(--text-0)", fontSize: "0.9rem", fontWeight: 700 }}>{title}</span>
       </div>
       <p className="mono" style={{ color: "var(--text-3)", fontSize: "0.66rem", lineHeight: 1.6 }}>{desc}</p>
+    </Link>
+  );
+}
+
+function CodeAccess() {
+  // Acceso destacado con acento de urgencia (rojo) al Modo Quirófano.
+  return (
+    <Link
+      href="/codigo"
+      className="card-interactive"
+      style={{
+        textDecoration: "none",
+        color: "inherit",
+        display: "block",
+        background: "var(--bg-2)",
+        border: "1px solid var(--red)",
+        borderLeft: "3px solid var(--red)",
+        padding: "1rem",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.4rem" }}>
+        <span style={{ fontSize: "1.3rem" }}>🚨</span>
+        <span style={{ color: "var(--red)", fontSize: "0.9rem", fontWeight: 800, letterSpacing: "0.02em" }}>
+          Código azul
+        </span>
+      </div>
+      <p className="mono" style={{ color: "var(--text-3)", fontSize: "0.66rem", lineHeight: 1.6 }}>
+        Modo quirófano: dosis de crisis por peso, protocolos en pasos y timer de código. Glanceable en la tablet.
+      </p>
     </Link>
   );
 }

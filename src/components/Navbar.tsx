@@ -15,6 +15,7 @@ export function Navbar({ userSlot }: { userSlot?: ReactNode }) {
 
   const links = [
     { href: "/", label: "sys", exact: true },
+    { href: "/codigo", label: "● código", urgent: true },
     { href: "/farmacos", label: "db/farmacos" },
     { href: "/interacciones", label: "interactions" },
     { href: "/calculadoras", label: "calc" },
@@ -76,19 +77,27 @@ export function Navbar({ userSlot }: { userSlot?: ReactNode }) {
 
         {/* ─── Desktop nav (right side) ────────────────────────── */}
         <div className="hidden md:flex items-center gap-0.5">
-          {links.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className={`nav-link ${
-                (l.exact ? pathname === l.href : isActive(l.href))
-                  ? "nav-link-active"
-                  : ""
-              }`}
-            >
-              {l.label}
-            </Link>
-          ))}
+          {links.map((l) => {
+            const linkActive = l.exact ? pathname === l.href : isActive(l.href);
+            return (
+              <Link
+                key={l.href}
+                href={l.href}
+                className={`nav-link ${linkActive ? "nav-link-active" : ""}`}
+                style={
+                  l.urgent
+                    ? {
+                        color: "var(--red)",
+                        fontWeight: 700,
+                        borderBottomColor: linkActive ? "var(--red)" : "transparent",
+                      }
+                    : undefined
+                }
+              >
+                {l.label}
+              </Link>
+            );
+          })}
 
           {/* Divider antes del theme toggle */}
           <div
@@ -165,25 +174,31 @@ export function Navbar({ userSlot }: { userSlot?: ReactNode }) {
           }}
         >
           <div className="wrap flex flex-col gap-0.5">
-            {links.map((l) => (
-              <Link
-                key={l.href}
-                href={l.href}
-                onClick={() => setMenuOpen(false)}
-                className="mono"
-                style={{
-                  color: (l.exact ? pathname === l.href : isActive(l.href))
-                    ? "var(--accent)"
-                    : "var(--text-2)",
-                  fontSize: "0.75rem",
-                  padding: "0.5rem 0",
-                  textDecoration: "none",
-                  borderBottom: "1px solid var(--border)",
-                }}
-              >
-                → {l.label}
-              </Link>
-            ))}
+            {links.map((l) => {
+              const linkActive = l.exact ? pathname === l.href : isActive(l.href);
+              return (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  onClick={() => setMenuOpen(false)}
+                  className="mono"
+                  style={{
+                    color: l.urgent
+                      ? "var(--red)"
+                      : linkActive
+                        ? "var(--accent)"
+                        : "var(--text-2)",
+                    fontWeight: l.urgent ? 700 : 400,
+                    fontSize: "0.75rem",
+                    padding: "0.5rem 0",
+                    textDecoration: "none",
+                    borderBottom: "1px solid var(--border)",
+                  }}
+                >
+                  → {l.label}
+                </Link>
+              );
+            })}
 
             {/* Theme toggle */}
             <button

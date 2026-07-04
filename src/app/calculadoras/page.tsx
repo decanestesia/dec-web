@@ -28,6 +28,14 @@ const CALCS: CalcCard[] = [
   { href: "/calculadoras/opioides-equianalgesia", icon: "⚖️", title: "Equianalgesia de opioides", subtitle: "Conversión entre opioides con tolerancia cruzada", tag: "OPIO" },
   { href: "/calculadoras/apfel", icon: "🤢", title: "Score de Apfel (NVPO)", subtitle: "Riesgo de náusea y vómito postoperatorio", tag: "PONV" },
   { href: "/calculadoras/emergencia-pediatrica", icon: "🚨", title: "Emergencias pediátricas", subtitle: "Dosis de reanimación por peso (PALS/APLS)", tag: "PEDS" },
+  { href: "/calculadoras/mac", icon: "🌫️", title: "MAC — Conc. alveolar mínima", subtitle: "MAC ajustada por edad, MAC-awake, MAC-BAR, N₂O", tag: "MAC" },
+  { href: "/calculadoras/riesgo-cardiaco", icon: "❤️", title: "Riesgo cardíaco perioperatorio", subtitle: "RCRI (índice de Lee) + METs / DASI", tag: "RCRI" },
+  { href: "/calculadoras/stop-bang", icon: "😴", title: "STOP-BANG (AOS)", subtitle: "Cribado de apnea obstructiva del sueño", tag: "OSA" },
+  { href: "/calculadoras/perdida-sanguinea-maxima", icon: "🩸", title: "Pérdida sanguínea máxima (MABL)", subtitle: "Volemia + pérdida permitida por hematocrito", tag: "MABL" },
+  { href: "/calculadoras/fluidoterapia", icon: "💦", title: "Fluidoterapia perioperatoria", subtitle: "Mantenimiento 4-2-1, déficit, Parkland", tag: "FLUIDOS" },
+  { href: "/calculadoras/qtc", icon: "📉", title: "QTc y riesgo de torsades", subtitle: "Bazett/Fridericia + fármacos que prolongan QT", tag: "QTc" },
+  { href: "/calculadoras/aclaramiento-creatinina", icon: "🫘", title: "Aclaramiento de creatinina", subtitle: "Cockcroft-Gault + ajuste de dosis renal", tag: "CrCl" },
+  { href: "/calculadoras/reversion-neuromuscular", icon: "🔄", title: "Reversión neuromuscular", subtitle: "Sugammadex / neostigmina según TOF", tag: "REVERSA" },
 ];
 
 export default function CalculadorasPage() {

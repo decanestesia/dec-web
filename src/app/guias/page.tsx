@@ -19,6 +19,20 @@ const GUIDES: GuideCard[] = [
   { href: "/guias/extubacion", icon: "🫁", title: "Extubación y destete", subtitle: "Criterios, SBT, RSBI, prueba de fuga, predictores de reintubación", tag: "WEAN" },
   { href: "/guias/transfusion", icon: "🩸", title: "Transfusión y hemoderivados", subtitle: "Umbrales, dosis, velocidad, compatibilidad, transfusión masiva", tag: "TX" },
   { href: "/guias/hipertermia-maligna", icon: "🔥", title: "Hipertermia maligna", subtitle: "Reconocimiento, manejo paso a paso, dantroleno por peso, línea MHAUS", tag: "MH" },
+  { href: "/guias/anafilaxia", icon: "🚨", title: "Anafilaxia perioperatoria", subtitle: "Grados, adrenalina titulada, fluidos, triptasa", tag: "ANAF" },
+  { href: "/guias/broncoespasmo-laringoespasmo", icon: "🌬️", title: "Broncoespasmo y laringoespasmo", subtitle: "Larson, profundizar, salbutamol, adrenalina, Mg", tag: "BRONCO" },
+  { href: "/guias/hemorragia-postparto", icon: "🩸", title: "Hemorragia postparto (HPP)", subtitle: "4 T, uterotónicos, TXA, transfusión masiva", tag: "HPP" },
+  { href: "/guias/preeclampsia-eclampsia", icon: "🤰", title: "Preeclampsia y eclampsia", subtitle: "Sulfato de Mg, HTA severa, neuroaxial", tag: "PE" },
+  { href: "/guias/embolia-liquido-amniotico", icon: "💧", title: "Embolia de líquido amniótico", subtitle: "Colapso + CID, soporte, A-OK, cesárea perimortem", tag: "ELA" },
+  { href: "/guias/feocromocitoma-crisis-htn", icon: "📈", title: "Feocromocitoma y crisis HTA", subtitle: "Alfa antes de beta, fentolamina, manejo intraop", tag: "FEO" },
+  { href: "/guias/tormenta-tiroidea", icon: "♨️", title: "Tormenta tiroidea", subtitle: "Burch-Wartofsky, PTU, yodo, betabloqueo, esteroide", tag: "TT" },
+  { href: "/guias/insuficiencia-suprarrenal", icon: "🧫", title: "Insuf. suprarrenal / esteroide estrés", subtitle: "Hidrocortisona, dosis de estrés por cirugía", tag: "ADRENAL" },
+  { href: "/guias/serotoninergico-nms", icon: "🌡️", title: "Serotoninérgico y NMS", subtitle: "Clonus vs rigidez, ciproheptadina, dantroleno", tag: "SS/NMS" },
+  { href: "/guias/anticoagulantes-perioperatorio", icon: "💊", title: "Anticoagulantes y neuroaxial (ASRA)", subtitle: "Intervalos de suspensión, bridging, reinicio", tag: "ASRA" },
+  { href: "/guias/nvpo-manejo", icon: "🤢", title: "NVPO: profilaxis y rescate", subtitle: "Multimodal, dosis, rescate por clase distinta", tag: "NVPO" },
+  { href: "/guias/delirium-emergencia", icon: "😵", title: "Delirium y agitación al despertar", subtitle: "CAM-ICU, PAED, prevención, dexmedetomidina", tag: "DELIRIUM" },
+  { href: "/guias/paro-perioperatorio", icon: "⚡", title: "Paro perioperatorio (ACLS)", subtitle: "Causas reversibles, LAST, dosis, cesárea perimortem", tag: "ACLS" },
+  { href: "/guias/sepsis-perioperatoria", icon: "🦠", title: "Sepsis y shock séptico", subtitle: "Paquete 1ª hora, fluidos, noradrenalina, foco", tag: "SEPSIS" },
 ];
 
 export default function GuiasPage() {

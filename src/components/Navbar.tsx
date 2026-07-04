@@ -19,6 +19,8 @@ export function Navbar({ userSlot }: { userSlot?: ReactNode }) {
     { href: "/interacciones", label: "interactions" },
     { href: "/calculadoras", label: "calc" },
     { href: "/guias", label: "guías" },
+    { href: "/algoritmos", label: "algoritmos" },
+    { href: "/eeg", label: "eeg" },
     { href: "/pro", label: "pro" },
     { href: "/blog", label: "blog" },
     { href: "/about", label: "about" },

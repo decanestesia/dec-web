@@ -30,6 +30,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { usePatient } from "@/lib/patient/PatientContext";
 
 // ------------------------------------------------------------
 // Parsing — acepta coma o punto como separador decimal
@@ -206,27 +207,42 @@ function lipidRescue(weightKg: number | null): LipidRescue | null {
 // Componente
 // ------------------------------------------------------------
 export default function AnestesicosLocalesClient() {
-  const [weightText, setWeightText] = useState("");
+  // Peso/paciente vienen del contexto compartido (barra superior): editar
+  // aquí actualiza al paciente activo y, por ende, a todas las calculadoras.
+  const { active, setActive, derived } = usePatient();
+
   const [agentId, setAgentId] = useState<string>(AGENTS[0].id);
   const [concentrationText, setConcentrationText] = useState("");
   const [withEpi, setWithEpi] = useState(false);
 
   const agent = AGENT_BY_ID[agentId] ?? null;
-  const weightKg = useMemo(() => parseNumber(weightText), [weightText]);
+
+  // Campo de peso = valor del paciente activo (bidireccional, sin estado local).
+  const weightText = active.weightKg == null ? "" : String(active.weightKg);
+  const onWeightChange = (text: string) =>
+    setActive({ weightKg: parseNumber(text) });
+
+  // Peso de referencia editado (real). El CÁLCULO clínico de anestésico local
+  // se dosifica sobre PESO CORPORAL MAGRO en obesidad (Miller's / ASRA): usa
+  // derived.lean cuando existe (requiere talla+sexo), con fallback al real.
+  const inputWeightKg = active.weightKg;
+  const dosingBasisKg = derived.lean ?? inputWeightKg;
+  const usingLean = derived.lean != null;
+
   const concentrationPercent = useMemo(
     () => parseNumber(concentrationText),
     [concentrationText]
   );
 
   const result = useMemo(
-    () => compute(agent, weightKg, concentrationPercent, withEpi),
-    [agent, weightKg, concentrationPercent, withEpi]
+    () => compute(agent, dosingBasisKg, concentrationPercent, withEpi),
+    [agent, dosingBasisKg, concentrationPercent, withEpi]
   );
 
-  const lipid = useMemo(() => lipidRescue(weightKg), [weightKg]);
+  const lipid = useMemo(() => lipidRescue(dosingBasisKg), [dosingBasisKg]);
 
   const clearAll = () => {
-    setWeightText("");
+    setActive({ weightKg: null });
     setConcentrationText("");
   };
 
@@ -284,7 +300,7 @@ export default function AnestesicosLocalesClient() {
               gap: "0.75rem",
             }}
           >
-            {/* Peso */}
+            {/* Peso — del paciente activo (barra superior), bidireccional */}
             <div>
               <label className="mono" style={labelStyle}>
                 Peso (kg)
@@ -295,10 +311,27 @@ export default function AnestesicosLocalesClient() {
                 className="calc-input mono"
                 placeholder="70"
                 value={weightText}
-                onChange={(e) => setWeightText(e.target.value)}
+                onChange={(e) => onWeightChange(e.target.value)}
                 min={0}
                 step="any"
               />
+              <div
+                className="mono"
+                style={{
+                  color: "var(--text-3)",
+                  fontSize: "0.52rem",
+                  lineHeight: 1.5,
+                  marginTop: "0.3rem",
+                }}
+              >
+                usa el paciente activo (barra superior)
+                {usingLean ? (
+                  <>
+                    <br />
+                    {`// dosifica sobre peso magro (LBM ${derived.lean!.toFixed(1)} kg)`}
+                  </>
+                ) : null}
+              </div>
             </div>
 
             {/* Agente */}
@@ -849,7 +882,7 @@ export default function AnestesicosLocalesClient() {
                 }}
               >
                 Dosis para {lipid.dosingWeightKg.toFixed(0)} kg
-                {weightKg !== null && weightKg > WEIGHT_CAP_KG
+                {dosingBasisKg !== null && dosingBasisKg > WEIGHT_CAP_KG
                   ? " (plafonado 70 kg / peso magro)"
                   : ""}
               </div>

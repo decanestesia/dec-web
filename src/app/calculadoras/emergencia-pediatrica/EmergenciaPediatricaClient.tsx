@@ -28,6 +28,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { usePatient, useActiveWeight } from "@/lib/patient/PatientContext";
 
 // ------------------------------------------------------------
 // Parsing — acepta coma o punto como separador decimal
@@ -323,8 +324,21 @@ function computeInduction(w: number): InductionRow[] {
 // ------------------------------------------------------------
 export default function EmergenciaPediatricaClient() {
   const [mode, setMode] = useState<InputMode>("weight");
-  const [weightText, setWeightText] = useState("");
-  const [ageText, setAgeText] = useState("");
+
+  // Paciente compartido (barra superior). Peso/edad son BIDIRECCIONALES:
+  // el value del input = el valor del contexto; onChange escribe con setActive,
+  // así que editar aquí actualiza el paciente activo y TODAS las calculadoras.
+  const { active, setActive } = usePatient();
+  // Peso del CÁLCULO en modo peso: usa el tipo seleccionado en la barra global
+  // (real/ideal/ajustado/magro). En emergencia lo normal es el real, pero
+  // respetamos la elección del usuario.
+  const activeWeight = useActiveWeight();
+
+  // Strings mostrados: vienen directo del contexto (fallback: campo vacío).
+  const weightText = active.weightKg != null ? String(active.weightKg) : "";
+  const ageText = active.ageYears != null ? String(active.ageYears) : "";
+  const setWeightText = (t: string) => setActive({ weightKg: parseDouble(t) });
+  const setAgeText = (t: string) => setActive({ ageYears: parseDouble(t) });
 
   const weightInput = useMemo(() => parseDouble(weightText), [weightText]);
   const ageInput = useMemo(() => parseDouble(ageText), [ageText]);
@@ -332,10 +346,13 @@ export default function EmergenciaPediatricaClient() {
   // Peso de dosificación y su procedencia
   const dosing = useMemo(() => {
     if (mode === "weight") {
-      if (weightInput !== null && weightInput > 0) {
+      // Peso de dosificación = peso del tipo elegido en la barra global
+      // (real por defecto). Fallback al valor tecleado si aún no deriva.
+      const w = activeWeight ?? weightInput;
+      if (w !== null && w > 0) {
         return {
-          weight: weightInput,
-          source: "peso real",
+          weight: w,
+          source: "paciente activo · barra superior",
           estimate: null as WeightEstimate | null,
         };
       }
@@ -353,7 +370,7 @@ export default function EmergenciaPediatricaClient() {
       }
     }
     return null;
-  }, [mode, weightInput, ageInput]);
+  }, [mode, weightInput, ageInput, activeWeight]);
 
   // Edad para TET: en modo edad la tenemos; en modo peso no.
   const ageForTube = mode === "age" ? ageInput : null;
@@ -371,10 +388,8 @@ export default function EmergenciaPediatricaClient() {
     [dosing]
   );
 
-  const clearAll = () => {
-    setWeightText("");
-    setAgeText("");
-  };
+  // Limpia los campos del paciente activo (afecta la barra global).
+  const clearAll = () => setActive({ weightKg: null, ageYears: null });
 
   const labelStyle: React.CSSProperties = {
     color: "var(--text-3)",
@@ -447,6 +462,17 @@ export default function EmergenciaPediatricaClient() {
           <span className="dot" /> PACIENTE
         </div>
         <div className="panel-body" style={{ display: "grid", gap: "0.75rem" }}>
+          {/* Nota: los campos están cableados al paciente activo (bidireccional). */}
+          <div
+            className="mono"
+            style={{
+              color: "var(--text-3)",
+              fontSize: "0.55rem",
+              lineHeight: 1.6,
+            }}
+          >
+            {"// usa el paciente activo (barra superior) · editar aquí lo actualiza en todas las calculadoras"}
+          </div>
           {/* Selector de modo */}
           <div>
             <label className="mono" style={labelStyle}>

@@ -28,6 +28,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { usePatient } from "@/lib/patient/PatientContext";
 
 // ------------------------------------------------------------
 // Parsing — acepta coma o punto como separador decimal
@@ -139,13 +140,26 @@ function interpretLoss(
 // Componente
 // ------------------------------------------------------------
 export default function MablClient() {
-  const [weightText, setWeightText] = useState("");
-  const [popKey, setPopKey] = useState<PopKey>("male");
+  // Paciente activo (barra superior): el peso es bidireccional — este campo
+  // lee/escribe active.weightKg, así que editarlo aquí actualiza el paciente
+  // y todas las demás calculadoras. Para el CÁLCULO del VSE se usa el peso
+  // REAL (total): las fórmulas de volumen sanguíneo son mL/kg de peso
+  // corporal total, NO peso ideal/magro (por eso derived.real, no useActiveWeight).
+  const { active, setActive, derived } = usePatient();
+
+  // Población por defecto ligada al sexo del paciente (solo adultos); el
+  // usuario puede pasar a poblaciones pediátricas y eso no toca el paciente.
+  const [popKey, setPopKey] = useState<PopKey>(active.sex === "female" ? "female" : "male");
   const [hctInitText, setHctInitText] = useState("");
   const [hctMinText, setHctMinText] = useState("");
   const [lossText, setLossText] = useState(""); // opcional: pérdida real medida
 
-  const weight = useMemo(() => parseNumber(weightText), [weightText]);
+  // Peso desde el contexto (real). Campo controlado por el paciente activo.
+  const weightText = active.weightKg != null ? String(active.weightKg) : "";
+  const setWeightText = (text: string) =>
+    setActive({ weightKg: parseNumber(text) });
+
+  const weight = derived.real;
   const hctInit = useMemo(() => parseNumber(hctInitText), [hctInitText]);
   const hctMin = useMemo(() => parseNumber(hctMinText), [hctMinText]);
   const actualLoss = useMemo(() => parseNumber(lossText), [lossText]);
@@ -188,8 +202,16 @@ export default function MablClient() {
     [mabl, actualLoss, lossValid]
   );
 
+  // Selección de población: si es adulto (varón/mujer) se sincroniza el sexo
+  // del paciente activo (bidireccional); las poblaciones pediátricas no tocan
+  // el paciente (edad/sexo no se infieren de "lactante"/"niño").
+  const selectPop = (key: PopKey) => {
+    setPopKey(key);
+    if (key === "male" || key === "female") setActive({ sex: key });
+  };
+
   const clearAll = () => {
-    setWeightText("");
+    // No borra el peso: pertenece al paciente activo compartido.
     setHctInitText("");
     setHctMinText("");
     setLossText("");
@@ -259,7 +281,7 @@ export default function MablClient() {
                 <button
                   key={p.key}
                   type="button"
-                  onClick={() => setPopKey(p.key)}
+                  onClick={() => selectPop(p.key)}
                   className="mono"
                   title={p.hint}
                   style={{
@@ -312,6 +334,17 @@ export default function MablClient() {
                 min={0}
                 step="any"
               />
+              <div
+                className="mono"
+                style={{
+                  color: "var(--text-3)",
+                  fontSize: "0.5rem",
+                  marginTop: "0.3rem",
+                  lineHeight: 1.5,
+                }}
+              >
+                {"// usa el paciente activo (barra superior) · peso real"}
+              </div>
             </div>
 
             {/* Hct inicial */}

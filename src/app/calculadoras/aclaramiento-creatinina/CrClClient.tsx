@@ -39,6 +39,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { usePatient } from "@/lib/patient/PatientContext";
 
 // ------------------------------------------------------------
 // Parsing — acepta coma o punto como separador decimal
@@ -48,6 +49,11 @@ function parseNumber(text: string): number | null {
   if (raw.length === 0) return null;
   const n = Number(raw.replace(",", "."));
   return Number.isNaN(n) ? null : n;
+}
+
+// Número del paciente activo → texto para el <input> (null = campo vacío).
+function numToText(n: number | null): string {
+  return n === null ? "" : String(n);
 }
 
 // ------------------------------------------------------------
@@ -248,17 +254,24 @@ function renalNotes(crcl: number): RenalNote[] {
 // Componente
 // ------------------------------------------------------------
 export default function CrClClient() {
-  const [ageText, setAgeText] = useState("");
-  const [weightText, setWeightText] = useState("");
+  // Edad/peso/talla/sexo vienen del PACIENTE ACTIVO (barra superior) y se
+  // escriben de vuelta: editar aquí actualiza el paciente y todas las
+  // calculadoras (bidireccional, sin estado local duplicado para esos campos).
+  const { active, setActive } = usePatient();
+
   const [crText, setCrText] = useState("");
-  const [heightText, setHeightText] = useState("");
-  const [sex, setSex] = useState<Sex>("male");
   const [weightMode, setWeightMode] = useState<WeightMode>("actual");
 
-  const age = useMemo(() => parseNumber(ageText), [ageText]);
-  const weight = useMemo(() => parseNumber(weightText), [weightText]);
+  // Los inputs muestran el valor del contexto; onChange escribe al paciente.
+  const ageText = numToText(active.ageYears);
+  const weightText = numToText(active.weightKg);
+  const heightText = numToText(active.heightCm);
+  const sex: Sex = active.sex;
+
+  const age = active.ageYears;
+  const weight = active.weightKg;
   const cr = useMemo(() => parseNumber(crText), [crText]);
-  const height = useMemo(() => parseNumber(heightText), [heightText]);
+  const height = active.heightCm;
 
   // Validación de rangos fisiológicos razonables
   const ageValid = age !== null && age >= 18 && age <= 120;
@@ -289,11 +302,10 @@ export default function CrClClient() {
   const stage = useMemo(() => (crcl !== null ? stageFor(crcl) : null), [crcl]);
   const notes = useMemo(() => (crcl !== null ? renalNotes(crcl) : []), [crcl]);
 
+  // Limpia solo la creatinina (local); los datos antropométricos son del
+  // paciente compartido y no se borran desde aquí para no afectar otras calcs.
   const clearAll = () => {
-    setAgeText("");
-    setWeightText("");
     setCrText("");
-    setHeightText("");
   };
 
   const labelStyle: React.CSSProperties = {
@@ -344,6 +356,14 @@ export default function CrClClient() {
           <span className="dot" /> PARÁMETROS
         </div>
         <div className="panel-body" style={{ display: "grid", gap: "0.75rem" }}>
+          {/* Edad/peso/talla/sexo = paciente activo compartido (bidireccional) */}
+          <div
+            className="mono"
+            style={{ color: "var(--text-3)", fontSize: "0.55rem", lineHeight: 1.5 }}
+          >
+            {"// edad · peso · talla · sexo usan el paciente activo (barra superior); editarlos aquí lo actualiza en todas las calculadoras"}
+          </div>
+
           {/* Sexo (segmented) */}
           <div>
             <label className="mono" style={labelStyle}>
@@ -362,7 +382,7 @@ export default function CrClClient() {
                 <button
                   key={s}
                   type="button"
-                  onClick={() => setSex(s)}
+                  onClick={() => setActive({ sex: s })}
                   className="mono"
                   style={{
                     padding: "0.5rem 0.25rem",
@@ -399,7 +419,7 @@ export default function CrClClient() {
                 className="calc-input mono"
                 placeholder="68"
                 value={ageText}
-                onChange={(e) => setAgeText(e.target.value)}
+                onChange={(e) => setActive({ ageYears: parseNumber(e.target.value) })}
                 min={0}
                 step="any"
               />
@@ -414,7 +434,7 @@ export default function CrClClient() {
                 className="calc-input mono"
                 placeholder="70"
                 value={weightText}
-                onChange={(e) => setWeightText(e.target.value)}
+                onChange={(e) => setActive({ weightKg: parseNumber(e.target.value) })}
                 min={0}
                 step="any"
               />
@@ -484,7 +504,7 @@ export default function CrClClient() {
                 className="calc-input mono"
                 placeholder="170"
                 value={heightText}
-                onChange={(e) => setHeightText(e.target.value)}
+                onChange={(e) => setActive({ heightCm: parseNumber(e.target.value) })}
                 min={0}
                 step="any"
               />

@@ -38,6 +38,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { usePatient } from "@/lib/patient/PatientContext";
 
 // ------------------------------------------------------------
 // Parsing — acepta coma o punto como separador decimal
@@ -267,11 +268,20 @@ function buildRecommendation(
 // Componente
 // ------------------------------------------------------------
 export default function ReversionNMClient() {
-  const [weightText, setWeightText] = useState("");
+  // Peso ← paciente activo (barra superior), bidireccional. No duplicamos
+  // estado: el value del input es el peso del contexto y al editar se escribe
+  // de vuelta con setActive → se propaga a todas las calculadoras.
+  // Sugammadex y neostigmina se dosifican por PESO REAL (total body weight),
+  // por eso el cálculo usa active.weightKg (real), no el tipo derivado.
+  const { active, setActive } = usePatient();
   const [relaxantKey, setRelaxantKey] = useState<RelaxantKey>("rocuronio");
   const [depthKey, setDepthKey] = useState<DepthKey>("moderado");
 
-  const weight = useMemo(() => parseNumber(weightText), [weightText]);
+  const weightText = active.weightKg != null ? String(active.weightKg) : "";
+  const setWeightText = (text: string) =>
+    setActive({ weightKg: parseNumber(text) });
+
+  const weight = active.weightKg;
 
   const relaxant = useMemo(
     () => RELAXANTS.find((r) => r.key === relaxantKey) ?? RELAXANTS[0],
@@ -365,6 +375,12 @@ export default function ReversionNMClient() {
                 {"// peso fuera de rango (0–300 kg)"}
               </div>
             ) : null}
+            <div
+              className="mono"
+              style={{ color: "var(--text-3)", fontSize: "0.55rem", marginTop: "0.3rem", opacity: 0.75 }}
+            >
+              {"// usa el paciente activo (barra superior) · peso real"}
+            </div>
           </div>
 
           {/* Relajante (picker) */}

@@ -30,6 +30,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { usePatient } from "@/lib/patient/PatientContext";
 
 // ------------------------------------------------------------
 // Parsing — acepta coma o punto como separador decimal
@@ -83,12 +84,24 @@ const TRAUMA_ORDER: SurgeryTrauma[] = ["minimo", "moderado", "mayor"];
 // Componente
 // ------------------------------------------------------------
 export default function FluidoterapiaClient() {
-  const [weightText, setWeightText] = useState("");
+  // Paciente activo (barra global): el PESO es bidireccional. La fluidoterapia
+  // (4-2-1, déficit, tercer espacio y Parkland) usa PESO REAL/ACTUAL por
+  // definición de las fórmulas, así que el cálculo toma derived.real — no el
+  // tipo de peso seleccionado en la barra.
+  const { active, setActive, derived } = usePatient();
+
+  // El input de peso refleja el paciente activo; al escribir, se actualiza el
+  // paciente (y con él TODAS las calculadoras). Sin estado local duplicado.
+  const weightText =
+    active.weightKg != null ? String(active.weightKg) : "";
+  const setWeightText = (text: string) =>
+    setActive({ weightKg: parseNumber(text) });
+
   const [fastingText, setFastingText] = useState("");
   const [trauma, setTrauma] = useState<SurgeryTrauma>("moderado");
   const [tbsaText, setTbsaText] = useState("");
 
-  const weight = useMemo(() => parseNumber(weightText), [weightText]);
+  const weight = derived.real; // peso real/actual del paciente activo
   const fastingHours = useMemo(() => parseNumber(fastingText), [fastingText]);
   const tbsa = useMemo(() => parseNumber(tbsaText), [tbsaText]);
 
@@ -136,7 +149,8 @@ export default function FluidoterapiaClient() {
   }, [weight, weightValid, tbsa, tbsaValid]);
 
   const clearAll = () => {
-    setWeightText("");
+    // No borra el peso: pertenece al paciente activo (compartido). Solo limpia
+    // los campos propios de esta calculadora.
     setFastingText("");
     setTbsaText("");
     setTrauma("moderado");
@@ -221,6 +235,17 @@ export default function FluidoterapiaClient() {
                 min={0}
                 step="any"
               />
+              <div
+                className="mono"
+                style={{
+                  color: "var(--text-3)",
+                  fontSize: "0.5rem",
+                  marginTop: "0.25rem",
+                  opacity: 0.75,
+                }}
+              >
+                usa el paciente activo (barra superior) · peso real
+              </div>
             </div>
 
             {/* Horas de ayuno */}

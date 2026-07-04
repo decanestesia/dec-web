@@ -24,8 +24,9 @@
 //   Hoja de laringoscopio por edad/peso: Miller's Anesthesia; APLS.
 // ============================================================
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
+import { usePatient } from "@/lib/patient/PatientContext";
 
 // ------------------------------------------------------------
 // Tipos
@@ -204,7 +205,10 @@ function compute(
   ageYears: number | null,
   sex: Sex,
   heightCm: number | null,
-  weightKg: number | null
+  weightKg: number | null,
+  // IBW del paciente activo (contexto). Vt protector adulto usa PESO IDEAL:
+  // se prefiere este derivado del contexto (derived.ideal) si existe.
+  idealFromContext: number | null = null
 ): VentOutputs | null {
   if (ageYears === null || !(ageYears >= 0)) return null;
 
@@ -228,8 +232,11 @@ function compute(
       }
     }
   } else {
-    // Adulto: Vt protector se dosifica sobre IBW (Devine).
-    if (heightCm !== null && heightCm > 0) {
+    // Adulto: Vt protector se dosifica sobre IBW (peso ideal).
+    // Se prefiere el IBW del paciente activo (contexto); si no, Devine local.
+    if (idealFromContext !== null && idealFromContext > 0) {
+      ibw = idealFromContext;
+    } else if (heightCm !== null && heightCm > 0) {
       ibw = ibwDevine(sex, heightCm);
     }
     if (ibw !== null) {
@@ -323,26 +330,31 @@ function compute(
 // Página
 // ------------------------------------------------------------
 export default function VentilacionPage() {
-  const [ageText, setAgeText] = useState("");
-  const [heightText, setHeightText] = useState("");
-  const [weightText, setWeightText] = useState("");
-  const [sex, setSex] = useState<Sex>("male");
+  // Campos del paciente (edad/talla/peso/sexo) = paciente activo (barra global).
+  // Bidireccional: editar aquí actualiza el contexto → todas las calculadoras.
+  const { active, setActive, derived } = usePatient();
+
+  // value del input = valor del contexto (string vacío si null).
+  const ageText = active.ageYears != null ? String(active.ageYears) : "";
+  const heightText = active.heightCm != null ? String(active.heightCm) : "";
+  const weightText = active.weightKg != null ? String(active.weightKg) : "";
+  const sex = active.sex;
 
   const outputs = useMemo(
     () =>
       compute(
-        parseDouble(ageText),
+        active.ageYears,
         sex,
-        parseDouble(heightText),
-        parseDouble(weightText)
+        active.heightCm,
+        active.weightKg,
+        // Vt protector adulto → PESO IDEAL del paciente activo (derived.ideal).
+        derived.ideal
       ),
-    [ageText, heightText, weightText, sex]
+    [active.ageYears, active.heightCm, active.weightKg, sex, derived.ideal]
   );
 
   const clearAll = () => {
-    setAgeText("");
-    setHeightText("");
-    setWeightText("");
+    setActive({ ageYears: null, heightCm: null, weightKg: null });
   };
 
   const labelStyle: React.CSSProperties = {
@@ -392,6 +404,19 @@ export default function VentilacionPage() {
           <span className="dot" /> DATOS DEL PACIENTE
         </div>
         <div className="panel-body" style={{ display: "grid", gap: "0.75rem" }}>
+          <p
+            className="mono"
+            style={{
+              color: "var(--text-3)",
+              fontSize: "0.55rem",
+              margin: 0,
+              lineHeight: 1.6,
+            }}
+          >
+            usa el paciente activo (barra superior) — editar aquí lo actualiza en
+            todas las calculadoras. Vt protector adulto usa el PESO IDEAL (IBW)
+            del paciente.
+          </p>
           <div
             style={{
               display: "grid",
@@ -410,7 +435,9 @@ export default function VentilacionPage() {
                 className="calc-input mono"
                 placeholder="45"
                 value={ageText}
-                onChange={(e) => setAgeText(e.target.value)}
+                onChange={(e) =>
+                  setActive({ ageYears: parseDouble(e.target.value) })
+                }
                 min={0}
                 step="any"
               />
@@ -437,7 +464,7 @@ export default function VentilacionPage() {
                   <button
                     key={s}
                     type="button"
-                    onClick={() => setSex(s)}
+                    onClick={() => setActive({ sex: s })}
                     className="mono"
                     style={{
                       padding: "0.5rem 0.25rem",
@@ -469,7 +496,9 @@ export default function VentilacionPage() {
                 className="calc-input mono"
                 placeholder="170"
                 value={heightText}
-                onChange={(e) => setHeightText(e.target.value)}
+                onChange={(e) =>
+                  setActive({ heightCm: parseDouble(e.target.value) })
+                }
                 min={0}
                 step="any"
               />
@@ -489,7 +518,9 @@ export default function VentilacionPage() {
                 className="calc-input mono"
                 placeholder="72.5"
                 value={weightText}
-                onChange={(e) => setWeightText(e.target.value)}
+                onChange={(e) =>
+                  setActive({ weightKg: parseDouble(e.target.value) })
+                }
                 min={0}
                 step="any"
               />

@@ -18,6 +18,7 @@
 
 import { useMemo, useState } from "react";
 import { EXTENDED_MODELS } from "./pk-models-extended";
+import { usePatient } from "@/lib/patient/PatientContext";
 
 // ------------------------------------------------------------
 // Modelo compartimental mamillar -> macroconstantes
@@ -336,10 +337,24 @@ function formatCp(cpUgMl: number): { value: string; unit: string } {
 // ------------------------------------------------------------
 export default function ConcentracionPlasmaticaClient() {
   const [drugId, setDrugId] = useState<string>("propofol");
-  const [weightText, setWeightText] = useState("70");
-  const [ageText, setAgeText] = useState("40");
-  const [heightText, setHeightText] = useState("170");
-  const [sex, setSex] = useState<"male" | "female">("male");
+
+  // Covariables PK (peso, edad, talla, sexo) → provienen del PACIENTE ACTIVO
+  // (barra superior). Sin estado local: el value = contexto, onChange = setActive.
+  // Editar aquí actualiza el paciente y, por ende, TODAS las calculadoras.
+  const { active, setActive } = usePatient();
+
+  // El value del input es el valor del contexto (string). Campo vacío si null
+  // (fallback editable: al escribir se crea el dato en el paciente).
+  const weightText = active.weightKg != null ? String(active.weightKg) : "";
+  const ageText = active.ageYears != null ? String(active.ageYears) : "";
+  const heightText = active.heightCm != null ? String(active.heightCm) : "";
+  const sex = active.sex;
+
+  // onChange → escribe de vuelta al paciente (bidireccional). Vacío → null.
+  const setWeightText = (t: string) => setActive({ weightKg: parseNum(t) });
+  const setAgeText = (t: string) => setActive({ ageYears: parseNum(t) });
+  const setHeightText = (t: string) => setActive({ heightCm: parseNum(t) });
+  const setSex = (s: "male" | "female") => setActive({ sex: s });
 
   // Bolo
   const [boloText, setBoloText] = useState("");
@@ -547,6 +562,20 @@ export default function ConcentracionPlasmaticaClient() {
             >
               {drug.citation}
             </div>
+          </div>
+
+          <div
+            className="mono"
+            style={{
+              color: "var(--text-3)",
+              fontSize: "0.55rem",
+              lineHeight: 1.5,
+              opacity: 0.8,
+            }}
+          >
+            {"// peso · edad · talla · sexo usan el "}
+            <span style={{ color: "var(--cyan)" }}>paciente activo (barra superior)</span>
+            {" — editar aquí lo actualiza en todas las calculadoras"}
           </div>
 
           <div

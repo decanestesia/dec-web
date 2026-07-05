@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "verify:critical": "npx -y tsx scripts/verify-critical.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",

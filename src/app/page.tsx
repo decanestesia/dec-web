@@ -55,7 +55,7 @@ export default function Home() {
       {/* Stats reales */}
       <section style={{ marginBottom: "2.25rem" }}>
         <div className="stat-grid">
-          <Stat n="893" label="fármacos" />
+          <Stat n="1047" label="fármacos" />
           <Stat n="63" label="herramientas clínicas" />
           <Stat n="57" label="categorías" />
           <Stat n="246" label="con calc. de infusión" />

@@ -76,6 +76,7 @@ export function UserMenuClient({
         onClick={() => setOpen((s) => !s)}
         aria-haspopup="menu"
         aria-expanded={open}
+        aria-label="Menú de cuenta"
         className="user-menu-btn"
       >
         {profile.avatar_url ? (

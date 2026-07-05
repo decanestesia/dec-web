@@ -155,14 +155,15 @@ export function MolecularSection({ drugName, molecular }: Props) {
         <span className="dot" /> DATOS MOLECULARES
       </div>
       <div className="panel-body" style={{ display: "grid", gap: "0.75rem" }}>
-        {/* Top row: 2D drawing + facts */}
+        {/* Top row: 2D drawing + facts. Flex con wrap: en móvil (≤~375px) la
+            caja de datos baja bajo el SVG en vez de comprimirse y desbordar
+            el viewport (bug de scroll horizontal). */}
         <div
           style={{
-            display: "grid",
-            gridTemplateColumns:
-              molecular.smiles ? "auto 1fr" : "1fr",
+            display: "flex",
+            flexWrap: "wrap",
             gap: "1rem",
-            alignItems: "start",
+            alignItems: "flex-start",
           }}
         >
           {/* SVG drawing */}
@@ -226,7 +227,7 @@ export function MolecularSection({ drugName, molecular }: Props) {
           )}
 
           {/* Key facts */}
-          <div style={{ display: "grid", gap: "0.4rem", minWidth: 0 }}>
+          <div style={{ display: "grid", gap: "0.4rem", minWidth: 0, flex: "1 1 200px" }}>
             {formulaTokens && (
               <KV label="Fórmula">
                 <span
@@ -267,22 +268,23 @@ export function MolecularSection({ drugName, molecular }: Props) {
             {molecular.logp !== null && logpInterp && (
               <KV label="LogP">
                 <div style={{ minWidth: 0 }}>
-                  <span
-                    className="mono"
-                    style={{
-                      color: "var(--text-0)",
-                      fontSize: "0.78rem",
-                      marginRight: "0.5rem",
-                    }}
-                  >
-                    {molecular.logp.toFixed(2)}
-                  </span>
-                  <span
-                    className="tag tag-accent"
-                    style={{ fontSize: "0.55rem" }}
-                  >
-                    {logpInterp.label}
-                  </span>
+                  <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "0.4rem" }}>
+                    <span
+                      className="mono"
+                      style={{
+                        color: "var(--text-0)",
+                        fontSize: "0.78rem",
+                      }}
+                    >
+                      {molecular.logp.toFixed(2)}
+                    </span>
+                    <span
+                      className="tag tag-accent"
+                      style={{ fontSize: "0.55rem" }}
+                    >
+                      {logpInterp.label}
+                    </span>
+                  </div>
                   <div
                     className="mono"
                     style={{

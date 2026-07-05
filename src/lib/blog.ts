@@ -40,7 +40,7 @@ export const POSTS: Post[] = [
       { type: "p", text: "Toda herramienta clínica tiene a alguien detrás. Detrás de esta hay un anestesiólogo dominicano que ha pasado suficientes madrugadas calculando diluciones en el reverso de una hoja de anestesia como para concluir que eso merecía, cuando menos, una app. Este es él. El parecido es exacto." },
       {
         type: "image",
-        src: "/blog/jophiel.png",
+        src: "/blog/jophiel.webp",
         alt: "Caricatura del Dr. Jophiel Espaillat sentado en un banco cubierto de telarañas, con las manos convertidas en huesos, bajo un cielo gris.",
         caption: "Dr. Jophiel Espaillat, esperando a que el cirujano diga «ya casi terminamos». Las telarañas son de la última vez que lo dijo. Las manos son un detalle del artista; también podrían ser un pronóstico.",
       },

@@ -136,6 +136,9 @@ export function CommandPalette() {
       }}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Búsqueda rápida"
         onClick={(e) => e.stopPropagation()}
         onKeyDown={onListKey}
         style={{
@@ -148,6 +151,8 @@ export function CommandPalette() {
           <span className="mono" style={{ color: "var(--accent)", fontSize: "0.8rem" }}>⌕</span>
           <input
             ref={inputRef}
+            type="search"
+            aria-label="Buscar fármaco, calculadora o página"
             value={q}
             onChange={(e) => { setQ(e.target.value); setActive(0); }}
             placeholder="fármaco, calculadora o página..."

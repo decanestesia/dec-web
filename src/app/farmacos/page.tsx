@@ -64,7 +64,8 @@ export default function FarmacosPage() {
       <div className="search-box" style={{ marginBottom: "1.25rem" }}>
         <span className="search-icon mono">⌕</span>
         <input
-          type="text"
+          type="search"
+          aria-label="Buscar fármaco, mecanismo o categoría"
           placeholder="buscar fármaco, mecanismo, categoría..."
           value={query}
           onChange={(e) => {
@@ -75,6 +76,7 @@ export default function FarmacosPage() {
         {query && (
           <button
             onClick={() => setQuery("")}
+            aria-label="Limpiar búsqueda"
             className="mono"
             style={{
               position: "absolute",

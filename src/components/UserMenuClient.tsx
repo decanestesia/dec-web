@@ -148,11 +148,11 @@ export function UserMenuClient({
 
           {/* Items */}
           <Link
-            href="/account"
+            href="/perfil"
             onClick={() => setOpen(false)}
             className="user-menu-item"
           >
-            Mi cuenta
+            Mi perfil
           </Link>
           {!isPro && (
             <Link

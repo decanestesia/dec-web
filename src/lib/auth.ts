@@ -17,6 +17,12 @@ export interface Profile {
   avatar_url: string | null;
   country_code: string | null;
   locale: string | null;
+  role: string | null;
+  specialty: string | null;
+  training_year: number | null;
+  institution: string | null;
+  birth_year: number | null;
+  can_publish: boolean | null;
   created_at: string;
   updated_at: string;
 }

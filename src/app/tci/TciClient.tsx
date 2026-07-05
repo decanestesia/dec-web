@@ -18,6 +18,7 @@
 
 import { useMemo, useState } from "react";
 import { usePatient } from "@/lib/patient/PatientContext";
+import ClinicalConsentGate from "@/components/ClinicalConsentGate";
 import {
   TCI_MODELS,
   WEIGHT_DOSE_MODELS,
@@ -221,7 +222,9 @@ export default function TciClient() {
     weightKg && weightKg > 0 ? (massPerMin * 60) / weightKg : 0;
 
   return (
-    <div className="wrap" style={{ paddingTop: "1.5rem", paddingBottom: "3rem", maxWidth: 780 }}>
+    <>
+      <ClinicalConsentGate />
+      <div className="wrap" style={{ paddingTop: "1.5rem", paddingBottom: "3rem", maxWidth: 780 }}>
       {/* Header */}
       <div style={{ marginBottom: "1.25rem" }}>
         <div className="prompt mono blink" style={{ marginBottom: "0.5rem" }}>
@@ -749,7 +752,8 @@ export default function TciClient() {
         <br />
         El médico titula la dosis y es el responsable de la administración.
       </p>
-    </div>
+      </div>
+    </>
   );
 }
 

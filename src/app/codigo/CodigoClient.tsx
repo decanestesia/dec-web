@@ -24,6 +24,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePatient } from "@/lib/patient/PatientContext";
+import ClinicalConsentGate from "@/components/ClinicalConsentGate";
 
 // ------------------------------------------------------------
 // Modelo de fármaco de emergencia (paridad con EmergencyDrug.swift)
@@ -265,7 +266,9 @@ export default function CodigoClient() {
     openDrug != null ? CATEGORIES[openDrug.cat].drugs[openDrug.idx] : null;
 
   return (
-    <div style={{ paddingBottom: "3rem" }}>
+    <>
+      <ClinicalConsentGate />
+      <div style={{ paddingBottom: "3rem" }}>
       {/* Barra superior compacta */}
       <div
         className="wrap"
@@ -430,7 +433,8 @@ export default function CodigoClient() {
           }
         }
       `}</style>
-    </div>
+      </div>
+    </>
   );
 }
 

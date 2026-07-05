@@ -26,6 +26,7 @@
 
 import { useMemo } from "react";
 import Link from "next/link";
+import ClinicalConsentGate from "@/components/ClinicalConsentGate";
 import {
   usePatient,
   rcriScore,
@@ -232,7 +233,9 @@ export default function ValoracionClient() {
     srt == null ? "low" : srt.riskPct < 1 ? "low" : srt.riskPct < 5 ? "mid" : "high";
 
   return (
-    <div
+    <>
+      <ClinicalConsentGate />
+      <div
       className="wrap"
       style={{ paddingTop: "1.5rem", paddingBottom: "3rem", maxWidth: 900, margin: "0 auto" }}
     >
@@ -619,7 +622,8 @@ export default function ValoracionClient() {
         <br />
         {"// la app calcula, el médico decide y firma"}
       </p>
-    </div>
+      </div>
+    </>
   );
 }
 

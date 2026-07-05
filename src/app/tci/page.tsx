@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import TciClient from "./TciClient";
+import { isProUser } from "@/lib/gating.server";
 
 export const metadata: Metadata = {
   title: "Calculadora TCI / TIVA — infusión controlada por objetivo — DEC",
@@ -13,6 +14,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Page() {
-  return <TciClient />;
+export default async function Page() {
+  // isPro se resuelve en el server (flag off → true, sin pegarle a la base)
+  // y baja como prop al client, que lo pasa a ProGateClient.
+  const isPro = await isProUser();
+  return <TciClient isPro={isPro} />;
 }

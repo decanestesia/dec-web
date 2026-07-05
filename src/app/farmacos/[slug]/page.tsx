@@ -18,6 +18,8 @@ import { MolecularSection } from "./MolecularSection";
 import { InteractionsSection } from "./InteractionsSection";
 import { DosingSection } from "./DosingSection";
 import { AdministrationSection } from "./AdministrationSection";
+import ProGate from "@/components/ProGate";
+import { PRO_FEATURES } from "@/lib/gating";
 
 export async function generateStaticParams() {
   const catalog = loadCatalogSync();
@@ -236,18 +238,23 @@ export default async function DrugDetailPage({ params }: Props) {
         </Section>
       )}
 
-      {/* Molecular */}
+      {/* Molecular — FICHA AMPLIADA (Pro). fallback={null}: con el flag on,
+          un no-Pro no ve esta sección; el paywall único vive en Farmacología. */}
       {showMolecular && detail?.molecular && (
-        <Section title="ESTRUCTURA QUÍMICA">
-          <MolecularSection
-            drugName={drug.name}
-            molecular={detail.molecular}
-          />
-        </Section>
+        <ProGate feature={PRO_FEATURES.EXPANDED_DRUG_DETAIL} fallback={null}>
+          <Section title="ESTRUCTURA QUÍMICA">
+            <MolecularSection
+              drugName={drug.name}
+              molecular={detail.molecular}
+            />
+          </Section>
+        </ProGate>
       )}
 
-      {/* Pharmacology */}
+      {/* Pharmacology — FICHA AMPLIADA (Pro). Este bloque lleva el paywall
+          (sin fallback → <Paywall/>) que cubre farmacología+molecular+marcas. */}
       {detail && detail.pharmacology.length > 0 && (
+        <ProGate feature={PRO_FEATURES.EXPANDED_DRUG_DETAIL}>
         <Section title="FARMACOLOGÍA">
           <div className="panel">
             <div className="panel-body" style={{ padding: 0 }}>
@@ -295,6 +302,7 @@ export default async function DrugDetailPage({ params }: Props) {
             </div>
           </div>
         </Section>
+        </ProGate>
       )}
 
       {/* INTERACTIONS — NEW v16.3 */}
@@ -499,8 +507,10 @@ export default async function DrugDetailPage({ params }: Props) {
         </Section>
       )}
 
-      {/* Brand names */}
+      {/* Brand names — FICHA AMPLIADA (Pro). fallback={null}: el paywall
+          único ya se muestra en la sección Farmacología. */}
       {detail && detail.brands.length > 0 && (
+        <ProGate feature={PRO_FEATURES.EXPANDED_DRUG_DETAIL} fallback={null}>
         <Section title="MARCAS COMERCIALES">
           <div className="info-grid">
             {detail.brands.map((b, i) => (
@@ -525,6 +535,7 @@ export default async function DrugDetailPage({ params }: Props) {
             ))}
           </div>
         </Section>
+        </ProGate>
       )}
 
       {/* Related */}

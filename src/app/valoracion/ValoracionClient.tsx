@@ -27,6 +27,8 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import ClinicalConsentGate from "@/components/ClinicalConsentGate";
+import ProGateClient from "@/components/ProGateClient";
+import { PRO_FEATURES } from "@/lib/gating";
 import {
   usePatient,
   rcriScore,
@@ -199,7 +201,7 @@ function bandColor(level: "low" | "mid" | "high"): string {
   return level === "low" ? "var(--accent)" : level === "mid" ? "var(--amber)" : "var(--red)";
 }
 
-export default function ValoracionClient() {
+export default function ValoracionClient({ isPro = false }: { isPro?: boolean }) {
   const { active, setActive } = usePatient();
 
   // ---- Scores EN VIVO (helpers puros) ----
@@ -233,7 +235,7 @@ export default function ValoracionClient() {
     srt == null ? "low" : srt.riskPct < 1 ? "low" : srt.riskPct < 5 ? "mid" : "high";
 
   return (
-    <>
+    <ProGateClient feature={PRO_FEATURES.PREANESTHETIC_ASSESSMENT} isPro={isPro}>
       <ClinicalConsentGate />
       <div
       className="wrap"
@@ -623,7 +625,7 @@ export default function ValoracionClient() {
         {"// la app calcula, el médico decide y firma"}
       </p>
       </div>
-    </>
+    </ProGateClient>
   );
 }
 

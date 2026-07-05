@@ -1,66 +1,37 @@
 // src/app/pro/page.tsx
 //
 // Página de suscripción DEC Pro — pricing + matriz Free/Pro + CTA.
-// El checkout web (Lemon Squeezy) aún no está cableado (Sprint D.5), así que
-// los tiers muestran estado "Próximamente" y el CTA real es crear cuenta gratis
-// (el tier Free funciona hoy) + avisar por email cuando abra la compra.
 //
-// Paridad de precios con iOS (Blueprint §2.1). Nunca mostrar estos precios
-// dentro de la app iOS — esta regla aplica a iOS, no a la web.
+// ⚠️ ESTA PÁGINA NO CONTIENE NINGÚN PRECIO NI FEATURE HARDCODEADO.
+//    Todo (precios, tiers, matriz, días de prueba, copy) sale de
+//    `src/lib/pricing.ts`. Para fijar los precios definitivos edita ESE
+//    archivo, no este. Aquí solo vive la maquetación.
+//
+// El checkout web (Lemon Squeezy) aún no está cableado: mientras
+// CHECKOUT_LIVE sea false, los tiers muestran "Próximamente" y el CTA real
+// es crear cuenta gratis (el tier Free funciona hoy) + waitlist por email.
+//
+// Paridad de precios con iOS (Blueprint §2.1). Nunca mostrar precios web
+// dentro de la app iOS — esa regla aplica a iOS, no a la web.
 
 import Link from "next/link";
+import {
+  PRICING_TIERS,
+  FEATURE_MATRIX,
+  FREE_TRIAL_LINE,
+  FREE_TRIAL_DAYS,
+  REFUND_POLICY,
+  WAITLIST_MAILTO,
+  STUDENT_MAILTO,
+  PRICES_ARE_FINAL,
+  CHECKOUT_LIVE,
+} from "@/lib/pricing";
 
 export const metadata = {
   title: "DEC Pro — Suscripción",
   description:
     "Desbloquea calculadoras avanzadas, interacciones ilimitadas, detalle farmacológico completo y sync multi-dispositivo. El catálogo clínico completo es y será gratis para todos.",
 };
-
-// ── Tiers (precios de lanzamiento, Blueprint §2.1) ──────────────────────────
-const TIERS = [
-  {
-    id: "monthly",
-    name: "Pro Mensual",
-    price: "$2.99",
-    unit: "/ mes",
-    note: "7 días de prueba en el primer registro",
-    highlight: false,
-  },
-  {
-    id: "annual",
-    name: "Pro Anual",
-    price: "$19.99",
-    unit: "/ año",
-    note: "Ahorra ~44% vs. mensual · 7 días de prueba",
-    highlight: true,
-    badge: "Mejor valor",
-  },
-  {
-    id: "lifetime",
-    name: "Pro Lifetime",
-    price: "$49.99",
-    unit: "pago único",
-    note: "Una vez. Para siempre. Sin trial.",
-    highlight: false,
-  },
-];
-
-// ── Matriz Free vs Pro (Blueprint §3) ───────────────────────────────────────
-const MATRIX: { cap: string; free: string; pro: string }[] = [
-  { cap: "Catálogo 893 fármacos (offline)", free: "Completo", pro: "Completo" },
-  { cap: "Dosis, presentaciones, administración", free: "✓", pro: "✓" },
-  { cap: "Calculadoras básicas (infusión, antropometría, dilución)", free: "✓", pro: "✓" },
-  { cap: "Verificador de interacciones", free: "3 / día", pro: "Ilimitado" },
-  { cap: "Calculadoras avanzadas (electrolitos, ROTEM, hemoderivados, VirtualScale)", free: "—", pro: "✓" },
-  { cap: "Detalle ampliado (farmacología completa, molecular, todas las marcas)", free: "Resumen", pro: "Completo" },
-  { cap: "Publicidad", free: "Con ads", pro: "Sin ads" },
-  { cap: "Sync multi-dispositivo (favoritos, ajustes)", free: "—", pro: "✓" },
-  { cap: "Favoritos / notas", free: "Máx 10", pro: "Ilimitado" },
-];
-
-const WAITLIST_MAILTO =
-  "mailto:hola@decanestesia.com?subject=Avísame%20cuando%20DEC%20Pro%20esté%20disponible%20en%20web" +
-  "&body=Quiero%20que%20me%20avisen%20cuando%20se%20pueda%20comprar%20DEC%20Pro%20desde%20la%20web.";
 
 export default function ProPage() {
   return (
@@ -93,6 +64,15 @@ export default function ProPage() {
         <p style={{ color: "var(--text-1)", fontSize: "1.05rem", fontWeight: 300, marginBottom: "0.5rem" }}>
           La información de seguridad es gratis. Se paga la profundidad y la velocidad.
         </p>
+        {/* Prueba gratis — destacada (FREE_TRIAL_DAYS en pricing.ts) */}
+        <p style={{ marginBottom: "0.5rem" }}>
+          <span
+            className="tag tag-accent mono"
+            style={{ fontSize: "0.66rem", letterSpacing: "0.04em" }}
+          >
+            {FREE_TRIAL_LINE}
+          </span>
+        </p>
         <p className="mono" style={{ color: "var(--text-3)", fontSize: "0.7rem", lineHeight: 1.6 }}>
           El catálogo clínico completo funciona offline para todos, siempre.
         </p>
@@ -113,7 +93,7 @@ export default function ProPage() {
             gap: "1rem",
           }}
         >
-          {TIERS.map((t) => (
+          {PRICING_TIERS.map((t) => (
             <div
               key={t.id}
               style={{
@@ -150,23 +130,43 @@ export default function ProPage() {
               <p className="mono" style={{ color: "var(--text-3)", fontSize: "0.62rem", lineHeight: 1.5, minHeight: "2.4em" }}>
                 {t.note}
               </p>
-              <span
-                className="tag tag-muted mono"
-                style={{ alignSelf: "flex-start", marginTop: "0.25rem" }}
-                title="El checkout web abre en cuanto se active la cuenta de pagos"
-              >
-                Próximamente
-              </span>
+              {/* Etiqueta de estado: precio provisional y/o checkout no abierto */}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem", marginTop: "0.25rem" }}>
+                {!PRICES_ARE_FINAL && t.isProvisional && (
+                  <span
+                    className="tag tag-muted mono"
+                    style={{ alignSelf: "flex-start" }}
+                    title="Importe de referencia — el precio final se fija en la tienda"
+                  >
+                    Precio provisional
+                  </span>
+                )}
+                {!CHECKOUT_LIVE && (
+                  <span
+                    className="tag tag-muted mono"
+                    style={{ alignSelf: "flex-start" }}
+                    title="El checkout web abre en cuanto se active la cuenta de pagos"
+                  >
+                    Próximamente
+                  </span>
+                )}
+              </div>
             </div>
           ))}
         </div>
         <p className="mono" style={{ color: "var(--text-3)", fontSize: "0.6rem", marginTop: "0.75rem", opacity: 0.7 }}>
           ¿Estudiante o residente? Pro Estudiante es gratis con código de verificación.{" "}
-          <a href="mailto:hola@decanestesia.com?subject=Código%20Pro%20Estudiante" style={{ color: "var(--cyan)" }}>
+          <a href={STUDENT_MAILTO} style={{ color: "var(--cyan)" }}>
             Escríbenos
           </a>
           .
         </p>
+        {!PRICES_ARE_FINAL && (
+          <p className="mono" style={{ color: "var(--amber)", fontSize: "0.6rem", marginTop: "0.4rem", opacity: 0.85 }}>
+            Precios de referencia, aún no definitivos. Los importes finales se
+            fijan al abrir la compra.
+          </p>
+        )}
         <p className="mono" style={{ color: "var(--text-3)", fontSize: "0.55rem", opacity: 0.4, marginTop: "0.25rem" }}>
           {"// precios de lanzamiento — subirán cuando dejemos de fingir que no somos indispensables"}
         </p>
@@ -188,19 +188,23 @@ export default function ProPage() {
       >
         <div>
           <p style={{ color: "var(--text-0)", fontWeight: 600, fontSize: "0.95rem", marginBottom: "0.2rem" }}>
-            La compra web aún no está abierta.
+            {CHECKOUT_LIVE ? "Empieza tu prueba gratis." : "La compra web aún no está abierta."}
           </p>
           <p className="mono" style={{ color: "var(--text-2)", fontSize: "0.68rem", lineHeight: 1.5 }}>
-            Crea tu cuenta gratis hoy (el catálogo completo ya funciona) y te avisamos cuando puedas subir a Pro.
+            {CHECKOUT_LIVE
+              ? `Crea tu cuenta y prueba Pro ${FREE_TRIAL_DAYS} días gratis. Sin compromiso.`
+              : `Crea tu cuenta gratis hoy (el catálogo completo ya funciona) y te avisamos cuando puedas subir a Pro con ${FREE_TRIAL_DAYS} días de prueba.`}
           </p>
         </div>
         <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
           <Link href="/auth/signup" className="btn btn-fill">
             Crear cuenta gratis →
           </Link>
-          <a href={WAITLIST_MAILTO} className="btn btn-outline">
-            Avísame
-          </a>
+          {!CHECKOUT_LIVE && (
+            <a href={WAITLIST_MAILTO} className="btn btn-outline">
+              Avísame
+            </a>
+          )}
         </div>
       </section>
 
@@ -219,7 +223,7 @@ export default function ProPage() {
               </tr>
             </thead>
             <tbody>
-              {MATRIX.map((row, i) => (
+              {FEATURE_MATRIX.map((row, i) => (
                 <tr key={i} style={{ borderTop: "1px solid var(--border)" }}>
                   <td style={{ ...tdStyle, color: "var(--text-1)", fontSize: "0.78rem" }}>{row.cap}</td>
                   <td className="mono" style={{ ...tdStyle, textAlign: "center", color: cellColor(row.free) }}>
@@ -234,7 +238,7 @@ export default function ProPage() {
           </table>
         </div>
         <p className="mono" style={{ color: "var(--text-3)", fontSize: "0.6rem", marginTop: "0.75rem", lineHeight: 1.6 }}>
-          Reembolsos: 14 días (mensual/anual), 30 días (lifetime) en web · en iOS los gestiona Apple.
+          {REFUND_POLICY}
         </p>
         <p className="mono" style={{ color: "var(--text-3)", fontSize: "0.55rem", opacity: 0.4, marginTop: "0.25rem" }}>
           {"// si cancelas, seguimos siendo amigos — solo que sin ROTEM"}

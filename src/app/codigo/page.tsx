@@ -13,6 +13,7 @@
 
 import type { Metadata } from "next";
 import CodigoClient from "./CodigoClient";
+import { isProUser } from "@/lib/gating.server";
 
 export const metadata: Metadata = {
   title: "Modo Quirófano / Código Azul — dosis de crisis por peso · DEC",
@@ -26,6 +27,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function CodigoPage() {
-  return <CodigoClient />;
+export default async function CodigoPage() {
+  const isPro = await isProUser();
+  return <CodigoClient isPro={isPro} />;
 }

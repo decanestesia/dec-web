@@ -19,6 +19,8 @@
 import { useMemo, useState } from "react";
 import { usePatient } from "@/lib/patient/PatientContext";
 import ClinicalConsentGate from "@/components/ClinicalConsentGate";
+import ProGateClient from "@/components/ProGateClient";
+import { PRO_FEATURES } from "@/lib/gating";
 import {
   TCI_MODELS,
   WEIGHT_DOSE_MODELS,
@@ -72,7 +74,7 @@ const labelStyle: React.CSSProperties = {
   textTransform: "uppercase",
 };
 
-export default function TciClient() {
+export default function TciClient({ isPro = false }: { isPro?: boolean }) {
   const { active, setActive } = usePatient();
 
   // --- Paciente (leído/escrito del contexto) ---
@@ -222,7 +224,7 @@ export default function TciClient() {
     weightKg && weightKg > 0 ? (massPerMin * 60) / weightKg : 0;
 
   return (
-    <>
+    <ProGateClient feature={PRO_FEATURES.TCI} isPro={isPro}>
       <ClinicalConsentGate />
       <div className="wrap" style={{ paddingTop: "1.5rem", paddingBottom: "3rem", maxWidth: 780 }}>
       {/* Header */}
@@ -753,7 +755,7 @@ export default function TciClient() {
         El médico titula la dosis y es el responsable de la administración.
       </p>
       </div>
-    </>
+    </ProGateClient>
   );
 }
 

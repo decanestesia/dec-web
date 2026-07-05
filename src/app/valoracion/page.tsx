@@ -7,6 +7,7 @@
 
 import type { Metadata } from "next";
 import ValoracionClient from "./ValoracionClient";
+import { isProUser } from "@/lib/gating.server";
 
 export const metadata: Metadata = {
   title: "Valoración preanestésica — hoja de riesgo perioperatorio — DEC",
@@ -20,6 +21,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function ValoracionPage() {
-  return <ValoracionClient />;
+export default async function ValoracionPage() {
+  const isPro = await isProUser();
+  return <ValoracionClient isPro={isPro} />;
 }

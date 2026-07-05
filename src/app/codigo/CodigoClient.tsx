@@ -25,6 +25,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePatient } from "@/lib/patient/PatientContext";
 import ClinicalConsentGate from "@/components/ClinicalConsentGate";
+import ProGateClient from "@/components/ProGateClient";
+import { PRO_FEATURES } from "@/lib/gating";
 
 // ------------------------------------------------------------
 // Modelo de fármaco de emergencia (paridad con EmergencyDrug.swift)
@@ -232,7 +234,7 @@ function fmtClock(totalSeconds: number): string {
 // ============================================================
 // Componente
 // ============================================================
-export default function CodigoClient() {
+export default function CodigoClient({ isPro = false }: { isPro?: boolean }) {
   const { active } = usePatient();
   const patientWeight = active.weightKg && active.weightKg > 0 ? active.weightKg : null;
 
@@ -266,7 +268,7 @@ export default function CodigoClient() {
     openDrug != null ? CATEGORIES[openDrug.cat].drugs[openDrug.idx] : null;
 
   return (
-    <>
+    <ProGateClient feature={PRO_FEATURES.CODE_BLUE} isPro={isPro}>
       <ClinicalConsentGate />
       <div style={{ paddingBottom: "3rem" }}>
       {/* Barra superior compacta */}
@@ -434,7 +436,7 @@ export default function CodigoClient() {
         }
       `}</style>
       </div>
-    </>
+    </ProGateClient>
   );
 }
 

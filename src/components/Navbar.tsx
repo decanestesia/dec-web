@@ -4,52 +4,73 @@ import Link from "next/link";
 import { useTheme } from "./ThemeProvider";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { navCategories, navSections, type Category, type Section } from "@/lib/registry";
+import { primaryNavSections, secondaryNavSections, type Section } from "@/lib/registry";
 
-// El navbar se DERIVA del registro central (src/lib/registry.ts). Los items y su
-// agrupación por categoría salen de SECTIONS/CATEGORIES: agregar una sección al
-// registro la hace aparecer aquí sola. /manual va destacado aparte; /codigo
-// conserva su acento rojo de urgencia.
-
-const MANUAL_SLUG = "/manual";
+// Navbar PLANO: lista de enlaces DIRECTOS (un clic = una sección), SIN dropdowns
+// por categoría. Los items se derivan del registro central (src/lib/registry.ts)
+// pero se renderizan planos. Las herramientas clínicas (primaryNavSections) van
+// SIEMPRE visibles y directas; solo las secundarias (blog/about) caen en un
+// overflow "···". /codigo conserva su acento rojo de urgencia. Las legales y
+// /manual quedan fuera (hideFromNav) — las legales viven en el footer.
 
 export function Navbar({ userSlot }: { userSlot?: ReactNode }) {
   const { theme, toggle } = useTheme();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false); // menú móvil
-  const [openCat, setOpenCat] = useState<Category | null>(null); // dropdown desktop
-  const [openMobileCat, setOpenMobileCat] = useState<Category | null>(null); // colapsable móvil
+  const [overflowOpen, setOverflowOpen] = useState(false); // overflow "···" desktop
   const navRef = useRef<HTMLElement>(null);
 
   const isActive = (path: string, exact = false) =>
     exact ? pathname === path : pathname === path || pathname.startsWith(path + "/");
 
-  // Categorías con secciones visibles (excluye /manual, que va aparte).
-  const cats = navCategories().map((c) => ({
-    ...c,
-    sections: navSections(c.key).filter((s) => s.slug !== MANUAL_SLUG),
-  })).filter((c) => c.sections.length > 0);
+  const primary = primaryNavSections(); // clínicas + producto → siempre directas
+  const secondary = secondaryNavSections(); // blog/about → overflow
 
-  const catActive = (sections: Section[]) => sections.some((s) => isActive(s.slug, s.slug === "/"));
-
-  // Cerrar dropdown de desktop al hacer click fuera o cambiar de ruta.
+  // Cerrar overflow al cambiar de ruta.
   useEffect(() => {
-    setOpenCat(null);
+    setOverflowOpen(false);
   }, [pathname]);
 
   useEffect(() => {
-    if (openCat === null) return;
+    if (!overflowOpen) return;
     const onClick = (e: MouseEvent) => {
-      if (navRef.current && !navRef.current.contains(e.target as Node)) setOpenCat(null);
+      if (navRef.current && !navRef.current.contains(e.target as Node)) setOverflowOpen(false);
     };
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpenCat(null);
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOverflowOpen(false);
     document.addEventListener("mousedown", onClick);
     document.addEventListener("keydown", onKey);
     return () => {
       document.removeEventListener("mousedown", onClick);
       document.removeEventListener("keydown", onKey);
     };
-  }, [openCat]);
+  }, [overflowOpen]);
+
+  // Enlace directo del navbar desktop.
+  const NavLink = ({ s }: { s: Section }) => {
+    const active = isActive(s.slug, s.slug === "/");
+    return (
+      <Link
+        href={s.slug}
+        className={`nav-link ${active ? "nav-link-active" : ""}`}
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: "0.25rem",
+          whiteSpace: "nowrap",
+          color: s.urgent ? "var(--red)" : active ? "var(--accent)" : undefined,
+          fontWeight: s.urgent ? 700 : undefined,
+          borderBottomColor: active ? (s.urgent ? "var(--red)" : "var(--accent)") : "transparent",
+        }}
+      >
+        {s.navLabel}
+        {s.isNew && (
+          <span style={{ color: "var(--accent)", fontSize: "0.5rem", letterSpacing: "0.05em" }}>
+            new
+          </span>
+        )}
+      </Link>
+    );
+  };
 
   return (
     <nav
@@ -75,113 +96,78 @@ export function Navbar({ userSlot }: { userSlot?: ReactNode }) {
           />
         </Link>
 
-        {/* ─── Desktop nav ─────────────────────────────────────── */}
+        {/* ─── Desktop nav (plano) ─────────────────────────────── */}
         <div className="hidden md:flex items-center gap-0.5">
-          {cats.map((c) => {
-            const active = catActive(c.sections);
-            const open = openCat === c.key;
-            return (
-              <div key={c.key} style={{ position: "relative" }}>
-                <button
-                  onClick={() => setOpenCat(open ? null : c.key)}
-                  className={`nav-link ${active ? "nav-link-active" : ""}`}
-                  aria-haspopup="true"
-                  aria-expanded={open}
+          {/* Enlaces clínicos + producto: SIEMPRE directos, nunca anidados */}
+          {primary.map((s) => (
+            <NavLink key={s.slug} s={s} />
+          ))}
+
+          {/* Overflow "···" solo para secundarios (blog/about) */}
+          {secondary.length > 0 && (
+            <div style={{ position: "relative" }}>
+              <button
+                onClick={() => setOverflowOpen((o) => !o)}
+                className={`nav-link ${secondary.some((s) => isActive(s.slug)) ? "nav-link-active" : ""}`}
+                aria-haspopup="true"
+                aria-expanded={overflowOpen}
+                aria-label="Más secciones"
+                style={{
+                  background: "none",
+                  cursor: "pointer",
+                  color: overflowOpen ? "var(--accent)" : undefined,
+                  borderBottomColor: overflowOpen ? "var(--accent)" : "transparent",
+                }}
+              >
+                ···
+              </button>
+
+              {overflowOpen && (
+                <div
+                  className="fade-in"
+                  role="menu"
                   style={{
-                    background: "none",
-                    cursor: "pointer",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "0.2rem",
-                    borderBottomColor: active || open ? "var(--accent)" : "transparent",
-                    color: open ? "var(--accent)" : undefined,
+                    position: "absolute",
+                    top: "calc(100% + 1px)",
+                    right: 0,
+                    minWidth: 160,
+                    background: "var(--bg-1)",
+                    border: "1px solid var(--border-hi)",
+                    boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
+                    padding: "0.35rem",
+                    zIndex: 60,
                   }}
                 >
-                  {c.label}
-                  <span style={{ fontSize: "0.55rem", opacity: 0.7 }}>{open ? "▴" : "▾"}</span>
-                </button>
-
-                {/* Dropdown */}
-                {open && (
-                  <div
-                    className="fade-in"
-                    role="menu"
-                    style={{
-                      position: "absolute",
-                      top: "calc(100% + 1px)",
-                      right: 0,
-                      minWidth: 260,
-                      background: "var(--bg-1)",
-                      border: "1px solid var(--border-hi)",
-                      boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
-                      padding: "0.35rem",
-                      zIndex: 60,
-                    }}
-                  >
-                    <div className="mono" style={{ color: "var(--text-3)", fontSize: "0.55rem", padding: "0.3rem 0.5rem 0.4rem", letterSpacing: "0.06em" }}>
-                      {c.desc}
-                    </div>
-                    {c.sections.map((s) => {
-                      const linkActive = isActive(s.slug, s.slug === "/");
-                      return (
-                        <Link
-                          key={s.slug}
-                          href={s.slug}
-                          role="menuitem"
-                          onClick={() => setOpenCat(null)}
-                          className="card-interactive"
-                          style={{
-                            display: "flex",
-                            alignItems: "flex-start",
-                            gap: "0.5rem",
-                            padding: "0.45rem 0.5rem",
-                            textDecoration: "none",
-                            borderLeft: `2px solid ${linkActive ? (s.urgent ? "var(--red)" : "var(--accent)") : "transparent"}`,
-                          }}
-                        >
-                          {s.icon && <span style={{ fontSize: "0.9rem", lineHeight: 1.3 }}>{s.icon}</span>}
-                          <span style={{ minWidth: 0 }}>
-                            <span
-                              className="mono"
-                              style={{
-                                display: "block",
-                                fontSize: "0.72rem",
-                                fontWeight: 600,
-                                color: s.urgent ? "var(--red)" : linkActive ? "var(--accent)" : "var(--text-1)",
-                              }}
-                            >
-                              {s.navLabel}
-                              {s.isNew && (
-                                <span style={{ color: "var(--accent)", fontSize: "0.5rem", marginLeft: "0.35rem", letterSpacing: "0.05em" }}>
-                                  new
-                                </span>
-                              )}
-                            </span>
-                            <span style={{ display: "block", color: "var(--text-3)", fontSize: "0.62rem", lineHeight: 1.4, marginTop: "0.1rem" }}>
-                              {s.short}
-                            </span>
-                          </span>
-                        </Link>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-
-          {/* Manual destacado */}
-          <Link
-            href={MANUAL_SLUG}
-            className={`nav-link ${isActive(MANUAL_SLUG) ? "nav-link-active" : ""}`}
-            style={{
-              color: isActive(MANUAL_SLUG) ? "var(--accent)" : "var(--text-1)",
-              fontWeight: 600,
-              borderBottomColor: isActive(MANUAL_SLUG) ? "var(--accent)" : "transparent",
-            }}
-          >
-            📖 manual
-          </Link>
+                  {secondary.map((s) => {
+                    const active = isActive(s.slug);
+                    return (
+                      <Link
+                        key={s.slug}
+                        href={s.slug}
+                        role="menuitem"
+                        onClick={() => setOverflowOpen(false)}
+                        className="card-interactive mono"
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.45rem",
+                          padding: "0.45rem 0.5rem",
+                          textDecoration: "none",
+                          fontSize: "0.72rem",
+                          fontWeight: 600,
+                          color: active ? "var(--accent)" : "var(--text-1)",
+                          borderLeft: `2px solid ${active ? "var(--accent)" : "transparent"}`,
+                        }}
+                      >
+                        {s.icon && <span style={{ fontSize: "0.85rem" }}>{s.icon}</span>}
+                        {s.navLabel}
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Divider */}
           <div style={{ width: 1, height: 14, background: "var(--border-hi)", margin: "0 0.4rem" }} />
@@ -217,91 +203,38 @@ export function Navbar({ userSlot }: { userSlot?: ReactNode }) {
         </button>
       </div>
 
-      {/* ─── Mobile menu ───────────────────────────────────────── */}
+      {/* ─── Mobile menu (plano) ───────────────────────────────── */}
       {menuOpen && (
         <div
           className="md:hidden fade-in"
           style={{ borderTop: "1px solid var(--border)", background: "var(--bg-1)", padding: "0.5rem 0", maxHeight: "80vh", overflowY: "auto" }}
         >
-          <div className="wrap flex flex-col gap-0.5">
-            {/* Manual destacado arriba */}
-            <Link
-              href={MANUAL_SLUG}
-              onClick={() => setMenuOpen(false)}
-              className="mono"
-              style={{
-                color: isActive(MANUAL_SLUG) ? "var(--accent)" : "var(--text-0)",
-                fontWeight: 700,
-                fontSize: "0.78rem",
-                padding: "0.5rem 0",
-                textDecoration: "none",
-                borderBottom: "1px solid var(--border)",
-              }}
-            >
-              📖 manual del sistema
-            </Link>
-
-            {/* Categorías colapsables */}
-            {cats.map((c) => {
-              const expanded = openMobileCat === c.key;
+          <div className="wrap flex flex-col">
+            {/* Lista plana de enlaces directos: clínicos + producto, luego secundarios */}
+            {[...primary, ...secondary].map((s) => {
+              const active = isActive(s.slug, s.slug === "/");
               return (
-                <div key={c.key} style={{ borderBottom: "1px solid var(--border)" }}>
-                  <button
-                    onClick={() => setOpenMobileCat(expanded ? null : c.key)}
-                    className="mono"
-                    aria-expanded={expanded}
-                    style={{
-                      width: "100%",
-                      background: "none",
-                      border: "none",
-                      cursor: "pointer",
-                      color: catActive(c.sections) ? "var(--accent)" : "var(--text-2)",
-                      fontSize: "0.72rem",
-                      fontWeight: 600,
-                      letterSpacing: "0.06em",
-                      textTransform: "uppercase",
-                      padding: "0.55rem 0",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    {c.label}
-                    <span style={{ fontSize: "0.6rem", opacity: 0.7 }}>{expanded ? "▴" : "▾"}</span>
-                  </button>
-
-                  {expanded && (
-                    <div style={{ paddingBottom: "0.4rem" }}>
-                      {c.sections.map((s) => {
-                        const linkActive = isActive(s.slug, s.slug === "/");
-                        return (
-                          <Link
-                            key={s.slug}
-                            href={s.slug}
-                            onClick={() => setMenuOpen(false)}
-                            className="mono"
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "0.4rem",
-                              color: s.urgent ? "var(--red)" : linkActive ? "var(--accent)" : "var(--text-2)",
-                              fontWeight: s.urgent ? 700 : 400,
-                              fontSize: "0.72rem",
-                              padding: "0.4rem 0 0.4rem 0.75rem",
-                              textDecoration: "none",
-                            }}
-                          >
-                            {s.icon && <span>{s.icon}</span>}
-                            <span>→ {s.navLabel}</span>
-                            {s.isNew && (
-                              <span style={{ color: "var(--accent)", fontSize: "0.5rem" }}>new</span>
-                            )}
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
+                <Link
+                  key={s.slug}
+                  href={s.slug}
+                  onClick={() => setMenuOpen(false)}
+                  className="mono"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    color: s.urgent ? "var(--red)" : active ? "var(--accent)" : "var(--text-2)",
+                    fontWeight: s.urgent ? 700 : 400,
+                    fontSize: "0.75rem",
+                    padding: "0.55rem 0",
+                    textDecoration: "none",
+                    borderBottom: "1px solid var(--border)",
+                  }}
+                >
+                  {s.icon && <span>{s.icon}</span>}
+                  <span>{s.navLabel}</span>
+                  {s.isNew && <span style={{ color: "var(--accent)", fontSize: "0.5rem" }}>new</span>}
+                </Link>
               );
             })}
 
@@ -318,7 +251,7 @@ export function Navbar({ userSlot }: { userSlot?: ReactNode }) {
                 cursor: "pointer",
                 color: "var(--text-3)",
                 fontSize: "0.65rem",
-                padding: "0.5rem 0",
+                padding: "0.55rem 0",
                 textAlign: "left",
                 borderBottom: userSlot ? "1px solid var(--border)" : "none",
               }}

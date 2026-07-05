@@ -88,40 +88,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Manual — índice vivo del sistema */}
-      <section style={{ marginBottom: "1.75rem" }}>
-        <Link
-          href="/manual"
-          className="card-interactive"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: "0.75rem",
-            flexWrap: "wrap",
-            textDecoration: "none",
-            color: "inherit",
-            background: "var(--bg-2)",
-            border: "1px solid var(--accent-border)",
-            borderLeft: "3px solid var(--accent)",
-            padding: "0.9rem 1rem",
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-            <span style={{ fontSize: "1.3rem" }}>📖</span>
-            <span>
-              <span style={{ display: "block", color: "var(--text-0)", fontSize: "0.9rem", fontWeight: 700 }}>
-                Manual del sistema
-              </span>
-              <span className="mono" style={{ color: "var(--text-3)", fontSize: "0.66rem" }}>
-                índice vivo de todas las secciones · qué hace cada una
-              </span>
-            </span>
-          </div>
-          <span className="mono" style={{ color: "var(--accent)", fontSize: "0.72rem" }}>man dec →</span>
-        </Link>
-      </section>
-
       {/* Accesos destacados */}
       <section style={{ marginBottom: "2.5rem" }}>
         <div className="prompt mono" style={{ marginBottom: "0.75rem" }}>

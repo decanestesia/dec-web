@@ -257,6 +257,9 @@ export const SECTIONS: Section[] = [
       "Este documento. Manual/índice vivo del sistema DEC generado desde el registro central de secciones: cada vez que se agrega o modifica un módulo, el manual se actualiza solo. Agrupa todas las secciones por categoría con su descripción, fuentes, plataformas y enlace, e incluye un filtro en vivo.",
     platforms: ALL,
     isNew: true,
+    // Oculto del navbar por decisión de producto (jul-2026): la página /manual
+    // queda en disco pero sin enlaces entrantes hasta reintroducirla.
+    hideFromNav: true,
   },
   {
     slug: "/blog",
@@ -405,4 +408,40 @@ export function navCategories(): { key: Category; label: string; desc: string }[
 /** Secciones visibles en el navbar de una categoría. */
 export function navSections(cat: Category): Section[] {
   return SECTIONS.filter((s) => s.category === cat && !s.hideFromNav);
+}
+
+// ── NAVBAR PLANO ─────────────────────────────────────────────────────────────
+// El navbar es una lista PLANA de enlaces directos (un clic = una sección),
+// SIN dropdowns por categoría. Se deriva del registro para mantener la fuente
+// única, pero se renderiza plano.
+
+/** Categorías consideradas "secundarias" en el navbar: van al overflow "···". */
+const SECONDARY_CATEGORIES: Category[] = ["info"];
+
+/** Slugs excluidos del navbar plano (además de hideFromNav). */
+const NAV_EXCLUDE_SLUGS = new Set(["/", "/manual"]);
+
+/** ¿Es una sección clínica/primaria? (siempre visible y directa en el navbar). */
+function isPrimaryNavSection(s: Section): boolean {
+  return !SECONDARY_CATEGORIES.includes(s.category);
+}
+
+/**
+ * Secciones PRIMARIAS del navbar plano: herramientas clínicas + producto.
+ * Siempre visibles y directas (nunca anidadas). En orden del registro.
+ */
+export function primaryNavSections(): Section[] {
+  return SECTIONS.filter(
+    (s) => !s.hideFromNav && !NAV_EXCLUDE_SLUGS.has(s.slug) && isPrimaryNavSection(s),
+  );
+}
+
+/**
+ * Secciones SECUNDARIAS del navbar plano: blog, about, etc.
+ * Pueden ir en un pequeño overflow "···" si no caben. En orden del registro.
+ */
+export function secondaryNavSections(): Section[] {
+  return SECTIONS.filter(
+    (s) => !s.hideFromNav && !NAV_EXCLUDE_SLUGS.has(s.slug) && !isPrimaryNavSection(s),
+  );
 }

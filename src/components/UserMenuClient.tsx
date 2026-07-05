@@ -20,9 +20,11 @@ const TIER_LABELS: Record<SubscriptionTier, string> = {
 export function UserMenuClient({
   profile,
   tier,
+  isAdmin = false,
 }: {
   profile: Profile;
   tier: SubscriptionTier;
+  isAdmin?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
@@ -179,6 +181,15 @@ export function UserMenuClient({
           >
             Canjear código
           </Link>
+          {isAdmin && (
+            <Link
+              href="/admin"
+              onClick={() => setOpen(false)}
+              className="user-menu-item user-menu-item-admin"
+            >
+              ⚙ Admin
+            </Link>
+          )}
 
           <button
             type="button"
@@ -239,6 +250,13 @@ export function UserMenuClient({
         :global(.user-menu-item-accent) {
           color: var(--accent);
           font-weight: 600;
+        }
+        :global(.user-menu-item-admin) {
+          color: var(--text-2);
+          border-top: 1px solid var(--border);
+          font-family: "JetBrains Mono", monospace;
+          font-size: 0.72rem;
+          letter-spacing: 0.03em;
         }
         :global(.user-menu-item-signout) {
           color: var(--red);

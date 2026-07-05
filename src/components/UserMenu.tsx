@@ -4,7 +4,7 @@
 // Server component que decide qué renderizar según haya sesión o no.
 
 import Link from "next/link";
-import { getProfile, getActiveTier } from "@/lib/auth";
+import { getProfile, getActiveTier, isAdmin } from "@/lib/auth";
 import { UserMenuClient } from "./UserMenuClient";
 
 export async function UserMenu() {
@@ -42,7 +42,8 @@ export async function UserMenu() {
     );
   }
 
-  // Hay sesión → dropdown
-  const tier = await getActiveTier();
-  return <UserMenuClient profile={profile} tier={tier} />;
+  // Hay sesión → dropdown. isAdmin gatea el link a /admin (el panel y sus
+  // RPC se re-verifican server-side; esto solo decide si se muestra la puerta).
+  const [tier, admin] = await Promise.all([getActiveTier(), isAdmin()]);
+  return <UserMenuClient profile={profile} tier={tier} isAdmin={admin} />;
 }

@@ -89,6 +89,28 @@ export async function getProfile(): Promise<Profile | null> {
 }
 
 /**
+ * ¿Es admin (dueño) este usuario? Lee profiles.is_admin.
+ * Server-side; solo gatea la UI. Las RPC admin_* re-verifican is_admin
+ * internamente (SECURITY DEFINER), así que esto no es la única barrera —
+ * un usuario que forje la petición choca contra el gate de la RPC.
+ * // el candado de verdad está en la base; esto solo esconde la puerta
+ */
+export async function isAdmin(): Promise<boolean> {
+  const user = await getUser();
+  if (!user) return false;
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("is_admin")
+    .eq("id", user.id)
+    .single();
+
+  if (error || !data) return false;
+  return (data as { is_admin: boolean | null }).is_admin === true;
+}
+
+/**
  * ¿Puede publicar en el blog este usuario? Lee profiles.can_publish.
  * Server-side; la RLS de blog_posts lo re-verifica en la escritura, esto
  * es solo para gatear la UI (mostrar/ocultar editor y botón "nuevo post").

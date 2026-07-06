@@ -1230,7 +1230,7 @@ export default function ConcentracionPlasmaticaClient() {
         <br />
         {"// no es TCI, no es Ce, no es dosis: es una brújula, no un GPS"}
         <br />
-        {"// titula por clínica y monitorización; si algo sale mal, la culpa no es del app"}
+        {"// titula por clínica y monitorización; la responsabilidad clínica es del profesional"}
       </p>
     </div>
   );

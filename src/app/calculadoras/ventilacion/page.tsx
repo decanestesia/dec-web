@@ -822,7 +822,7 @@ export default function VentilacionPage() {
           Ingresa la edad para calcular (talla y peso afinan el resto).
           <br />
           <span style={{ opacity: 0.5, fontSize: "0.6rem" }}>
-            {"// sin edad no sé si intubar a un neonato o a un rugbier"}
+            {"// ingresa la edad para ajustar los parámetros por rango etario"}
           </span>
         </div>
       )}
@@ -986,7 +986,7 @@ export default function VentilacionPage() {
         <br />
         {"// el paciente respira por su fisiología, no por tu fórmula"}
         <br />
-        {"// si algo sale mal, la culpa no es del app"}
+        {"// la responsabilidad clínica final es del profesional"}
       </p>
 
       {/* Volver */}

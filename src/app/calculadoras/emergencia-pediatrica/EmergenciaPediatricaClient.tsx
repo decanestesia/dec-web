@@ -897,7 +897,7 @@ export default function EmergenciaPediatricaClient() {
             : "Ingresa la edad (1–12 años) para estimar el peso y calcular."}
           <br />
           <span style={{ opacity: 0.5, fontSize: "0.6rem" }}>
-            {"// sin peso no hay dosis; y sin dosis, sólo hay masaje y buenas intenciones"}
+            {"// sin peso no se calculan las dosis: ingrésalo para continuar"}
           </span>
         </div>
       )}
@@ -1074,9 +1074,9 @@ export default function EmergenciaPediatricaClient() {
       >
         {"// dosis de literatura aceptada — no sustituyen el algoritmo ni al equipo de reanimación"}
         <br />
-        {"// verifica concentración, dilución y volumen antes de empujar el émbolo"}
+        {"// verifica concentración, dilución y volumen antes de administrar"}
         <br />
-        {"// si algo sale mal, la culpa no es del app"}
+        {"// la responsabilidad clínica final es del profesional"}
       </p>
 
       {/* Volver */}

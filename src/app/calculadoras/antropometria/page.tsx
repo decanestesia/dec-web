@@ -654,7 +654,7 @@ export default function AntropometriaPage() {
         <br />
         {"// ajusta según respuesta clínica, comorbilidades y monitorización"}
         <br />
-        {"// si algo sale mal, la culpa no es del app"}
+        {"// la responsabilidad clínica final es del profesional"}
       </p>
     </div>
   );

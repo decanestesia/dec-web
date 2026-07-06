@@ -559,7 +559,7 @@ export default function ExtubacionPage() {
           <br />
           {"// pasar la SBT es un examen; extubar es aplicar lo aprendido con el carro de vía aérea a mano"}
           <br />
-          {"// si algo sale mal, la culpa no es del app"}
+          {"// la responsabilidad clínica final es del profesional"}
         </p>
         <Link href="/guias" className="btn btn-outline btn-sm" style={{ marginTop: "1rem", textDecoration: "none" }}>
           ← más guías

@@ -1718,7 +1718,7 @@ export default function ElectrolitosPage() {
         <br />
         {"// correlaciona con la clínica, la volemia y la tendencia del paciente"}
         <br />
-        {"// si algo sale mal, la culpa no es del app"}
+        {"// la responsabilidad clínica final es del profesional"}
       </p>
     </div>
   );

@@ -81,8 +81,9 @@ export function Footer() {
         {/* Columna 4: contacto */}
         <div>
           <FooterTitle>contacto</FooterTitle>
-          <FooterLink href="mailto:hola@decanestesia.com" external>
-            hola@decanestesia.com
+          <FooterLink href="/soporte">soporte y ayuda</FooterLink>
+          <FooterLink href="mailto:soporte@decanestesia.com" external>
+            soporte@decanestesia.com
           </FooterLink>
           <FooterLink href="mailto:errores@decanestesia.com" external>
             reportar error

@@ -34,6 +34,7 @@ const STATIC: Item[] = [
   { id: "g-ext", label: "Guía: extubación y destete", hint: "SBT · RSBI · fuga", href: "/guias/extubacion", group: "Páginas" },
   { id: "g-tx", label: "Guía: transfusión", hint: "hemoderivados", href: "/guias/transfusion", group: "Páginas" },
   { id: "g-mh", label: "Guía: hipertermia maligna", hint: "dantroleno · MHAUS", href: "/guias/hipertermia-maligna", group: "Páginas" },
+  { id: "g-arr", label: "Guía: arritmias y bloqueos", hint: "TSV · FA · TV · ACLS", href: "/guias/arritmias", group: "Páginas" },
   { id: "p-far", label: "Catálogo de fármacos", hint: "494 fármacos", href: "/farmacos", group: "Páginas" },
   { id: "p-int", label: "Verificador de interacciones", hint: "multi-fármaco", href: "/interacciones", group: "Páginas" },
   { id: "p-pro", label: "DEC Pro", hint: "suscripción", href: "/pro", group: "Páginas" },

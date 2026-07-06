@@ -199,6 +199,21 @@ const PROTOCOLS: Protocol[] = [
     source: "Panchal AR, et al. 2020 AHA Guidelines · Moitra VK, et al. Anesth Analg 2018;126:876.",
   },
   {
+    id: "arritmias",
+    title: "Arritmias periparo (bradi · TSV · FA · TV)",
+    accent: "var(--red)",
+    href: "/guias/arritmias",
+    steps: [
+      { label: "¿Estable o inestable?", detail: "Inestabilidad = hipotensión, alteración del estado mental, shock, dolor torácico isquémico o IC aguda por la arritmia. Inestable + taqui → cardioversión sincronizada; inestable + bradi → atropina/marcapasos; sin pulso → paro." },
+      { label: "Bradicardia inestable", detail: "Atropina 1 mg IV c/3-5 min (máx 3 mg). Si Mobitz II / bloqueo completo o no responde: marcapasos transcutáneo, dopamina 5-20 mcg/kg/min o adrenalina 2-10 mcg/min." },
+      { label: "TSV (estrecho regular)", detail: "Vagales → adenosina 6 mg IV push rápido → 12 mg. Inestable: cardioversión sincronizada 50-100 J." },
+      { label: "FA / flutter (estrecho irregular)", detail: "Control de frecuencia: diltiazem 0.25 mg/kg IV en 2 min o betabloqueante. Inestable: cardioversión sincronizada 120-200 J (flutter 50-100 J). WPW + FA: NO bloqueadores del nodo AV." },
+      { label: "TV con pulso (ancho)", detail: "Monomorfa estable: amiodarona 150 mg IV en 10 min. Inestable: cardioversión sincronizada 100 J. Polimorfa / torsades: magnesio 1-2 g IV; sin pulso → desfibrilar." },
+      { label: "Cardioversión — energías", detail: "Estrecho regular 50-100 J · FA 120-200 J · TV monomorfa con pulso 100 J · polimorfa/sin pulso → desfibrilar 120-200 J. Sedar si el paciente está consciente." },
+    ],
+    source: "Panchal AR, et al. 2020 AHA ACLS. Circulation 2020;142(16_suppl_2):S366-S468.",
+  },
+  {
     id: "rsi",
     title: "RSI — inducción de secuencia rápida",
     accent: "var(--cyan)",
@@ -590,6 +605,46 @@ function CodeTimer() {
   const startRef = useRef<number | null>(null);
   const baseRef = useRef(0);
 
+  // Metrónomo de compresiones: 110/min (rango AHA 100-120), arranca con el timer.
+  const [metronomeOn, setMetronomeOn] = useState(true);
+  const [beat, setBeat] = useState(0);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const METRONOME_BPM = 110;
+
+  // Crea/reanuda el AudioContext (debe hacerse tras un gesto del usuario).
+  function ensureAudio() {
+    if (typeof window === "undefined") return;
+    if (!audioCtxRef.current) {
+      const AC =
+        window.AudioContext ??
+        (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+      if (AC) audioCtxRef.current = new AC();
+    }
+    if (audioCtxRef.current?.state === "suspended") void audioCtxRef.current.resume();
+  }
+
+  // Click corto (1 kHz) + vibración en móvil + avance del indicador visual.
+  function playClick() {
+    const ctx = audioCtxRef.current;
+    if (ctx && ctx.state === "running") {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "square";
+      osc.frequency.value = 1000;
+      const t = ctx.currentTime;
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.exponentialRampToValueAtTime(0.4, t + 0.001);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.06);
+    }
+    if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
+      navigator.vibrate(25);
+    }
+    setBeat((b) => b + 1);
+  }
+
   // Tick con requestAnimationFrame-lite (setInterval a 250 ms es suficiente).
   useEffect(() => {
     if (!running) return;
@@ -603,12 +658,23 @@ function CodeTimer() {
     return () => clearInterval(id);
   }, [running]);
 
+  // Metrónomo: mientras el código corre y no está silenciado, marca 110/min.
+  useEffect(() => {
+    if (!running || !metronomeOn) return;
+    ensureAudio();
+    playClick();
+    const id = setInterval(playClick, Math.round(60000 / METRONOME_BPM));
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [running, metronomeOn]);
+
   function toggle() {
     if (running) {
       // pausar: fija la base acumulada
       baseRef.current = elapsed;
       setRunning(false);
     } else {
+      ensureAudio();
       baseRef.current = elapsed;
       setRunning(true);
     }
@@ -626,6 +692,7 @@ function CodeTimer() {
     setEpiCount((c) => c + 1);
     if (!running) {
       // marcar adrenalina inicia el reloj si estaba parado (arranca el código)
+      ensureAudio();
       baseRef.current = elapsed;
       setRunning(true);
     }
@@ -694,6 +761,46 @@ function CodeTimer() {
           </span>
         )}
       </div>
+
+      {/* Metrónomo de compresiones (110/min, rango AHA 100-120) */}
+      <button
+        onClick={() => {
+          ensureAudio();
+          setMetronomeOn((v) => !v);
+        }}
+        className="mono"
+        title="Metrónomo de compresiones — 110/min (rango AHA 100-120). Arranca con el timer."
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "0.5rem",
+          minHeight: 34,
+          padding: "0 0.6rem",
+          cursor: "pointer",
+          background: "var(--bg-1)",
+          color: metronomeOn ? "var(--accent)" : "var(--text-3)",
+          border: `1px solid ${metronomeOn ? "var(--accent)" : "var(--border-hi)"}`,
+          fontSize: "0.62rem",
+          textTransform: "uppercase",
+          letterSpacing: "0.06em",
+          fontWeight: 700,
+        }}
+      >
+        <span>{metronomeOn ? "♪ metrónomo 110/min" : "metrónomo silenciado"}</span>
+        <span
+          aria-hidden
+          style={{
+            width: 11,
+            height: 11,
+            borderRadius: "50%",
+            background:
+              running && metronomeOn && beat % 2 === 0 ? "var(--accent)" : "var(--bg-3)",
+            border: "1px solid var(--border-hi)",
+            transition: "background 70ms linear",
+          }}
+        />
+      </button>
 
       {/* Controles grandes */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.4rem" }}>

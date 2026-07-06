@@ -4,7 +4,7 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Guías clínicas — DEC",
   description:
-    "34 guías de referencia perioperatoria y de cuidados críticos: crisis (hipertermia maligna, anafilaxia, HPP, LAST, paro perioperatorio), manejo por paciente y protocolos, con umbrales y dosis citados de literatura aceptada.",
+    "35 guías de referencia perioperatoria y de cuidados críticos: crisis (hipertermia maligna, anafilaxia, HPP, LAST, paro perioperatorio, arritmias), manejo por paciente y protocolos, con umbrales y dosis citados de literatura aceptada.",
 };
 
 interface GuideCard {
@@ -32,6 +32,7 @@ const GUIDES: GuideCard[] = [
   { href: "/guias/nvpo-manejo", icon: "🤢", title: "NVPO: profilaxis y rescate", subtitle: "Multimodal, dosis, rescate por clase distinta", tag: "NVPO" },
   { href: "/guias/delirium-emergencia", icon: "😵", title: "Delirium y agitación al despertar", subtitle: "CAM-ICU, PAED, prevención, dexmedetomidina", tag: "DELIRIUM" },
   { href: "/guias/paro-perioperatorio", icon: "⚡", title: "Paro perioperatorio (ACLS)", subtitle: "Causas reversibles, LAST, dosis, cesárea perimortem", tag: "ACLS" },
+  { href: "/guias/arritmias", icon: "❤️", title: "Arritmias y bloqueos", subtitle: "Bradi, bloqueo AV, TSV, FA, TV, torsades, paro, cardioversión", tag: "ARRIT" },
   { href: "/guias/sepsis-perioperatoria", icon: "🦠", title: "Sepsis y shock séptico", subtitle: "Paquete 1ª hora, fluidos, noradrenalina, foco", tag: "SEPSIS" },
   { href: "/guias/espinal-alta-total", icon: "🧊", title: "Bloqueo espinal alto / total", subtitle: "Reconocer, soporte ventilatorio, vasopresores", tag: "ESPINAL" },
   { href: "/guias/embolia-gaseosa-venosa", icon: "🫧", title: "Embolia gaseosa venosa (VAE)", subtitle: "Detección, Durant, aspirar CVC, soporte", tag: "VAE" },

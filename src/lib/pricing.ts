@@ -31,7 +31,7 @@ export const PRICE_TBD = "—" as const;
  * Mientras sea `false` la página muestra el aviso "precios provisionales".
  * Ponlo en `true` cuando confirmes los importes en las tiendas.
  */
-export const PRICES_ARE_FINAL = false;
+export const PRICES_ARE_FINAL = true;
 
 /**
  * El checkout web (Lemon Squeezy) está cableado y se puede comprar.
@@ -70,28 +70,25 @@ export const PRICING_TIERS: PricingTier[] = [
   {
     id: "monthly",
     name: "Pro Mensual",
-    price: "$2.99", // provisional — fijar en App Store Connect / Lemon Squeezy
+    price: "$8.69",
     unit: "/ mes",
     note: `${FREE_TRIAL_DAYS} días de prueba en el primer registro`,
-    isProvisional: true,
   },
   {
     id: "annual",
     name: "Pro Anual",
-    price: "$19.99", // provisional — fijar en tienda
+    price: "$59.69",
     unit: "/ año",
-    note: `Ahorra ~44% vs. mensual · ${FREE_TRIAL_DAYS} días de prueba`,
+    note: `Ahorra ~43% vs. mensual · ${FREE_TRIAL_DAYS} días de prueba`,
     highlight: true,
     badge: "Mejor valor",
-    isProvisional: true,
   },
   {
     id: "lifetime",
     name: "Pro Lifetime",
-    price: "$49.99", // provisional — fijar en tienda
+    price: "$149.69",
     unit: "pago único",
     note: "Una vez. Para siempre. Sin trial.",
-    isProvisional: true,
   },
 ];
 

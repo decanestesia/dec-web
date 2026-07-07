@@ -44,11 +44,15 @@ export const CHECKOUT_LIVE = false;
 export const FREE_TRIAL_DAYS = 14;
 
 /**
- * OFERTA DE LANZAMIENTO (primeros ~3 meses): suscripciones a mitad de precio el
- * PRIMER AÑO + lifetime rebajado. En iOS = Introductory Offer (mensual/anual) +
- * precio promocional temporal del lifetime. Apple solo permite UNA oferta intro,
- * así que durante el lanzamiento el descuento reemplaza a la prueba gratis.
- * Poner en `false` (y quitar la oferta en App Store Connect) al terminar el lanzamiento.
+ * OFERTA DE LANZAMIENTO (primeros ~3 meses): precios a mitad de precio.
+ * IMPLEMENTACIÓN (Apple no combina prueba+descuento en una sola intro offer):
+ *   · Prueba gratis de 14 días = la Introductory Offer (SIEMPRE activa).
+ *   · Descuento de lanzamiento = el PRECIO BASE se fija en los precios promo
+ *     ($4.69/$29.69/$89.69) durante el lanzamiento; al terminar, se SUBE a los
+ *     regulares ($8.69/$59.69/$149.69) en App Store Connect.
+ * Durante el lanzamiento: `price` (abajo) es el precio regular futuro y
+ * `promoPrice` es el precio vigente (de lanzamiento). Al terminar el lanzamiento,
+ * poner LAUNCH_PROMO=false y `price` pasa a ser el precio vigente.
  */
 export const LAUNCH_PROMO = true;
 

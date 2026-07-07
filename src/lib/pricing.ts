@@ -40,8 +40,17 @@ export const PRICES_ARE_FINAL = true;
  */
 export const CHECKOUT_LIVE = false;
 
-/** Días de prueba gratis del primer registro Pro. Se decide junto al precio. */
-export const FREE_TRIAL_DAYS = 10;
+/** Prueba gratis (post-lanzamiento). Apple: duraciones fijas — usar 2 semanas. */
+export const FREE_TRIAL_DAYS = 14;
+
+/**
+ * OFERTA DE LANZAMIENTO (primeros ~3 meses): suscripciones a mitad de precio el
+ * PRIMER AÑO + lifetime rebajado. En iOS = Introductory Offer (mensual/anual) +
+ * precio promocional temporal del lifetime. Apple solo permite UNA oferta intro,
+ * así que durante el lanzamiento el descuento reemplaza a la prueba gratis.
+ * Poner en `false` (y quitar la oferta en App Store Connect) al terminar el lanzamiento.
+ */
+export const LAUNCH_PROMO = true;
 
 // ── Tiers ────────────────────────────────────────────────────────────────────
 // `price`/`unit` son strings para poder mostrar PRICE_TBD sin romper el tipo.
@@ -56,6 +65,10 @@ export interface PricingTier {
   unit: string;
   /** Nota corta bajo el precio. */
   note: string;
+  /** Precio de la oferta de lanzamiento (si LAUNCH_PROMO). */
+  promoPrice?: string;
+  /** Nota de la promo de lanzamiento. */
+  promoNote?: string;
   /** Resalta la tarjeta (mejor valor). */
   highlight?: boolean;
   /** Badge sobre la tarjeta ("Mejor valor"). */
@@ -72,23 +85,29 @@ export const PRICING_TIERS: PricingTier[] = [
     name: "Pro Mensual",
     price: "$8.69",
     unit: "/ mes",
-    note: `${FREE_TRIAL_DAYS} días de prueba en el primer registro`,
+    note: "Facturación mensual",
+    promoPrice: "$4.69",
+    promoNote: "Lanzamiento: primer año a mitad de precio",
   },
   {
     id: "annual",
     name: "Pro Anual",
     price: "$59.69",
     unit: "/ año",
-    note: `Ahorra ~43% vs. mensual · ${FREE_TRIAL_DAYS} días de prueba`,
+    note: "Ahorra ~43% vs. mensual",
     highlight: true,
     badge: "Mejor valor",
+    promoPrice: "$29.69",
+    promoNote: "Lanzamiento: primer año a mitad de precio",
   },
   {
     id: "lifetime",
     name: "Pro Lifetime",
     price: "$149.69",
     unit: "pago único",
-    note: "Una vez. Para siempre. Sin trial.",
+    note: "Una vez. Para siempre.",
+    promoPrice: "$89.69",
+    promoNote: "Lanzamiento: precio rebajado",
   },
 ];
 

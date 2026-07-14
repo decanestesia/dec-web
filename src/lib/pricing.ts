@@ -101,7 +101,7 @@ export const PRICING_TIERS: PricingTier[] = [
     note: "Ahorra ~43% vs. mensual",
     highlight: true,
     badge: "Mejor valor",
-    promoPrice: "$29.69",
+    promoPrice: "$29.49",
     promoNote: "Lanzamiento: primer año a mitad de precio",
   },
   {

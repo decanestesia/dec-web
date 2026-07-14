@@ -13,6 +13,9 @@
 # ─────────────────────────────────────────────────────────────
 name: keep-alive
 
+# Mínimo privilegio: el job no usa el GITHUB_TOKEN (solo curl a Supabase).
+permissions: {}
+
 on:
   schedule:
     - cron: "0 6 */2 * *" # cada 2 días a las 06:00 UTC

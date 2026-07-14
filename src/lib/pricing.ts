@@ -110,7 +110,7 @@ export const PRICING_TIERS: PricingTier[] = [
     price: "$149.69",
     unit: "pago único",
     note: "Una vez. Para siempre.",
-    promoPrice: "$89.69",
+    promoPrice: "$89.90",
     promoNote: "Lanzamiento: precio rebajado",
   },
 ];

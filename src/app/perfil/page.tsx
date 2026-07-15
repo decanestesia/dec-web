@@ -16,6 +16,7 @@ import {
 } from "@/lib/auth";
 import { ProfileForm } from "./ProfileForm";
 import { SignOutButton } from "./SignOutButton";
+import { DeleteAccountButton } from "./DeleteAccountButton";
 
 export const metadata = {
   title: "Mi perfil — DEC",
@@ -142,6 +143,40 @@ export default async function PerfilPage() {
         }}
       >
         <SignOutButton />
+      </div>
+
+      {/* Zona de peligro — eliminar cuenta (App Review 5.1.1(v)) */}
+      <div
+        style={{
+          marginTop: "1.5rem",
+          paddingTop: "1.5rem",
+          borderTop: "1px solid var(--border)",
+        }}
+      >
+        <h2
+          style={{
+            fontSize: "0.72rem",
+            fontFamily: "var(--font-mono, monospace)",
+            textTransform: "lowercase",
+            letterSpacing: "0.05em",
+            color: "var(--red)",
+            marginBottom: "0.4rem",
+          }}
+        >
+          zona de peligro
+        </h2>
+        <p
+          style={{
+            fontSize: "0.78rem",
+            color: "var(--text-2, var(--muted))",
+            marginBottom: "0.75rem",
+            maxWidth: "42ch",
+          }}
+        >
+          Elimina permanentemente tu cuenta y tus datos (perfil, suscripciones y
+          códigos). Esta acción no se puede deshacer.
+        </p>
+        <DeleteAccountButton />
       </div>
     </div>
   );

@@ -116,3 +116,29 @@ export async function updateProfile(
   revalidatePath("/", "layout"); // refresca el nombre en el UserMenu del navbar.
   return { ok: true };
 }
+
+// ── Eliminar cuenta ──────────────────────────────────────────────────────────
+// Paridad con iOS (App Review 5.1.1(v)). Llama al RPC `delete_own_account`
+// (SECURITY DEFINER; borra perfil, suscripciones, redenciones y la fila de
+// `auth.users` — solo los datos de `auth.uid()`), luego cierra la sesión.
+export async function deleteAccount(): Promise<ProfileActionResult> {
+  const user = await getUser();
+  if (!user) {
+    return { ok: false, error: "Tu sesión expiró. Vuelve a iniciar sesión." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("delete_own_account");
+  if (error) {
+    return {
+      ok: false,
+      error:
+        "No se pudo eliminar la cuenta. Reintenta o escribe a soporte@decanestesia.com",
+    };
+  }
+
+  // La cuenta ya no existe en el servidor: limpiar la sesión local (cookies).
+  await supabase.auth.signOut();
+  revalidatePath("/", "layout");
+  return { ok: true };
+}
